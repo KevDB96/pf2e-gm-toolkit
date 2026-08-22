@@ -1,0 +1,73 @@
+// Shell: owns the party header, the tab bar, and dispatching to a view module.
+
+import { state, save, subscribe } from './store.js';
+import { qs, qsa } from './dom.js';
+import * as encounters from './views/encounters.js';
+import * as combat from './views/combat.js';
+import * as bestiary from './views/bestiary.js';
+import * as loot from './views/loot.js';
+
+const VIEWS = {
+  encounters: { title: 'Encounters', mod: encounters },
+  combat:     { title: 'Combat',     mod: combat },
+  bestiary:   { title: 'Bestiary',   mod: bestiary },
+  loot:       { title: 'Loot',       mod: loot }
+};
+
+const root = qs('#view');
+let current = null;
+
+function viewFromHash() {
+  const name = location.hash.replace(/^#\/?/, '');
+  return VIEWS[name] ? name : 'encounters';
+}
+
+function render() {
+  const name = viewFromHash();
+  qs('#view-title').textContent = VIEWS[name].title;
+  qsa('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
+  if (current !== name) {
+    root.innerHTML = '';
+    current = name;
+    VIEWS[name].mod.mount(root);
+  } else {
+    VIEWS[name].mod.update?.(root);
+  }
+}
+
+// --- party header ---------------------------------------------------------
+function bindParty() {
+  const level = qs('#party-level');
+  const size = qs('#party-size');
+  level.value = state.party.level;
+  size.value = state.party.size;
+  const commit = () => {
+    state.party.level = clamp(Number(level.value), 1, 20);
+    state.party.size = clamp(Number(size.value), 1, 8);
+    level.value = state.party.level;
+    size.value = state.party.size;
+    save();
+  };
+  level.addEventListener('change', commit);
+  size.addEventListener('change', commit);
+}
+
+function clamp(n, lo, hi) {
+  return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : lo;
+}
+
+// --- boot ----------------------------------------------------------------
+qsa('.tab').forEach(tab => {
+  tab.addEventListener('click', () => { location.hash = '#/' + tab.dataset.view; });
+});
+window.addEventListener('hashchange', render);
+subscribe(() => VIEWS[current]?.mod.update?.(root));
+
+bindParty();
+render();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  });
+}

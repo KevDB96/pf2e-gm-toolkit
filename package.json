@@ -1,0 +1,10 @@
+{
+  "name": "pf2e-gm-toolkit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Offline-first PWA for running Pathfinder 2e games: combat tracker, loot distributor, bestiary, encounter planner.",
+  "scripts": {
+    "start": "npx http-server ./ -p 5501 -c-1",
+    "test": "node --test"
+  }
+}

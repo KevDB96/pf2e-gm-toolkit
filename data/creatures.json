@@ -1,0 +1,73 @@
+{
+  "_note": "PLACEHOLDER DATA. These are illustrative sample stat blocks used to exercise the bestiary UI, not official Pathfinder 2e creatures. Replace this file with a real import before using it at the table - see README.md, 'Bestiary data'.",
+  "_schema": {
+    "name": "string",
+    "level": "integer, -1 and up",
+    "traits": "string[]",
+    "perception": "integer modifier",
+    "ac": "integer",
+    "hp": "integer",
+    "saves": { "fort": "integer", "ref": "integer", "will": "integer" },
+    "speed": "string",
+    "attacks": [{ "name": "string", "bonus": "integer", "damage": "string" }],
+    "notes": "string",
+    "source": "string"
+  },
+  "creatures": [
+    {
+      "name": "Sample Skirmisher (placeholder)",
+      "level": -1,
+      "traits": ["sample", "small", "humanoid"],
+      "perception": 2,
+      "ac": 16,
+      "hp": 6,
+      "saves": { "fort": 5, "ref": 5, "will": 1 },
+      "speed": "25 feet",
+      "attacks": [{ "name": "shortsword", "bonus": 8, "damage": "1d6 piercing" }],
+      "notes": "Placeholder used to test the bestiary and encounter builder. Not a real stat block.",
+      "source": "placeholder"
+    },
+    {
+      "name": "Sample Brute (placeholder)",
+      "level": 1,
+      "traits": ["sample", "medium", "beast"],
+      "perception": 5,
+      "ac": 17,
+      "hp": 22,
+      "saves": { "fort": 9, "ref": 5, "will": 4 },
+      "speed": "30 feet",
+      "attacks": [{ "name": "jaws", "bonus": 9, "damage": "1d8+3 piercing" }],
+      "notes": "Placeholder used to test the bestiary and encounter builder. Not a real stat block.",
+      "source": "placeholder"
+    },
+    {
+      "name": "Sample Caster (placeholder)",
+      "level": 3,
+      "traits": ["sample", "medium", "humanoid"],
+      "perception": 8,
+      "ac": 19,
+      "hp": 40,
+      "saves": { "fort": 7, "ref": 9, "will": 12 },
+      "speed": "25 feet",
+      "attacks": [{ "name": "staff", "bonus": 9, "damage": "1d4+2 bludgeoning" }],
+      "notes": "Placeholder used to test the bestiary and encounter builder. Not a real stat block.",
+      "source": "placeholder"
+    },
+    {
+      "name": "Sample Boss (placeholder)",
+      "level": 5,
+      "traits": ["sample", "large", "dragon"],
+      "perception": 13,
+      "ac": 22,
+      "hp": 90,
+      "saves": { "fort": 14, "ref": 12, "will": 10 },
+      "speed": "35 feet, fly 60 feet",
+      "attacks": [
+        { "name": "jaws", "bonus": 16, "damage": "2d8+7 piercing" },
+        { "name": "claw", "bonus": 16, "damage": "2d6+7 slashing" }
+      ],
+      "notes": "Placeholder used to test the bestiary and encounter builder. Not a real stat block.",
+      "source": "placeholder"
+    }
+  ]
+}
