@@ -43,6 +43,8 @@ h1,h2,h3{font-family:'Cinzel',Georgia,serif;letter-spacing:0.02em;margin:0}
 .view{display:flex;flex-direction:column;gap:12px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
 .card > h2{font-size:0.82rem;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+/* Class-based display rules would otherwise beat the UA [hidden] rule. */
+[hidden]{display:none !important}
 .row{display:flex;align-items:center;gap:10px}
 .row.wrap{flex-wrap:wrap}
 .spread{justify-content:space-between}
@@ -124,7 +126,6 @@ label.field{display:flex;flex-direction:column;gap:5px;font-size:0.74rem;color:v
 /* ---------- modal ---------- */
 .modal{position:fixed;inset:0;z-index:50;display:grid;place-items:end center;padding:0;
   background:rgba(0,0,0,0.6);backdrop-filter:blur(3px)}
-.modal[hidden]{display:none}
 .modal .sheet{width:100%;max-width:640px;max-height:82vh;overflow-y:auto;background:var(--bg-2);
   border:1px solid var(--line);border-radius:18px 18px 0 0;padding:18px 14px calc(18px + env(safe-area-inset-bottom));
   display:flex;flex-direction:column;gap:12px}
