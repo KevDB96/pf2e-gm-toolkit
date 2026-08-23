@@ -5,6 +5,9 @@
   "description": "Offline-first PWA for running Pathfinder 2e games: combat tracker, loot distributor, bestiary, encounter planner.",
   "scripts": {
     "start": "npx http-server ./ -p 5501 -c-1",
-    "test": "node --test"
+    "test": "node --test",
+    "data": "node tools/fetch-aon.mjs",
+    "wealth": "node tools/wealth.mjs",
+    "codex": "node tools/fetch-codex.mjs"
   }
 }

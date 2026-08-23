@@ -1,15 +1,34 @@
 :root{
-  --bg:#14100c;
-  --bg-2:#1d1712;
-  --panel:rgba(255,255,255,0.045);
-  --panel-2:rgba(255,255,255,0.075);
-  --line:rgba(255,255,255,0.10);
-  --ink:#f3ece2;
-  --muted:rgba(243,236,226,0.58);
-  --gold:#d9a94a;
-  --blood:#a8332f;
-  --green:#4f9d5d;
-  --blue:#4b7fbf;
+  /* Greyscale ground */
+  --bg:#0c0c10;
+  --bg-2:#17171f;
+  --panel:rgba(255,255,255,0.05);
+  --panel-2:rgba(255,255,255,0.09);
+  --line:rgba(255,255,255,0.12);
+  --ink:#f2f3f7;
+  --muted:rgba(242,243,247,0.56);
+
+  /* Purple carries every primary accent. -soft fills, -edge borders, -ink text on fill. */
+  --accent:#b592f6;
+  --accent-2:#7d55cc;
+  --accent-soft:rgba(181,146,246,0.13);
+  --accent-edge:rgba(181,146,246,0.42);
+  --accent-ink:#150f24;
+
+  /* Green: healthy, done, low threat. */
+  --green:#5fcb8b;
+  --green-soft:rgba(95,203,139,0.12);
+  --green-edge:rgba(95,203,139,0.38);
+
+  /* Violet sits between purple and red on the escalation scale. */
+  --violet:#cf6be0;
+
+  /* Red stays for danger only — it is the one signal that must not be reinterpreted. */
+  --blood:#e2596f;
+  --blood-soft:rgba(226,89,111,0.20);
+  --blood-edge:rgba(226,89,111,0.45);
+  --blood-ink:#ffc9d2;
+
   --radius:14px;
   --tabbar-h:64px;
 }
@@ -25,19 +44,25 @@ body{
   -webkit-tap-highlight-color:transparent;
 }
 h1,h2,h3{font-family:'Cinzel',Georgia,serif;letter-spacing:0.02em;margin:0}
+/* The only links in the app are the "Open on Archives of Nethys" ones under a rules
+   entry; the browser default renders those as bright blue on a near-black sheet. */
+a{color:var(--accent);text-decoration-color:var(--accent-edge)}
 
 #app{max-width:640px;margin:0 auto;min-height:100%;padding:0 14px calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 18px)}
 
 /* ---------- top bar ---------- */
 .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;
   padding:14px 0 10px;background:linear-gradient(180deg,var(--bg) 70%,transparent)}
-.topbar h1{font-size:1.15rem;color:var(--gold);flex:1;white-space:nowrap}
+.topbar h1{font-size:1.15rem;color:var(--accent);flex:1;white-space:nowrap}
 .party-chip{display:flex;gap:8px}
 .party-chip label{display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--muted);
   background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 9px}
-.party-chip input{width:2.4em;background:none;border:none;color:var(--ink);font:inherit;font-size:0.85rem;
-  font-weight:600;text-align:center;padding:0}
-.party-chip input:focus{outline:none}
+/* Specificity, not order: the generic input rule below is a (0,1,1) selector that would
+   otherwise win the tie and stretch these to width:100%, blowing the header past the
+   viewport at 390px. `.party-chip label input` is (0,1,2) and holds regardless. */
+.party-chip label input{width:2.4em;min-height:auto;background:none;border:none;color:var(--ink);
+  font:inherit;font-size:0.85rem;font-weight:600;text-align:center;padding:0}
+.party-chip label input:focus{outline:none}
 
 /* ---------- layout primitives ---------- */
 .view{display:flex;flex-direction:column;gap:12px}
@@ -57,34 +82,150 @@ button,input,select{font:inherit}
 button{min-height:44px;background:var(--panel-2);color:var(--ink);border:1px solid var(--line);
   border-radius:10px;padding:0 14px;cursor:pointer;transition:background 140ms ease,transform 80ms ease}
 button:active{transform:scale(0.97)}
-button.primary{background:linear-gradient(180deg,var(--gold),#b8862f);border-color:transparent;color:#1a1206;font-weight:600}
-button.danger{color:#ffb9b6;border-color:rgba(168,51,47,0.5)}
+button.primary{background:linear-gradient(180deg,var(--accent),var(--accent-2));border-color:transparent;color:var(--accent-ink);font-weight:600}
+button.danger{color:var(--blood-ink);border-color:var(--blood-edge)}
 button.ghost{background:none}
 button.icon{min-width:38px;min-height:38px;padding:0;display:grid;place-items:center;font-size:1rem}
 input[type=text],input[type=number],input[type=search],select{min-height:44px;width:100%;
   background:rgba(0,0,0,0.28);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:0 12px}
-input:focus,select:focus{outline:none;border-color:var(--gold)}
-label.field{display:flex;flex-direction:column;gap:5px;font-size:0.74rem;color:var(--muted)}
+input:focus,select:focus{outline:none;border-color:var(--accent)}
+/* Not label.field: a range filter is two selects under one caption (facets.js), and a
+   label may only own one control, so that one is a div wearing the same class. */
+.field{display:flex;flex-direction:column;gap:5px;font-size:0.74rem;color:var(--muted)}
+/* Both ends of a from/to filter share the row evenly. Without flex-basis:0 a select is
+   sized by its widest option and the pair pushes past the card at 390px. */
+.field .row select{flex:1 1 0;min-width:0}
 
 /* ---------- tab bar ---------- */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;height:calc(var(--tabbar-h) + env(safe-area-inset-bottom));
   padding-bottom:env(safe-area-inset-bottom);display:flex;
   background:rgba(20,16,12,0.94);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
-.tab{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+/* min-width:0 matters as much as flex:1 — without it a flex item will not shrink below
+   its min-content width, and the tabs then sum past the viewport and clip the last one
+   off the edge. padding:0 is just as load-bearing: the base button rule sets 0 14px,
+   which eats 28px of every cell and ellipsised the labels at phone width. */
+.tab{flex:1;min-width:0;min-height:0;padding:0 2px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;
   background:none;border:none;border-radius:0;font-size:1.15rem;color:var(--muted)}
-.tab span{font-size:0.62rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase}
-.tab.active{color:var(--gold)}
+.tab span{font-size:0.58rem;font-weight:600;letter-spacing:0.02em;text-transform:uppercase;
+  white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.tab.active{color:var(--accent)}
+
+/* ---------- home menu ---------- */
+.menu{display:flex;flex-direction:column;gap:10px}
+.menu-tile{display:flex;align-items:center;gap:13px;width:100%;min-height:72px;text-align:left;
+  padding:12px 14px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--line)}
+.menu-tile:active{background:var(--panel-2)}
+.menu-tile .glyph{flex:0 0 auto;width:46px;height:46px;display:grid;place-items:center;font-size:1.4rem;
+  border-radius:12px;background:var(--accent-soft);border:1px solid var(--accent-edge)}
+.menu-tile .grow{display:block;min-width:0}
+.menu-tile .name{display:block;font-family:'Cinzel',serif;font-size:1.05rem;color:var(--accent)}
+.menu-tile .sub{display:block;margin-top:3px;font-size:0.74rem;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.menu-tile .chev{flex:0 0 auto;font-size:1.3rem;color:var(--muted)}
+
+/* ---------- picker rows (library categories, campaign sub-nav) ---------- */
+/* Named .picker, not .chip — the combat tracker already owns .chips/.chip for
+   condition chips further down this file, and those rules would win on order.
+   Scrolls inside itself so the page body never scrolls horizontally. */
+/* flex:0 0 auto because a bottom sheet is a flex column: without it the strip is a
+   shrinkable item and a long list below squashes it to a row of empty outlines. */
+.picker{display:flex;flex:0 0 auto;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding:2px 0 6px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.picker::-webkit-scrollbar{display:none}
+.pick{flex:0 0 auto;min-height:38px;padding:0 13px;border-radius:999px;font-size:0.8rem;
+  background:var(--panel);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.pick.on{background:var(--accent-soft);border-color:var(--accent-edge);color:var(--accent);font-weight:600}
+
+/* ---------- tags and badges ---------- */
+.tag{display:inline-block;font-size:0.68rem;letter-spacing:0.02em;padding:3px 8px;border-radius:6px;
+  background:rgba(255,255,255,0.06);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.badge{flex:0 0 auto;font-size:0.62rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+  padding:4px 8px;border-radius:6px;border:1px solid var(--line);color:var(--muted);align-self:flex-start}
+.badge.now{color:var(--accent);background:var(--accent-soft);border-color:var(--accent-edge)}
+.badge.next{color:var(--ink);background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.2)}
+.badge.done{color:var(--green);background:var(--green-soft);border-color:var(--green-edge)}
+
+/* ---------- campaign arcs ---------- */
+.arc-head{display:flex;align-items:flex-start;gap:11px;width:100%;text-align:left;padding:13px 14px;
+  background:none;border:none;border-radius:var(--radius);color:var(--ink)}
+.arc-head .grow{display:block;min-width:0}
+.arc-head .name{display:block;font-weight:600;font-size:0.95rem}
+.arc-head .sub{display:block;font-size:0.74rem;color:var(--muted);margin-top:3px;line-height:1.45}
+.arc-head .chev{flex:0 0 auto;color:var(--muted);font-size:1.1rem}
+.arc-body{padding:0 14px 14px;border-top:1px solid var(--line);margin-top:2px}
+.arc-body h3{font-size:0.74rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--accent);margin:14px 0 0}
+.arc-body ul,.notes-list{margin:8px 0 0;padding-left:18px}
+.arc-body li,.notes-list li{font-size:0.8rem;color:var(--muted);line-height:1.55;margin-bottom:7px}
+
+/* ---------- notes editor ---------- */
+textarea{width:100%;min-height:120px;background:rgba(0,0,0,0.28);border:1px solid var(--line);
+  border-radius:10px;color:var(--ink);padding:10px 12px;font:inherit;font-size:0.9rem;
+  line-height:1.5;resize:vertical}
+textarea:focus{outline:none;border-color:var(--accent)}
+
+/* ---------- codex: tappable rows that open a rules description ---------- */
+button.share{width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--line);
+  border-radius:0;min-height:0;padding:9px 0;color:var(--ink);font-size:0.9rem;align-items:center}
+button.share:last-child{border-bottom:none}
+button.share:active{background:var(--panel-2)}
+button.share .go{flex:0 0 auto;margin-left:8px;color:var(--accent);font-size:1rem}
+/* Rules text is rendered from the light markdown in data/codex.json — see rich() in
+   src/dom.js — so it is real paragraphs, headings and lists rather than one pre-wrapped
+   block. Descendant selectors only: p/h4/ul are far too general to claim as classes. */
+.codex-text{font-size:0.86rem;line-height:1.6;color:var(--ink)}
+.codex-text > :first-child{margin-top:0}
+.codex-text > :last-child{margin-bottom:0}
+.codex-text p{margin:0 0 0.7em}
+.codex-text h4{margin:1.1em 0 0.35em;font-family:'Cinzel',serif;font-size:0.86rem;
+  font-weight:600;letter-spacing:0.01em;color:var(--accent)}
+.codex-text ul{margin:0 0 0.7em;padding-left:1.1em}
+.codex-text li{margin:0 0 0.3em}
+.codex-text b{color:var(--ink)}
+.codex-meta{font-size:0.74rem;color:var(--muted);margin-bottom:8px}
+/* A sub-heading inside a card, for the feat groups. First one sits tight under the
+   card's own h2; later ones need air above them. */
+.card-group{font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--muted);margin:14px 0 2px}
+h2 + .card-group{margin-top:4px}
 
 /* ---------- encounter planner ---------- */
 .budget-bar{height:12px;border-radius:999px;background:rgba(0,0,0,0.35);overflow:hidden;border:1px solid var(--line)}
 .budget-bar > div{height:100%;transition:width 220ms ease,background 220ms ease}
+
+/* Threat gauge: trivial on the left through extreme on the right, each band as wide as
+   its own XP range (threatScale() in src/pf2e.js), with a needle for this encounter.
+   The bands are laid out with flex-grow, so they re-proportion when the party size does. */
+.gauge{position:relative;margin-top:14px;padding-top:9px}
+.gauge-track{display:flex;height:22px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.gauge-seg{display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;
+  font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;
+  color:var(--ink);background:rgba(255,255,255,0.05)}
+.gauge-seg + .gauge-seg{border-left:1px solid rgba(0,0,0,0.5)}
+.gauge-seg[data-t=trivial]{color:var(--muted)}
+.gauge-seg[data-t=low]{background:var(--green-soft);color:var(--green)}
+.gauge-seg[data-t=moderate]{background:var(--accent-soft);color:var(--accent)}
+.gauge-seg[data-t=severe]{background:rgba(207,107,224,0.16);color:var(--violet)}
+.gauge-seg[data-t=extreme]{background:var(--blood-soft);color:var(--blood)}
+.gauge-needle{position:absolute;top:4px;bottom:-3px;width:2px;margin-left:-1px;
+  background:var(--ink);border-radius:2px;transition:left 220ms ease}
+.gauge-needle::before{content:'';position:absolute;top:-6px;left:-4px;
+  border:5px solid transparent;border-top:6px solid var(--ink)}
+.gauge-needle[data-t=low],.gauge-needle[data-t=low]::before{background:var(--green);border-top-color:var(--green)}
+.gauge-needle[data-t=moderate],.gauge-needle[data-t=moderate]::before{background:var(--accent);border-top-color:var(--accent)}
+.gauge-needle[data-t=severe],.gauge-needle[data-t=severe]::before{background:var(--violet);border-top-color:var(--violet)}
+.gauge-needle[data-t=extreme],.gauge-needle[data-t=extreme]::before,
+.gauge-needle[data-t="beyond extreme"],.gauge-needle[data-t="beyond extreme"]::before{
+  background:var(--blood);border-top-color:var(--blood)}
+/* The five budgets, spelled out under the gauge. */
+.gauge-scale{margin-top:7px;font-size:0.62rem;color:var(--muted)}
 .threat{font-family:'Cinzel',serif;font-size:1.35rem}
 .threat[data-t=trivial]{color:var(--muted)}
 .threat[data-t=low]{color:var(--green)}
-.threat[data-t=moderate]{color:var(--gold)}
-.threat[data-t=severe]{color:#e07a33}
+.threat[data-t=moderate]{color:var(--accent)}
+.threat[data-t=severe]{color:var(--violet)}
 .threat[data-t=extreme]{color:var(--blood)}
-.threat[data-t="beyond extreme"]{color:#ff5c56}
+.threat[data-t="beyond extreme"]{color:#ff7a8c}
 .stepper{display:flex;align-items:center;gap:6px}
 .stepper output{min-width:2ch;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
 
@@ -95,33 +236,110 @@ label.field{display:flex;flex-direction:column;gap:5px;font-size:0.74rem;color:v
 .item .name{font-weight:600;font-size:0.95rem}
 .item .sub{font-size:0.74rem;color:var(--muted)}
 .lvl{flex:0 0 auto;min-width:2.6em;text-align:center;font-family:'Cinzel',serif;font-size:0.8rem;
-  color:var(--gold);background:rgba(217,169,74,0.10);border:1px solid rgba(217,169,74,0.28);
+  color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-edge);
   border-radius:8px;padding:3px 6px}
 
 /* ---------- combat tracker ---------- */
-.combatant{flex-wrap:wrap}
-.combatant.is-turn{border-color:var(--gold);background:rgba(217,169,74,0.09)}
+/* The board: the party down the left, what they are fighting down the right, both in
+   initiative order. Two columns at every width — seeing both sides at once is the point —
+   so a column is ~163px at 390px and every card inside is built for that, stacked rather
+   than spread, with room for five a side on one screen. */
+.board{display:flex;align-items:flex-start;gap:10px}
+.side{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:8px}
+.side-head{font-family:'Cinzel',serif;font-size:0.66rem;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--muted);padding:0 3px}
+.side[data-side=pc] .side-head{color:var(--green)}
+.side[data-side=npc] .side-head{color:var(--blood)}
+.side-empty{padding:16px 4px;font-size:0.76rem}
+
+.combatant{flex-direction:column;align-items:stretch;gap:5px;padding:8px 9px}
+.combatant.is-turn{border-color:var(--accent);background:var(--accent-soft)}
 .combatant.is-dead{opacity:0.45}
-.combatant.is-pc .init{color:var(--blue)}
-.init{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold);min-width:1.8em;text-align:center}
-.hp{display:flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums}
-.hp input{width:3.4em;text-align:center;padding:0;min-height:36px}
-.hpbar{flex:1 0 100%;height:5px;border-radius:999px;background:rgba(0,0,0,0.35);overflow:hidden}
+.combatant.is-party .init{color:var(--green)}
+/* The name gets whatever is left of the column and wraps into it. anywhere, not
+   break-word: a column this narrow has to be allowed to break inside a long single word
+   rather than push the card wider than its side of the board. */
+.combatant .name{font-size:0.86rem;line-height:1.25;overflow-wrap:anywhere}
+.combatant .sub{font-size:0.66rem;padding:0 1px}
+.combatant .init{width:2.7em;min-height:32px;padding:0;font-size:1rem}
+.combatant button.icon{min-width:28px;min-height:28px;font-size:0.72rem}
+.init{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--accent);min-width:1.8em;text-align:center}
+/* HP is one line: the typed number, then the bar taking whatever width is left. No
+   flex-basis here — the card is a flex *column*, where a basis of 100% would be read as a
+   height and the row would stretch down the card. */
+.hprow{display:flex;align-items:center;gap:6px}
+.hp{flex:0 0 auto;display:flex;align-items:center;gap:3px;font-variant-numeric:tabular-nums;
+  font-size:0.8rem}
+.hp input{width:2.9em;text-align:center;padding:0;min-height:30px;font-size:0.8rem}
+.hpbar{height:8px;border-radius:999px;background:rgba(0,0,0,0.35);overflow:hidden}
 .hpbar > div{height:100%;background:var(--green);transition:width 200ms ease}
-.hpbar.warn > div{background:var(--gold)}
+.hpbar.warn > div{background:var(--violet)}
 .hpbar.crit > div{background:var(--blood)}
-.chips{display:flex;flex-wrap:wrap;gap:5px}
-.chip{font-size:0.68rem;padding:3px 8px;border-radius:999px;background:rgba(168,51,47,0.22);
-  border:1px solid rgba(168,51,47,0.4);cursor:pointer}
+/* The bar doubles as a slider: a range input laid over it, sized to the whole strip so
+   there is something to aim at either side of an 8px bar. Only the thumb is drawn — the
+   track is the bar showing through from underneath.
+   touch-action:pan-y, not none: a horizontal drag belongs to the slider, but a vertical
+   swipe that happens to start here still scrolls the page. */
+.hpwrap{position:relative;flex:1 1 auto;min-width:0;padding:10px 0}
+.hpslide{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;
+  background:none;border:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+  touch-action:pan-y}
+.hpslide:focus{outline:none}
+.hpslide::-webkit-slider-runnable-track{height:100%;background:none;border:none}
+.hpslide::-moz-range-track{height:100%;background:none;border:none}
+.hpslide::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;
+  border-radius:50%;background:var(--ink);border:2px solid var(--bg);
+  box-shadow:0 1px 4px rgba(0,0,0,0.6)}
+.hpslide::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);
+  border:2px solid var(--bg);box-shadow:0 1px 4px rgba(0,0,0,0.6)}
+.hpslide:focus-visible::-webkit-slider-thumb{border-color:var(--accent)}
+.hpslide:focus-visible::-moz-range-thumb{border-color:var(--accent)}
+/* The fill animates its width, which trails the thumb during a drag. Nothing selects
+   backwards from the slider to the bar before it, hence :has(); where that is
+   unsupported the rule is simply skipped and the fill lags as it did before. */
+.hpwrap:has(.hpslide:active) .hpbar > div{transition:none}
+
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:0.66rem;padding:3px 7px;border-radius:999px;background:var(--blood-soft);
+  border:1px solid var(--blood-edge);cursor:pointer}
 .chip.add{background:var(--panel-2);border-color:var(--line);color:var(--muted)}
 
 /* ---------- loot ---------- */
 .coins{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
 .coins div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 4px}
-.coins b{display:block;font-family:'Cinzel',serif;font-size:1rem;color:var(--gold)}
+.coins b{display:block;font-family:'Cinzel',serif;font-size:1rem;color:var(--accent)}
 .coins small{font-size:0.62rem;color:var(--muted);text-transform:uppercase}
-.share{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:0.9rem}
+.share{display:flex;justify-content:space-between;gap:10px;padding:8px 0;
+  border-bottom:1px solid var(--line);font-size:0.9rem}
 .share:last-child{border-bottom:none}
+/* The value hugs the right edge. Without this a row with a chevron as well spaces its
+   three children evenly, which parks the damage die in the middle of the row. */
+.share > span:first-child{min-width:0}
+.share > b{margin-left:auto;text-align:right}
+.share.faint{color:var(--muted)}
+.share.faint > b{font-weight:400}
+
+/* A suggestion row with two controls: the row takes the item, the arrow reads it on the
+   Archives first. An anchor cannot live inside a button, so the frame is the .item and the
+   button is everything in it bar the link. Both keep a thumb-sized target. */
+.pickrow{padding:0;gap:0;overflow:hidden}
+.pickrow .take{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:10px;
+  min-height:0;padding:10px 6px 10px 12px;text-align:left;
+  background:none;border:none;border-radius:0}
+.pickrow .take:active{background:var(--panel-2);transform:none}
+.pickrow .aon{flex:0 0 auto;align-self:stretch;display:grid;place-items:center;min-width:42px;
+  border-left:1px solid var(--line);color:var(--accent);text-decoration:none;font-size:1.05rem}
+.pickrow .aon:active{background:var(--accent-soft)}
+
+/* ---------- hover descriptions ---------- */
+/* One reused element, positioned by installTips() in src/dom.js. Above .modal, because
+   most of what carries a description sits inside a sheet. Pointer devices only: on a
+   phone nothing ever hovers, so this costs the tab bar nothing. */
+.tip{position:fixed;z-index:60;max-width:min(320px,calc(100vw - 24px));
+  padding:8px 10px;border-radius:10px;background:var(--bg-2);border:1px solid var(--line);
+  box-shadow:0 10px 24px rgba(0,0,0,0.5);color:var(--ink);font-size:0.78rem;line-height:1.45;
+  pointer-events:none}
+.tip[hidden]{display:none}
 
 /* ---------- modal ---------- */
 .modal{position:fixed;inset:0;z-index:50;display:grid;place-items:end center;padding:0;

@@ -1,0 +1,391 @@
+{
+  "_note": "HAND-AUTHORED campaign notes. This file is NOT generated and is never touched by tools/fetch-aon.mjs. Edit it directly, or edit session notes in the app (those live in localStorage, not here).",
+  "title": "Mists of Zalazar",
+  "party": { "level": 7, "size": 5 },
+  "current": {
+    "arc": "circus",
+    "note": "The Undermine arc is finished. The Circus session runs next, then the Wargame arc."
+  },
+  "arcs": [
+    {
+      "id": "frontier-isle",
+      "title": "Frontier Isle",
+      "status": "done",
+      "summary": "Landing at Port Suna, the escort to Woodfall, the goblin hunt, the march to Amberhall, and the Trials of the Sun King beneath the collapsed cliff.",
+      "beats": [
+        "Party lands at Port Suna, receives map and gear, escorts Lukas Brightheart and his wares to Woodfall.",
+        "Goblins besiege the caravan trying to steal the wares.",
+        "Forward Commander Hall and Mabra Cypherbloom ask the party to find the goblin leader behind the raids on supply ships.",
+        "Failure state: ambush by a Drow Fighter and a Lizardfolk Scout.",
+        "At the goblin camp the survivors retreat into a cave. Goblin writing: strange creatures assault our shores, protect the horn, do not let the three-toes in.",
+        "Overland march to Forward Camp Amberhall through nature obstacles. Wolves track them by day and attack at night.",
+        "The reanimated owlbears.",
+        "A glistening lake, SIGIL MARKED — it recurs until someone names it aloud, and each time the Jinkin has tampered with one of their items.",
+        "Ancient ruins where Zuni conducts occult experiments and mocks each PC in turn.",
+        "Arrival at Forward Camp Amberhall under Vanguard Commander Jericho Hall.",
+        "Bridge-building under kobold siege. Climb down the cliff, cross the river, climb back up; holes visible in the far cliff face.",
+        "A flamethrower alchemist assists during the kobold attack; the bridge support collapses the cliff and he is crushed.",
+        "Cave systems. A Gogiteth feeding on adventurers meets a Giant Aukashungi and the two fight when the party arrives.",
+        "The Trials of the Sun King, inscribed in an old Jotun dialect.",
+        "After the trials: a sealed room, two days, then survivors including Jericho and Lukas force the middle door. A tunnel to a hatch inside a goblin fort guarding the Horn.",
+        "The Horn of Zalazar is blown. A week-long siege follows. The mists disperse and the Alliance can sail into Zalazar."
+      ],
+      "detail": {
+        "Trials of the Sun King": [
+          "First Trial — The Summoning Stone. 'A soldier must prove their power and versatility.' Struck three times, the stone summons a creature keyed to the damage types used: three different types summons a creature weak to all three; a repeated type makes it heavily resistant; a single type makes it immune or healed by that type.",
+          "Second Trial — Stratagem of Radiance. 'A soldier must prove their wisdom.' A chess board with no initiative; enemy pieces move like chess pieces and one PC moves per turn. Pawns: Weak Oaksteward Enforcer. Knights: Orc Brute. Bishops: Weak Ifrit Pyrochemist. Rooks: Orc Warrior. Queen: Weak Drow Priestess. King: Ogre Warrior.",
+          "Fourth Trial — Empathic Erudition. 'A soldier must be compassionate and resourceful.' A different motif — murals of neighbours helping one another. Three goblets on pedestals, one poisoned; a beggar statue and a haughty nobleman statue both hold out their hands.",
+          "There are two horns: one on Frontier Isle, one on the coast of the Isle of Zalazar."
+        ]
+      }
+    },
+    {
+      "id": "kilika",
+      "title": "Kilika",
+      "status": "done",
+      "summary": "The large fishing settlement where the Alliance makes landfall on the main continent, and the Hunter Trials.",
+      "beats": [
+        "Kilika fishes more than it hunts — hunting in the jungle is punishing. 21 floors.",
+        "Hunter Trial 1: capture an Ankylodon (SUPER ELITE) using healing fruit as bait.",
+        "Hunter Trial 2: catch a Gleamfish.",
+        "Hunter Trial 3: convince Ba'vira to grant a Hag's Toenail.",
+        "Hunter Trial 4 (HARD MODE): take an egg from a Tyrannosaurus Imperator's lair."
+      ],
+      "detail": {
+        "The Hag's dream layers": [
+          "Sleeping deepens your layer by 1. Dying raises you back by 1.",
+          "Reality (Layer 0): the Hag, corrupted by the Bloodless One.",
+          "Layer 1 — Blue Butterflies: a vision of the young Hag explains that Hag's Toenail is only the name of a flower, offered freely in exchange for help with her research, Dream Treatment.",
+          "Layer 2 — Red Butterflies: the supposed dream world. Players can do as they like but cannot sleep; after seven days they die.",
+          "Layer 3 — Green Butterflies: the void, where those fully consumed by the nightmare reside — currently the real Hag. 'Dying should've been an escape, why can't I die?'"
+        ]
+      }
+    },
+    {
+      "id": "pyramid",
+      "title": "Pyramid of Zalazar",
+      "status": "done",
+      "summary": "The 351-floor pyramid where most trolls live, the Unmasked conspiracy, and the search for the Eye.",
+      "beats": [
+        "351 floors, shifting walls and swerving staircases that everyone treats as normal.",
+        "A central grand elevator holds 25,000 across 25 mini-elevators of 1,000 each, reaching floor 291.",
+        "Floors 1–76 work. Floors 76–335 residential. Floors 336–350 the king's direct vassals. Floor 351 the king and his family — nobody knows the way in; maids are sense-deprived and guided by the Queen herself.",
+        "The king works with his advisors at the very top, reached by an elevator from floor 350.",
+        "The Unmasked: an underground group undermining Zalazar's authority, breaking in using magical face-copying masks. Administration officer Lo'paal is the de facto leader, but Zuni supplies the masks and is manipulating him."
+      ],
+      "detail": {
+        "Zalazar the continent": [
+          "An isle of high magic — everyone knows at least low-level magic.",
+          "A 5-day week with a 2-day weekend.",
+          "Atheistic; they revere spirits but no gods. The king is revered as a deity become man.",
+          "Kitsune are not seen, only heard of in old stories — from the Third, Eighth, Eighteenth and Twenty-Seventh kings.",
+          "The Prince is always hidden and has a doppelganger. The court believes the Prince is the boy on the 350th floor; the real Prince poses as a young advisor to the King.",
+          "The Sun King, like Femur, is an Exemplar who received his powers from a deity without realising it.",
+          "The Troupe From Beyond: a travelling circus Zuni headed before becoming royal jester; a hidden section spreads his influence and the Bloodless One's."
+        ]
+      }
+    },
+    {
+      "id": "bitania",
+      "title": "Bitania",
+      "status": "done",
+      "summary": "The fortress and overseers' camp moving goods out of the Undermine — quality falling, prices rising.",
+      "beats": [
+        "Little more than a defensive fortress and overseers' camp transporting goods from the Undermine.",
+        "Goods arriving are poorer and costlier than they used to be.",
+        "Goblins fleeing the Undermine report that the new boss, Gazlow, has worsened their contracts since taking power."
+      ]
+    },
+    {
+      "id": "undermine",
+      "title": "The Undermine",
+      "status": "done",
+      "summary": "A capitalist's dream world under Big Boss Gazlow, who has turned the Anvil Fortress into his personal castle.",
+      "beats": [
+        "Gazlow has taken the Anvil Fortress — once the Zalazari's main weapon factory — as his personal castle.",
+        "His mechs punish anyone who does not pay his exorbitant taxes.",
+        "Goblins, ratfolk, dire trolls and kobolds report dropped wages, paid leave cut to four hours a year, and annual bonuses cut from a 54th week to two extra days.",
+        "With no way to rouse the people against him, most work through it and some start businesses."
+      ]
+    },
+    {
+      "id": "circus",
+      "title": "The Circus",
+      "status": "current",
+      "summary": "Gazlow's newest invention: a goblin mech powered by the Eye of Zalazar, which he cannot activate. This is where the party finds the Eye.",
+      "beats": [
+        "Gazlow's mech is powered by the Eye of Zalazar — he will never manage to activate it.",
+        "This is where the party finds the Eye.",
+        "Dramatic irony: the artifact belongs to Zalazar the Second, and returning it to him hands him a brief but complete advantage.",
+        "The party returns to find King Zalazar the Thirty-First's corpse, and Zuni — the mocking jester from the ruins — seated on the throne.",
+        "Ti'shan dropkicks Zuni mid-spell, disrupting the portal magic. The party falls through the corrupted gateway into the Feywild."
+      ],
+      "detail": {
+        "The Eye of Zalazar": [
+          "The magical eye Zalazar the Second sacrificed. History records an act of generosity that ended a devastating drought, and the prosperity was real.",
+          "That was never its true purpose. Gifted with foresight, he looked roughly 19,000 years ahead, saw what he would become, and forged the means of his own defeat into the sacrifice itself.",
+          "The Eye is a weapon he built for the party before they existed. Only Femur the Exemplar can touch it at all."
+        ]
+      }
+    },
+    {
+      "id": "wargame",
+      "title": "The Wargame Arc — Wilderness Capture the Flag",
+      "status": "next",
+      "summary": "A week-long three-team wargame at the jungle training outpost. The last calm before the Vanguard marches — and the moment Zuni has been waiting for.",
+      "beats": [
+        "Every important faction gathers at the jungle training outpost, ostensibly to coordinate against the undead threat from the west.",
+        "Three teams, three flags, one wilderness, one week.",
+        "Zuni stays behind. While the princess, the military leadership, the foreign dignitaries and the party are all days from the capital, he assassinates King Zalazar the Thirty-First alone in the throne room."
+      ],
+      "detail": {
+        "Rules": [
+          "Each team has 20 tags, split among its 6 members however they choose, plus 1 flag.",
+          "Scoring: each enemy tag captured is 1 point; capturing an enemy flag is 12 points.",
+          "Flags are immovable once placed — no relocating your own base.",
+          "A dropped enemy flag automatically returns to its owner's base.",
+          "No elimination: a team that loses all tags and its flag stays in the game, only the running score matters.",
+          "A fixed timer is magically projected in the sky, visible to everyone at all times. Final scores are tallied at the buzzer.",
+          "Tag theft is handled in the moment — generally Thievery vs Reflex DC, GM adjudicating unusual approaches case by case."
+        ],
+        "Royal Guard": [
+          "Zalazi, Cleric — 0 tags",
+          "Ti'shan, Monk — 0 tags",
+          "Henza, Earth/Wood Kineticist — 15 tags",
+          "Bavala, Witch — 0 tags",
+          "Musta, Druid — 0 tags",
+          "To'reno, Ranger — 0 tags"
+        ],
+        "Alliance": [
+          "Kali, Barbarian — 4 tags",
+          "Mithri, Rogue — 5 tags",
+          "Aegen, Sorcerer — 3 tags",
+          "Jericho, Commander — 2 tags",
+          "Thardrun, Runesmith — 3 tags",
+          "Poppy, Bard — 3 tags",
+          "The Alliance are newly arrived from another continent, friendly with the Zalazari trolls. Warm but competitive with the party — rivals, not enemies."
+        ],
+        "Team strategies": [
+          "Royal Guard: the Kineticist carries all 20 tags and hides away from the flag, fortified by terrain (stone walls, root barriers) — a near-untouchable point bank.",
+          "Royal Guard: Ti'shan and the Princess run as a roving dual-assault duo hunting stragglers, free to play aggressively because the banked points cannot be taken.",
+          "Royal Guard: a disciplined, almost coldly tactical plan — worth a thought as to who designed it.",
+          "Alliance: tags spread fairly evenly, leaning slightly toward Mithri as their most mobile member.",
+          "Alliance: 2 defence / 3 attack, but adaptive — likely the team most responsive to the actual state of play."
+        ]
+      }
+    },
+    {
+      "id": "vanguard-march",
+      "title": "The Vanguard March",
+      "status": "later",
+      "summary": "An army marches against the necromantic forces invading the last bastion of the troll empire. The Eye fails, and Amber Hall dies.",
+      "beats": [
+        "Lukas, Amber, Jared, Jericho, Ti'shan and many other NPCs march with the army. Many ambushes.",
+        "Jared dies, along with other NPCs. Jericho, Lukas and Ti'shan survive.",
+        "Amber Hall reaches Level 15 by this point and carves through undead with ease.",
+        "Amber clears a path so the crown princess can use the Eye against the Lich. The Eye has no effect — he made it, and he reclaims it.",
+        "Zalazar the Second kills Amber Hall and begins a resurrection ritual on her. She becomes a boss fight later.",
+        "The crown princess is also killed in the encounter.",
+        "Ti'shan's grief, and what he does in the moments after, defines who he has become."
+      ]
+    },
+    {
+      "id": "pocketwatch",
+      "title": "The Pocketwatch Quest & Zalazar the Second",
+      "status": "later",
+      "summary": "Time travel through the Forgotten Lands to reach the phylactery — and the conversation with the Lich that recontextualises the whole campaign.",
+      "beats": [
+        "The Pocketwatch turns back time by years for a few hours, with long recharge periods. It must be reimbued at an ancient altar.",
+        "Musta the Russari provides his compass to the Mist-cast Morass, where Zandalari lore reveals the artifact in a lost tower.",
+        "The undead hordes guarding the phylactery are too vast to fight through, so the party travels back thousands of years to cross the Forgotten Lands — the original vast western continent before it shrank.",
+        "The closer they get to Zalazar the Second, the further back they are sent.",
+        "At journey's end they witness the sacrifice in real time. He cannot see them, but he looks in their direction for a moment before completing it."
+      ],
+      "detail": {
+        "Eras": [
+          "Early Era: Zalazar openly mourned as a hero. Necromancy is funerary reverence; the undead are honoured ancestors serving willingly.",
+          "Middle Era: political tension creeping in, new religious movements calling it unnatural, the Blood God cult quietly reframing the narrative.",
+          "Later Era: active persecution, history being rewritten, the word Zalazar becoming a curse rather than a name.",
+          "Recent Past: full erasure. The trolls no longer know why their continent shrank; the Eye is a curiosity rather than a sacrifice."
+        ],
+        "Meeting the Lich": [
+          "'Aah, you have come. Not even the Radiance could protect my mind from being corroded over time, it seems. Come. We have much to discuss.'",
+          "He knows what the party is and the moment in time they came from. Recognising them as the party his past self prepared for is what makes this a conversation rather than a fight.",
+          "He will tell them what the Blood God actually is and wants; why the Blessing of Radiance passed to the princess; the true history of his sacrifice; and what he has been holding on for.",
+          "He may know which party member is destined to become the Arbiter — saying so directly or simply looking at them is a choice for the moment."
+        ]
+      }
+    },
+    {
+      "id": "feywild",
+      "title": "The Feywild Arc",
+      "status": "later",
+      "summary": "Thrown through the corrupted gateway. Vulpia's parents, a defaced Naiad Queen, and the Glimmerlings.",
+      "beats": [
+        "Ti'shan's flying kick sends the party through the corrupted gateway into the Feywild instead of the Blood God's realm.",
+        "Vulpia's parents, Faunus and Aurae, were tasked with building political ties to the Feywild and the Plane of Fire. Fire failed; the Feywild had hope. They tried to expedite it by creating a single plane where everyone could live in harmony, and it went catastrophically wrong.",
+        "A defaced Naiad Queen posing as Nyrissa captures the party and asks them to rescue her daughter Aurae from the evil Faunus.",
+        "In truth: Aurae's mother died in the incident where they also lost their daughter. Faunus continued hoping to bring them back; the creature he made and merged with is a monstrous thing the Feywild has banded together to contain. Dimari-diji locked him up to stop the rift energies leaking.",
+        "'The arrogance to think that he, a man born of one plane, could manifest and control them all...'",
+        "The party experiences seven years in the Material Plane; their subjective time in the Feywild differs. Zuni uses the absence to consolidate absolute power."
+      ],
+      "detail": {
+        "The Glimmerlings": [
+          "A silly band of creatures celebrating all the races of the Material Plane, throwing a party every day for a single race and shapeshifting into it.",
+          "Every Glimmerling must find a creature on the Material Plane when they come of age and show their companions the race they found.",
+          "On the Material Plane they are colourblind, so they often shapeshift into the wrong colour combination — and always add horns because they think horns look cool.",
+          "The Rat King is a Glimmerling who never came back."
+        ]
+      }
+    },
+    {
+      "id": "corrupted-world",
+      "title": "The Corrupted World (Post-Feywild)",
+      "status": "later",
+      "summary": "Seven years gone. Two immortal antagonists rule, the real prince leads a rebellion, and Ti'shan returns as something else.",
+      "beats": [
+        "Seven years have passed. The landscape is malformed by the Blood God's flesh constructions.",
+        "Two immortals now rule: Zuni, the Bloodless One, eternal through cancerous corruption; and Zalazar the Second, eternal through necromancy, believed dead 24,000 years.",
+        "The real prince emerges from seven years in hiding as a rebellion leader.",
+        "Captain Morgan — the Alliance general the party once stopped from conquering Zalazar — has gone rogue, joining Zuni with his corrupted fleet and blocking reinforcements.",
+        "Ti'shan reappears as an emotional boss encounter: grotesque and misshapen, a Blood God construct wearing the shape of someone the party loved. Whether anything of him remains is discovered in the fight.",
+        "The Alliance arrives in zeppelins for the final assault on the pyramid."
+      ]
+    },
+    {
+      "id": "false-victory",
+      "title": "The False Victory and True Horror",
+      "status": "later",
+      "summary": "Zuni falls — and it turns out his monsters were the only thing holding the undead back.",
+      "beats": [
+        "After the long assault Zuni falls. 'I accomplished my goals long ago. I was just going for extras.'",
+        "Zuni's monsters had been holding back Zalazar the Second's undead hordes. With them gone the true threat pours in, blocking every path to the phylactery.",
+        "The prince, empowered by seven years in hiding, ascends to the throne with new abilities and holds off the undead long enough for the party to act."
+      ]
+    },
+    {
+      "id": "boneyard",
+      "title": "The Boneyard",
+      "status": "later",
+      "summary": "The finale at the Scales of Judgment, and the choice of who ascends.",
+      "beats": [
+        "Zuni — merged with the Bloodless One and having consumed the corpse of the God of Death, which is why souls cannot pass on — encroaches on the Boneyard as a cosmic horror.",
+        "The party fights to the Scales of Judgment, where Zuni is attempting to seize the role of Arbiter.",
+        "The Scales are open. Someone must take the seat of power, or the dead roam the world freely forever.",
+        "One party member must ascend and become the new Arbiter. They will be a god. They will never return to the Material Plane.",
+        "The party decides who among them makes the sacrifice."
+      ]
+    }
+  ],
+  "antagonists": [
+    {
+      "name": "Zuni — The Bloodless One's Herald",
+      "summary": "The court jester who is really Zalazar the Fourteenth, 'The Insane' — a deposed king who has survived thousands of years by changing identity each time a king dies.",
+      "points": [
+        "He has been the current king's jester for this entire reign. Nobody knows his true identity.",
+        "Ringleader of a Blood God cult operating within Zalazar for thousands of years.",
+        "His right-hand man is embedded in the crown princess's own party as a witch or warlock, fighting beside her while plotting her death.",
+        "His lackeys are planted in spectator crowds. The network is vast, patient and invisible.",
+        "True goal: the crown princess must die. She carries the Blessing of Radiance, unmanifested in the royal bloodline for 20,000 years and only because she is the first female descendant in that time. She is the only person alive capable of opposing him; the king's sheltered son poses no threat."
+      ]
+    },
+    {
+      "name": "Zalazar the Second — The Radiant",
+      "summary": "Great mage, believed dead ~24,000 years. Became a lich because he looked at what was coming and decided someone had to still be standing when it arrived, even if everyone hated him for it.",
+      "points": [
+        "He has been turning his own people — the original, far vaster Zalazari civilisation to the west — into undead, not to conquer but to preserve them from the Blood God's encroachment. His methods are monstrous; his reasons are not.",
+        "He has watched his legacy dismantled, his sacrifice recontextualised as madness, his name become a title without meaning.",
+        "He has been losing himself slowly across the millennia, his mind corroding despite the Radiance — and he knows it.",
+        "There is no sadness in unlife."
+      ]
+    }
+  ],
+  "kings": [
+    { "n": 1, "title": "The Honored One, The Sun King, The Golden Lion", "note": "Exemplar. United the Zalazari trolls and led the near-total defeat of the Ogre overlords. An Exemplar like Femur — a detail that raises eyebrows." },
+    { "n": 2, "title": "The Radiant", "note": "Great mage. Sacrificed his eye. Became the Lich." },
+    { "n": 3, "title": "The Oracle", "note": "Creator of the Mists." },
+    { "n": 4, "title": "The Teacher", "note": "Rewrote all Zalazari history to conceal his forefather's descent into 'madness' — erasing the true purpose of the Eye and the true nature of the Lich." },
+    { "n": 5, "title": "The Laborer", "note": "Agriculture, construction." },
+    { "n": 6, "title": "The Warlord", "note": "Tactics, strategies, armory." },
+    { "n": 7, "title": "The Shaman", "note": "Elemental communication." },
+    { "n": 8, "title": "The Druid", "note": "Terraforming." },
+    { "n": 9, "title": "The Scientist", "note": "Through extremely cruel experiments." },
+    { "n": 10, "title": "The Democrat", "note": "Wanted a council to rule." },
+    { "n": 11, "title": "The Warden", "note": "Not of royal blood. Protector of animals and the weak. Ranger. (Vir'kala)" },
+    { "n": 12, "title": "The Crone", "note": "Not of royal blood. Occult magic. Witch. (Ba'vira)" },
+    { "n": 13, "title": "The Humble", "note": "Not of royal blood. Divine magic. Cleric. (Taz'riya)" },
+    { "n": 14, "title": "The Insane", "note": "Not of royal blood. Psychic. (Zun'hak) — THIS IS ZUNI. Nobody knows." },
+    { "n": 15, "title": "The Reconciler", "note": "Communal ideas." },
+    { "n": 16, "title": "The Commander", "note": "Created the Vanguard." },
+    { "n": 17, "title": "The Indomitable", "note": "Went to fight on the frontlines many times." },
+    { "n": 18, "title": "The Immortal", "note": "Alchemy." },
+    { "n": 19, "title": "The Runeseer", "note": "Runecarving." },
+    { "n": 20, "title": "The Strategist", "note": "" },
+    { "n": 21, "title": "The Overseer", "note": "" },
+    { "n": 22, "title": "The Unyielding", "note": "" },
+    { "n": 23, "title": "The Pious", "note": "Tried to introduce religion." },
+    { "n": 24, "title": "The Zealot", "note": "" },
+    { "n": 25, "title": "The General", "note": "" },
+    { "n": 26, "title": "The Warlock", "note": "" },
+    { "n": 27, "title": "The Paranoid", "note": "" },
+    { "n": 28, "title": "The Unifier", "note": "" },
+    { "n": 29, "title": "The Hopeful", "note": "" },
+    { "n": 30, "title": "The Vanguard", "note": "" },
+    { "n": 31, "title": "The Steadfast", "note": "Current king. Murdered by Zuni." },
+    { "n": null, "title": "The Lunatic", "note": "" }
+  ],
+  "npcs": [
+    { "name": "Ti'vola", "group": "Trolls", "role": "Royal Emissary, diplomat, messenger" },
+    { "name": "Mu'zala", "group": "Trolls", "role": "General of the Zalazari army. Old, stoic, loyal." },
+    { "name": "Ti'shan", "group": "Trolls", "role": "Prodigal warrior from Kilika. Once hotheaded and arrogant; six months of humbling travel later he is calm, grounded and genuinely heroic. Will sacrifice everything for the party before this is over." },
+    { "name": "Vol'tika", "group": "Trolls", "role": "Representative for Kilika, sister to Ti'vola. (32 Diplomacy)" },
+    { "name": "Ma'rimo", "group": "Trolls", "role": "Archdruid of Kilika, protector of the forest" },
+    { "name": "Ti'kala", "group": "Trolls", "role": "Sister to Ti'shan" },
+    { "name": "Ba'vira", "group": "Trolls", "role": "The Swamp Hag. Also known as Zalazar the Twelfth, 'The Crone.'" },
+    { "name": "Wen'kaji", "group": "Trolls", "role": "Merchant guild" },
+    { "name": "Amber Hall", "group": "Trolls", "role": "Vanguard Commander. Mother of the Alliance's Commander. Rose to the top of the Zalazari military through exceptional ability, navigating a deeply patriarchal system her whole career. Reaches Level 15 by the Vanguard arc. Will die protecting the crown princess." },
+    { "name": "Jericho Hall", "group": "Trolls", "role": "Son of Amber Hall. Vanguard Commander at Forward Camp Amberhall." },
+    { "name": "Lo'paal", "group": "Trolls", "role": "High-ranking administration officer, de facto leader of the Unmasked — manipulated by Zuni, who supplies the masks." },
+    { "name": "Minor trolls", "group": "Trolls", "role": "Ku'dana, Po'goro, Ki'kara, Di'tola, Vol'tola, Ku'taal, He'doro, Ni'kala, Gabrodi, Da'toga, To'rara — general store owner, emissaries, foremen, fishers and so on." },
+    { "name": "Lukas Brightheart", "group": "Alliance", "role": "Skilled craftsman escorted from Port Suna. Survives the Vanguard March." },
+    { "name": "Mabra Cypherbloom", "group": "Alliance", "role": "Met at Woodfall alongside Forward Commander Hall." },
+    { "name": "Captain Morgan", "group": "Alliance", "role": "Alliance general the party once stopped from conquering Zalazar. Goes rogue and joins Zuni with his corrupted fleet." },
+    { "name": "Jared", "group": "Alliance", "role": "Marches with the Vanguard. Dies." },
+    { "name": "Gazlow", "group": "Undermine", "role": "Big Boss of the Undermine. Took the Anvil Fortress as his castle; built the mech powered by the Eye." },
+    { "name": "Queek", "group": "Undermine", "role": "Has struck a bargain with Amber Hall to protect the ratfolk." },
+    { "name": "Musta the Russari", "group": "Other", "role": "From the beach resort. Provides his compass to the Mist-cast Morass." },
+    { "name": "Faunus", "group": "Feywild", "role": "Vulpia's father. Merged with the creature he made trying to bring back his wife and daughter; contained by the Feywild's inhabitants." },
+    { "name": "Aurae", "group": "Feywild", "role": "Vulpia's mother. Died in the catastrophic incident where they also lost their daughter." },
+    { "name": "Dimari-diji", "group": "Feywild", "role": "Locked Faunus up to stop the chaotic rift energies leaking further." },
+    { "name": "The Rat King", "group": "Feywild", "role": "A Glimmerling who never came back." }
+  ],
+  "ideas": [
+    "Femur's tribe was created by the corruption of the Bloodless One. The gift he received from Sarenrae, Goddess of Light and Healing, is what saved him from being as corrupted as his clansmen.",
+    "Queek has struck a bargain with Amber Hall to protect the ratfolk.",
+    "On the Zalazari trolls: once subjugated by Ogres, Zalazar the First united the troll slaves and cut down almost every last Ogre. Ogres still exist in low numbers, are full citizens, and face no formal discrimination.",
+    "Zalazari have remarkably low birth rates, barely replacing their population and not growing meaningfully over millennia — yet their population is vast and steady.",
+    "The Queen of the Zalazari is whichever woman conceives a child with the king first."
+  ],
+  "lootTable": {
+    "level": 6,
+    "items": [
+      { "name": "Chime of Opening", "gp": 235 },
+      { "name": "Skeptic's Elixir (Moderate)", "gp": 50 },
+      { "name": "Everair Mask (Moderate)", "gp": 35 },
+      { "name": "Liquid Gold", "gp": 40 },
+      { "name": "Giant Scorpion Venom", "gp": 40 },
+      { "name": "Peachwood Talisman", "gp": 40 },
+      { "name": "Creeping Death", "gp": 45 },
+      { "name": "Binding Coil", "gp": 50 },
+      { "name": "Oil of Swiftness", "gp": 50 },
+      { "name": "Iron Cube", "gp": 50 },
+      { "name": "Potion of Retaliation (Moderate)", "gp": 50 },
+      { "name": "Swallow-Spike", "gp": 200 },
+      { "name": "Ring of the Ram", "gp": 220 },
+      { "name": "Dread (Lesser)", "gp": 225 },
+      { "name": "Hauling", "gp": 225 },
+      { "name": "Aim-Aiding", "gp": 225 },
+      { "name": "Shifting", "gp": 225 }
+    ]
+  }
+}

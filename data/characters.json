@@ -1,0 +1,4132 @@
+{
+  "_note": "Player characters, imported from Pathbuilder 2e exports with tools/import-pathbuilder.mjs. Hand-editable, and NOT touched by fetch-aon.mjs.",
+  "groups": [
+    {
+      "id": "mists-of-zalazar",
+      "label": "Mists of Zalazar",
+      "kind": "campaign"
+    },
+    {
+      "id": "one-shots",
+      "label": "One-shots",
+      "kind": "one-shot"
+    },
+    {
+      "id": "the-alliance",
+      "label": "The Alliance",
+      "kind": "campaign"
+    }
+  ],
+  "characters": [
+    {
+      "id": "femur-breaker",
+      "group": "mists-of-zalazar",
+      "name": "Femur Breaker",
+      "player": null,
+      "level": 7,
+      "class": "Exemplar",
+      "dualClass": null,
+      "ancestry": "Kholo",
+      "heritage": "Great Kholo",
+      "background": "Onyx Trader",
+      "deity": "Of course I know him, he's me",
+      "size": "Medium",
+      "gender": "Male",
+      "age": "26",
+      "keyAbility": "str",
+      "languages": [
+        "Common",
+        "Gnomish",
+        "Goblin",
+        "Jotun",
+        "Kholo",
+        "Orcish"
+      ],
+      "abilities": {
+        "str": 19,
+        "dex": 14,
+        "con": 14,
+        "int": 12,
+        "wis": 10,
+        "cha": 16
+      },
+      "mods": {
+        "str": 4,
+        "dex": 2,
+        "con": 2,
+        "int": 1,
+        "wis": 0,
+        "cha": 3
+      },
+      "ac": 25,
+      "shieldBonus": null,
+      "hp": 98,
+      "speed": 30,
+      "perception": 9,
+      "perceptionRank": "trained",
+      "saves": {
+        "fort": 13,
+        "ref": 11,
+        "will": 13
+      },
+      "saveRanks": {
+        "fort": "expert",
+        "ref": "trained",
+        "will": "master"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "athletics",
+          "rank": "expert",
+          "bonus": 15
+        },
+        {
+          "name": "deception",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "diplomacy",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "intimidation",
+          "rank": "expert",
+          "bonus": 14
+        },
+        {
+          "name": "religion",
+          "rank": "expert",
+          "bonus": 11
+        },
+        {
+          "name": "society",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "survival",
+          "rank": "trained",
+          "bonus": 9
+        }
+      ],
+      "lores": [
+        {
+          "name": "Mercantile",
+          "rank": "expert",
+          "bonus": 12
+        }
+      ],
+      "feats": [
+        {
+          "name": "Energized Spark",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 7
+        },
+        {
+          "name": "Shield Block",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Multilingual",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Great Kholo",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Energized Spark",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Crunch",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Intimidating Prowess",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Hurl at the Horizon",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Marshal Dedication",
+          "choice": null,
+          "type": "Archetype Feat",
+          "level": 2
+        },
+        {
+          "name": "Fleet",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Intimidating Glare",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Only the Worthy",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Dread Marshal Stance",
+          "choice": null,
+          "type": "Archetype Feat",
+          "level": 4
+        },
+        {
+          "name": "Ask the Bones",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Say that Again!",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Riddle the Sphinx",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Snap Out of It!",
+          "choice": null,
+          "type": "Archetype Feat",
+          "level": 6
+        },
+        {
+          "name": "Robust Health",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Shift Immanence",
+        "Victor's Wreath",
+        "Titan's Breaker",
+        "Scar of the Survivor",
+        "Humble Strikes",
+        "Spark Transcendence",
+        "Low-Light Vision",
+        "Bite (Kholo)",
+        "Fire",
+        "Intimidation",
+        "The Proud",
+        "Weapon Expertise",
+        "Trespasser in Death’s Realm",
+        "Void",
+        "Spirit Striking",
+        "Unassailable Soul",
+        "Great Kholo"
+      ],
+      "weapons": [
+        {
+          "name": "+1 Striking Crunch",
+          "base": "Crunch",
+          "proficiency": "unarmed",
+          "damage": "d8 P",
+          "striking": "striking",
+          "extraDamage": [
+            "+2 spirit"
+          ],
+          "potency": 1,
+          "runes": []
+        },
+        {
+          "name": "Gleamslicer, bane of the sea (+)",
+          "base": "Gleamslicer, bane of the sea",
+          "proficiency": "simple",
+          "damage": "d6 positive",
+          "striking": null,
+          "extraDamage": [
+            "+2 spirit"
+          ],
+          "potency": 0,
+          "runes": []
+        },
+        {
+          "name": "+2 Striking Hooked Returning Greataxe",
+          "base": "Greataxe",
+          "proficiency": "martial",
+          "damage": "d12 S",
+          "striking": "striking",
+          "extraDamage": [
+            "+2 spirit"
+          ],
+          "potency": 2,
+          "runes": [
+            "Hooked",
+            "Returning"
+          ]
+        },
+        {
+          "name": "Club (+)",
+          "base": "Club",
+          "proficiency": "simple",
+          "damage": "d8 B",
+          "striking": null,
+          "extraDamage": [
+            "+2 spirit"
+          ],
+          "potency": 0,
+          "runes": []
+        }
+      ],
+      "armor": [
+        {
+          "name": "+1 Niyaháat",
+          "base": "Niyaháat",
+          "proficiency": "medium",
+          "worn": true,
+          "potency": 1,
+          "resilient": null,
+          "runes": []
+        }
+      ],
+      "spellcasting": [],
+      "focusSpells": [],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 0,
+      "money": {
+        "cp": 3,
+        "sp": 0,
+        "gp": 1125,
+        "pp": 0
+      },
+      "equipment": [
+        {
+          "name": "Potion Patch (Lesser)",
+          "qty": 1
+        },
+        {
+          "name": "Radiant Orb",
+          "qty": 1
+        },
+        {
+          "name": "Bedroll",
+          "qty": 1
+        },
+        {
+          "name": "Skeleton Hand and Skull",
+          "qty": 1
+        },
+        {
+          "name": "Aerial Cloak",
+          "qty": 1
+        },
+        {
+          "name": "Second generals's badge",
+          "qty": 1
+        },
+        {
+          "name": "Bracers of Missile Deflection",
+          "qty": 1
+        },
+        {
+          "name": "Hunter's Bane",
+          "qty": 4
+        },
+        {
+          "name": "Waterskin",
+          "qty": 1
+        },
+        {
+          "name": "Predator's Claw",
+          "qty": 6
+        },
+        {
+          "name": "Glass eye",
+          "qty": 1
+        },
+        {
+          "name": "Necklace of Knives",
+          "qty": 1
+        },
+        {
+          "name": "Captivating Rosebud",
+          "qty": 1
+        },
+        {
+          "name": "Hauling",
+          "qty": 1
+        },
+        {
+          "name": "Hunter's Token",
+          "qty": 1
+        },
+        {
+          "name": "Crackpot(tion)",
+          "qty": 2
+        },
+        {
+          "name": "Tasset of Flexibility",
+          "qty": 1
+        },
+        {
+          "name": "Compass to village in the Moarass",
+          "qty": 1
+        },
+        {
+          "name": "Obsidian Goggles",
+          "qty": 1
+        },
+        {
+          "name": "Rope",
+          "qty": 3
+        },
+        {
+          "name": "Rations",
+          "qty": 11
+        },
+        {
+          "name": "Everburning Torch",
+          "qty": 1
+        },
+        {
+          "name": "Ghost Touch",
+          "qty": 1
+        },
+        {
+          "name": "Goblin Ear Necklace",
+          "qty": 1
+        },
+        {
+          "name": "Backpack",
+          "qty": 1
+        },
+        {
+          "name": "Dragon Turtle Scale",
+          "qty": 1
+        },
+        {
+          "name": "Belt of Good Health",
+          "qty": 1
+        },
+        {
+          "name": "Bronze Bull Pendant",
+          "qty": 1
+        },
+        {
+          "name": "Blast boots",
+          "qty": 1
+        },
+        {
+          "name": "Speed potion",
+          "qty": 3
+        },
+        {
+          "name": "Juggernaut Mutagen (Moderate)",
+          "qty": 1
+        },
+        {
+          "name": "Flint and Steel",
+          "qty": 1
+        },
+        {
+          "name": "Antivenom Potion",
+          "qty": 1
+        },
+        {
+          "name": "Chalk",
+          "qty": 8
+        },
+        {
+          "name": "Healing Potion (Minor)",
+          "qty": 1
+        },
+        {
+          "name": "Ceremonial dagger",
+          "qty": 1
+        },
+        {
+          "name": "Menacing",
+          "qty": 1
+        },
+        {
+          "name": "Merchant's Guile",
+          "qty": 1
+        },
+        {
+          "name": "Everair Mask (Moderate)",
+          "qty": 1
+        },
+        {
+          "name": "Key piece",
+          "qty": 1
+        },
+        {
+          "name": "Anylength Rope (Moderate)",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "priscilla-cybin",
+      "group": "mists-of-zalazar",
+      "name": "Priscilla Cybin",
+      "player": null,
+      "level": 7,
+      "class": "Druid",
+      "dualClass": null,
+      "ancestry": "Leshy",
+      "heritage": "Fungus Leshy",
+      "background": "Hermit (Nature)",
+      "deity": null,
+      "size": "Small",
+      "gender": null,
+      "age": null,
+      "keyAbility": "wis",
+      "languages": [
+        "Common",
+        "Fey",
+        "Wildsong"
+      ],
+      "abilities": {
+        "str": 10,
+        "dex": 16,
+        "con": 16,
+        "int": 10,
+        "wis": 19,
+        "cha": 14
+      },
+      "mods": {
+        "str": 0,
+        "dex": 3,
+        "con": 3,
+        "int": 0,
+        "wis": 4,
+        "cha": 2
+      },
+      "ac": 24,
+      "shieldBonus": 2,
+      "hp": 85,
+      "speed": 30,
+      "perception": 15,
+      "perceptionRank": "expert",
+      "saves": {
+        "fort": 14,
+        "ref": 14,
+        "will": 15
+      },
+      "saveRanks": {
+        "fort": "expert",
+        "ref": "expert",
+        "will": "expert"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "intimidation",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "nature",
+          "rank": "expert",
+          "bonus": 15
+        },
+        {
+          "name": "occultism",
+          "rank": "trained",
+          "bonus": 9
+        },
+        {
+          "name": "survival",
+          "rank": "expert",
+          "bonus": 15
+        }
+      ],
+      "lores": [
+        {
+          "name": "One Terrain",
+          "rank": "trained",
+          "bonus": 9
+        }
+      ],
+      "feats": [
+        {
+          "name": "Leshy Familiar",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Shield Block",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Dubious Knowledge",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Shameless Request",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Fungus Leshy",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Plant Empathy",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Harmlessly Cute",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Natural Medicine",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Reach Spell",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Fleet",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Cognitive Crossover",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Forest Passage",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Speak with Kindred",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Spirit Speaker",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Fungal Exhalation",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        }
+      ],
+      "specials": [
+        "Anathema",
+        "Spore Order",
+        "Wildsong",
+        "Voice of Nature",
+        "Low-Light Vision",
+        "Plant Nourishment",
+        "Darkvision",
+        "Perception Expertise",
+        "Fortitude Expertise",
+        "Reflex Expertise",
+        "Expert Spellcaster",
+        "Fungus Leshy"
+      ],
+      "weapons": [
+        {
+          "name": "Fist",
+          "base": "Fist",
+          "proficiency": "unarmed",
+          "damage": "d4 B",
+          "striking": null,
+          "extraDamage": [],
+          "potency": 0,
+          "runes": []
+        },
+        {
+          "name": "Sickle",
+          "base": "Sickle",
+          "proficiency": "simple",
+          "damage": "d4 S",
+          "striking": null,
+          "extraDamage": [],
+          "potency": 0,
+          "runes": []
+        }
+      ],
+      "armor": [
+        {
+          "name": "+1 Leaf Weave",
+          "base": "Leaf Weave",
+          "proficiency": "light",
+          "worn": true,
+          "potency": 1,
+          "resilient": null,
+          "runes": []
+        },
+        {
+          "name": "Hide Shield",
+          "base": "Hide Shield",
+          "proficiency": "shield",
+          "worn": true,
+          "potency": 0,
+          "resilient": null,
+          "runes": []
+        }
+      ],
+      "spellcasting": [
+        {
+          "name": "Druid",
+          "tradition": "primal",
+          "type": "prepared",
+          "ability": "wis",
+          "innate": false,
+          "rank": "expert",
+          "dc": 25,
+          "attack": 15,
+          "slots": [
+            {
+              "rank": 0,
+              "count": 5
+            },
+            {
+              "rank": 1,
+              "count": 3
+            },
+            {
+              "rank": 2,
+              "count": 3
+            },
+            {
+              "rank": 3,
+              "count": 3
+            },
+            {
+              "rank": 4,
+              "count": 2
+            }
+          ],
+          "spells": [
+            {
+              "rank": 0,
+              "list": [
+                "Puff of Poison",
+                "Guidance",
+                "Elemental Counter",
+                "Tangle Vine",
+                "Needle Darts"
+              ]
+            },
+            {
+              "rank": 1,
+              "list": [
+                "Heal",
+                "Spider Sting",
+                "Foraging Friends"
+              ]
+            },
+            {
+              "rank": 2,
+              "list": [
+                "Fungal Hyphae",
+                "Water Breathing",
+                "Cauterize Wounds"
+              ]
+            },
+            {
+              "rank": 3,
+              "list": [
+                "The Four Hunters",
+                "Haste",
+                "Fireball"
+              ]
+            }
+          ]
+        }
+      ],
+      "focusSpells": [
+        "Mushroom Patch",
+        "Fungal Exhalation"
+      ],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [
+        {
+          "name": "Familiar",
+          "type": "Familiar",
+          "abilities": []
+        }
+      ],
+      "pets": [],
+      "focusPoints": 2,
+      "money": {
+        "cp": 0,
+        "sp": 3,
+        "gp": 1461,
+        "pp": 0
+      },
+      "equipment": [
+        {
+          "name": "Soap",
+          "qty": 1
+        },
+        {
+          "name": "Backpack",
+          "qty": 1
+        },
+        {
+          "name": "Flint and Steel",
+          "qty": 1
+        },
+        {
+          "name": "Rations",
+          "qty": 2
+        },
+        {
+          "name": "Underbrush Cloak",
+          "qty": 1
+        },
+        {
+          "name": "Spore Shepherd's Staff",
+          "qty": 1
+        },
+        {
+          "name": "Bane Ammunition (Lesser)",
+          "qty": 1
+        },
+        {
+          "name": "Chalk",
+          "qty": 10
+        },
+        {
+          "name": "Necrotic Cap (Lesser)",
+          "qty": 1
+        },
+        {
+          "name": "Shawl of Seasons",
+          "qty": 1
+        },
+        {
+          "name": "Waterskin",
+          "qty": 1
+        },
+        {
+          "name": "Rope",
+          "qty": 1
+        },
+        {
+          "name": "Cytillesh Oil",
+          "qty": 1
+        },
+        {
+          "name": "Bedroll",
+          "qty": 1
+        },
+        {
+          "name": "Torch",
+          "qty": 5
+        }
+      ]
+    },
+    {
+      "id": "queek-blight-tail",
+      "group": "mists-of-zalazar",
+      "name": "Queek Blight-Tail",
+      "player": null,
+      "level": 7,
+      "class": "Alchemist",
+      "dualClass": null,
+      "ancestry": "Ratfolk",
+      "heritage": "Sewer Rat",
+      "background": "Emissary (LO:WG)",
+      "deity": "Glimmerling",
+      "size": "Small",
+      "gender": "Male",
+      "age": "34",
+      "keyAbility": "int",
+      "languages": [
+        "Chthonian",
+        "Common",
+        "Diabolic",
+        "Fey",
+        "Goblin",
+        "Jotun",
+        "Necril",
+        "Wildsong",
+        "Ysoki"
+      ],
+      "abilities": {
+        "str": 12,
+        "dex": 18,
+        "con": 12,
+        "int": 19,
+        "wis": 10,
+        "cha": 14
+      },
+      "mods": {
+        "str": 1,
+        "dex": 4,
+        "con": 1,
+        "int": 4,
+        "wis": 0,
+        "cha": 2
+      },
+      "ac": 24,
+      "shieldBonus": null,
+      "hp": 73,
+      "speed": 20,
+      "perception": 9,
+      "perceptionRank": "trained",
+      "saves": {
+        "fort": 12,
+        "ref": 15,
+        "will": 11
+      },
+      "saveRanks": {
+        "fort": "expert",
+        "ref": "expert",
+        "will": "expert"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "arcana",
+          "rank": "trained",
+          "bonus": 14
+        },
+        {
+          "name": "crafting",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "deception",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "diplomacy",
+          "rank": "expert",
+          "bonus": 13
+        },
+        {
+          "name": "medicine",
+          "rank": "master",
+          "bonus": 14
+        },
+        {
+          "name": "nature",
+          "rank": "trained",
+          "bonus": 9
+        },
+        {
+          "name": "society",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "stealth",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "survival",
+          "rank": "trained",
+          "bonus": 9
+        }
+      ],
+      "lores": [
+        {
+          "name": "Politics",
+          "rank": "trained",
+          "bonus": 13
+        }
+      ],
+      "feats": [
+        {
+          "name": "Alchemical Crafting",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Multilingual",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Alchemical Crafting",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 2
+        },
+        {
+          "name": "Sewer Rat",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Quick Bomber",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Ratspeak",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Medical Researcher",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Pernicious Poison",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Poisoner Dedication",
+          "choice": null,
+          "type": "Archetype Feat",
+          "level": 2
+        },
+        {
+          "name": "Prescient Planner",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Risky Surgery",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Healing Bomb",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Poison Resistance",
+          "choice": null,
+          "type": "Archetype Feat",
+          "level": 4
+        },
+        {
+          "name": "Rat Familiar",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Battle Medicine",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Combine Elixirs",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Tenacious Toxins",
+          "choice": null,
+          "type": "Archetype Feat",
+          "level": 6
+        },
+        {
+          "name": "Prescient Consumable",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Alchemy",
+        "Formula Book",
+        "Advanced Alchemy",
+        "Versatile Vials",
+        "Quick Alchemy",
+        "Bomber",
+        "Formulas (Bomber)",
+        "Field Benefit (Bomber)",
+        "Field Vials (Bomber)",
+        "Low-Light Vision",
+        "Field Discovery (Bomber)",
+        "Powerful Alchemy",
+        "Alchemical Weapon Expertise",
+        "Will Expertise",
+        "Sewer Rat"
+      ],
+      "weapons": [
+        {
+          "name": "Alchemical Bomb",
+          "base": "Alchemical Bomb",
+          "proficiency": "martial",
+          "damage": "Varies",
+          "striking": null,
+          "extraDamage": [],
+          "potency": 0,
+          "runes": []
+        },
+        {
+          "name": "Longspear",
+          "base": "Longspear",
+          "proficiency": "simple",
+          "damage": "d8 P",
+          "striking": null,
+          "extraDamage": [],
+          "potency": 0,
+          "runes": []
+        },
+        {
+          "name": "Dagger",
+          "base": "Dagger",
+          "proficiency": "simple",
+          "damage": "d4 P",
+          "striking": null,
+          "extraDamage": [],
+          "potency": 0,
+          "runes": []
+        }
+      ],
+      "armor": [
+        {
+          "name": "Hide",
+          "base": "Hide",
+          "proficiency": "medium",
+          "worn": true,
+          "potency": 0,
+          "resilient": null,
+          "runes": []
+        }
+      ],
+      "spellcasting": [],
+      "focusSpells": [],
+      "specificProficiencies": [
+        {
+          "name": "Alchemical Bomb",
+          "rank": "expert"
+        }
+      ],
+      "resistances": [
+        "poison 3"
+      ],
+      "formulas": [
+        {
+          "type": "Alchemist",
+          "known": [
+            "Alchemist's Fire (Moderate)",
+            "Blight Bomb (Moderate)",
+            "Blindpepper Bomb",
+            "Bottled Lightning (Moderate)",
+            "Defoliation Bomb (Moderate)",
+            "Dread Ampoule (Moderate)",
+            "Elixir of Life (Minor)",
+            "Energy Mutagen (Moderate)",
+            "Ghost Charge (Moderate)",
+            "Glue Bomb (Moderate)",
+            "Inflammation Flask (Moderate)",
+            "Juggernaut Mutagen (Moderate)",
+            "Junk Bomb (Moderate)",
+            "Pressure Bomb (Moderate)",
+            "Redpitch Bomb (Moderate)",
+            "Silversoul Bomb",
+            "Skunk Bomb (Moderate)",
+            "Spider Satchel (Moderate)",
+            "Spiderfoot Brew (Lesser)",
+            "Star Grenade (Moderate)",
+            "Steelscour (lesser)",
+            "Tallow Bomb (Moderate)",
+            "Thunderstone (Moderate)"
+          ]
+        },
+        {
+          "type": "Poisoner",
+          "known": [
+            "Belladonna",
+            "Black Adder Venom",
+            "Clown Monarch",
+            "Cytillesh",
+            "Giant Centipede Venom",
+            "Lethargy Poison",
+            "Midnight Milk (Experimental)",
+            "Pucker Pickle",
+            "Spider Venom"
+          ]
+        },
+        {
+          "type": "other",
+          "known": [
+            "Healing Vapor (Lesser)",
+            "Addiction Suppressant (Lesser)",
+            "Bottled Sunlight"
+          ]
+        }
+      ],
+      "familiars": [
+        {
+          "name": "Familiar (S. Queek)",
+          "type": "Familiar",
+          "abilities": [
+            "Touch Telepathy",
+            "Ambassador"
+          ]
+        }
+      ],
+      "pets": [],
+      "focusPoints": 0,
+      "money": {
+        "cp": 6,
+        "sp": 9,
+        "gp": 458,
+        "pp": 0
+      },
+      "equipment": [
+        {
+          "name": "Blood of Foxtrot",
+          "qty": 1
+        },
+        {
+          "name": "Fury Cocktail (Lesser)",
+          "qty": 1
+        },
+        {
+          "name": "Ghost Ampoule",
+          "qty": 1
+        },
+        {
+          "name": "Shrinking Potion",
+          "qty": 1
+        },
+        {
+          "name": "Bottled Sunlight",
+          "qty": 1
+        },
+        {
+          "name": "Alchemist's Flamethrower",
+          "qty": 1
+        },
+        {
+          "name": "Chalk",
+          "qty": 10
+        },
+        {
+          "name": "Fearflower Nectar",
+          "qty": 2
+        },
+        {
+          "name": "Pyrite Rat",
+          "qty": 1
+        },
+        {
+          "name": "Writing Set",
+          "qty": 1
+        },
+        {
+          "name": "Warrior's Training Ring",
+          "qty": 1
+        },
+        {
+          "name": "Alchemist Goggles",
+          "qty": 1
+        },
+        {
+          "name": "Ghost Oil",
+          "qty": 1
+        },
+        {
+          "name": "Liquid Gold",
+          "qty": 1
+        },
+        {
+          "name": "Spyglass (Fine)",
+          "qty": 1
+        },
+        {
+          "name": "Ring of the Ram",
+          "qty": 1
+        },
+        {
+          "name": "Breath of Freedom",
+          "qty": 1
+        },
+        {
+          "name": "Swagger Stick",
+          "qty": 1
+        },
+        {
+          "name": "Soap",
+          "qty": 1
+        },
+        {
+          "name": "Torch",
+          "qty": 1
+        },
+        {
+          "name": "Bedroll",
+          "qty": 1
+        },
+        {
+          "name": "Healer's Gloves",
+          "qty": 1
+        },
+        {
+          "name": "Rope",
+          "qty": 1
+        },
+        {
+          "name": "Giant Scorpion Venom",
+          "qty": 2
+        },
+        {
+          "name": "Caltrops",
+          "qty": 2
+        },
+        {
+          "name": "Ring of Discretion",
+          "qty": 1
+        },
+        {
+          "name": "Healing Vapor (Lesser)",
+          "qty": 1
+        },
+        {
+          "name": "Defoliation Bomb (Moderate)",
+          "qty": 1
+        },
+        {
+          "name": "Waterskin",
+          "qty": 1
+        },
+        {
+          "name": "Potion of Retaliation (Moderate)",
+          "qty": 2
+        },
+        {
+          "name": "Giant mech building plans",
+          "qty": 1
+        },
+        {
+          "name": "Darkvision Elixir (Moderate)",
+          "qty": 1
+        },
+        {
+          "name": "Spider Satchel (Moderate)",
+          "qty": 1
+        },
+        {
+          "name": "Aether Marble (Lesser)",
+          "qty": 1
+        },
+        {
+          "name": "Obsidian Goggles",
+          "qty": 1
+        },
+        {
+          "name": "Cloak of Repute",
+          "qty": 1
+        },
+        {
+          "name": "Analysis Eye",
+          "qty": 1
+        },
+        {
+          "name": "Mage's Hat",
+          "qty": 1
+        },
+        {
+          "name": "Mortar of Hidden Meaning",
+          "qty": 1
+        },
+        {
+          "name": "Corpseward Pendant",
+          "qty": 1
+        },
+        {
+          "name": "Astrolabe of Falling Stars",
+          "qty": 1
+        },
+        {
+          "name": "Green Wyrmling Breath Potion",
+          "qty": 1
+        },
+        {
+          "name": "Messenger Missive",
+          "qty": 2
+        },
+        {
+          "name": "Writing Set (Extra Ink and Paper)",
+          "qty": 1
+        },
+        {
+          "name": "Creeping Death",
+          "qty": 1
+        },
+        {
+          "name": "Potion of speed (drawbacks)",
+          "qty": 2
+        },
+        {
+          "name": "Alchemist's Toolkit",
+          "qty": 1
+        },
+        {
+          "name": "Skeptic's Elixir (Moderate)",
+          "qty": 1
+        },
+        {
+          "name": "Formula Book (Blank)",
+          "qty": 1
+        },
+        {
+          "name": "Brightshade",
+          "qty": 1
+        },
+        {
+          "name": "Belt of Good Health",
+          "qty": 1
+        },
+        {
+          "name": "Shovel",
+          "qty": 1
+        },
+        {
+          "name": "Flint and Steel",
+          "qty": 1
+        },
+        {
+          "name": "Healing Potion (Minor)",
+          "qty": 3
+        },
+        {
+          "name": "Wig of Holding",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "rhea-elmheart",
+      "group": "mists-of-zalazar",
+      "name": "Rhea Elmheart",
+      "player": null,
+      "level": 7,
+      "class": "Guardian",
+      "dualClass": null,
+      "ancestry": "Centaur",
+      "heritage": "Fleetwind Centaur",
+      "background": "Seer Of The Dead",
+      "deity": "Astrology",
+      "size": "Large",
+      "gender": "Female",
+      "age": "25",
+      "keyAbility": "str",
+      "languages": [
+        "Common",
+        "Horsish"
+      ],
+      "abilities": {
+        "str": 18,
+        "dex": 10,
+        "con": 18,
+        "int": 10,
+        "wis": 16,
+        "cha": 12
+      },
+      "mods": {
+        "str": 4,
+        "dex": 0,
+        "con": 4,
+        "int": 0,
+        "wis": 3,
+        "cha": 1
+      },
+      "ac": 28,
+      "shieldBonus": 2,
+      "hp": 120,
+      "speed": 35,
+      "perception": 14,
+      "perceptionRank": "expert",
+      "saves": {
+        "fort": 16,
+        "ref": 12,
+        "will": 15
+      },
+      "saveRanks": {
+        "fort": "expert",
+        "ref": "expert",
+        "will": "expert"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "athletics",
+          "rank": "master",
+          "bonus": 17
+        },
+        {
+          "name": "intimidation",
+          "rank": "expert",
+          "bonus": 12
+        },
+        {
+          "name": "occultism",
+          "rank": "trained",
+          "bonus": 9
+        },
+        {
+          "name": "religion",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "stealth",
+          "rank": "trained",
+          "bonus": 9
+        }
+      ],
+      "lores": [
+        {
+          "name": "Undead",
+          "rank": "expert",
+          "bonus": 11
+        }
+      ],
+      "feats": [
+        {
+          "name": "Shield Block",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Diehard",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 3
+        },
+        {
+          "name": "Reactive Shield",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 2
+        },
+        {
+          "name": "Fleetwind Centaur",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Defensive Advance",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Practiced Brawn",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Intimidating Glare",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Hampering Stance",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Sentry Dedication",
+          "choice": null,
+          "type": "Archetype Feat",
+          "level": 2
+        },
+        {
+          "name": "Fleet",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Powerful Leap",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Not So Fast!",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Rescuer's Press",
+          "choice": null,
+          "type": "Archetype Feat",
+          "level": 4
+        },
+        {
+          "name": "Accommodating Mount",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Terrifying Resistance",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Retaliating Rescue",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Repulse the Wicked",
+          "choice": null,
+          "type": "Archetype Feat",
+          "level": 6
+        },
+        {
+          "name": "Wall Jump",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Guardian's Armor",
+        "Taunt",
+        "Intercept Attack",
+        "Ever Ready",
+        "Darkvision",
+        "Tough to Kill",
+        "Unbreakable Expertise",
+        "Weapon Expertise",
+        "Reaction Time",
+        "Reflex Expertise",
+        "Fleetwind Centaur"
+      ],
+      "weapons": [
+        {
+          "name": "+1 Striking Rooting Breaching Pike",
+          "base": "Breaching Pike",
+          "proficiency": "martial",
+          "damage": "d6 P",
+          "striking": "striking",
+          "extraDamage": [],
+          "potency": 1,
+          "runes": [
+            "Rooting"
+          ]
+        }
+      ],
+      "armor": [
+        {
+          "name": "+1 Armor Resilient Size-Changing Full Plate",
+          "base": "Full Plate",
+          "proficiency": "heavy",
+          "worn": true,
+          "potency": 1,
+          "resilient": "resilient",
+          "runes": [
+            "Size-Changing"
+          ]
+        },
+        {
+          "name": "Steel Shield",
+          "base": "Steel Shield",
+          "proficiency": "shield",
+          "worn": true,
+          "potency": 0,
+          "resilient": null,
+          "runes": [
+            "Reinforcing (Lesser)"
+          ]
+        }
+      ],
+      "spellcasting": [],
+      "focusSpells": [],
+      "specificProficiencies": [],
+      "resistances": [
+        "physical 4"
+      ],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 0,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 1150,
+        "pp": 0
+      },
+      "equipment": [
+        {
+          "name": "Arboreal Boots",
+          "qty": 1
+        },
+        {
+          "name": "Lieutenant's Sash",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "vulpia-kasai",
+      "group": "mists-of-zalazar",
+      "name": "Vulpia Kasai",
+      "player": null,
+      "level": 7,
+      "class": "Kineticist",
+      "dualClass": null,
+      "ancestry": "Kitsune",
+      "heritage": "Sylph",
+      "background": "Elementally Infused (Fire)",
+      "deity": "Tenko",
+      "size": "Medium",
+      "gender": "Female",
+      "age": "123",
+      "keyAbility": "con",
+      "languages": [
+        "Common",
+        "Jotun",
+        "Pyric"
+      ],
+      "abilities": {
+        "str": 12,
+        "dex": 14,
+        "con": 19,
+        "int": 16,
+        "wis": 10,
+        "cha": 14
+      },
+      "mods": {
+        "str": 1,
+        "dex": 2,
+        "con": 4,
+        "int": 3,
+        "wis": 0,
+        "cha": 2
+      },
+      "ac": 22,
+      "shieldBonus": null,
+      "hp": 92,
+      "speed": 30,
+      "perception": 9,
+      "perceptionRank": "trained",
+      "saves": {
+        "fort": 17,
+        "ref": 13,
+        "will": 11
+      },
+      "saveRanks": {
+        "fort": "master",
+        "ref": "expert",
+        "will": "expert"
+      },
+      "classDC": 25,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "arcana",
+          "rank": "expert",
+          "bonus": 14
+        },
+        {
+          "name": "athletics",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "deception",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "diplomacy",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "nature",
+          "rank": "trained",
+          "bonus": 9
+        },
+        {
+          "name": "occultism",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "performance",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "stealth",
+          "rank": "trained",
+          "bonus": 11
+        }
+      ],
+      "lores": [
+        {
+          "name": "Plane of Fire",
+          "rank": "trained",
+          "bonus": 12
+        }
+      ],
+      "feats": [
+        {
+          "name": "Sylph",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Extended Kinesis",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Swift",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Flying Flame",
+          "choice": null,
+          "type": "Kineticist Feat",
+          "level": 1
+        },
+        {
+          "name": "Four Winds",
+          "choice": null,
+          "type": "Kineticist Feat",
+          "level": 1
+        },
+        {
+          "name": "Dubious Knowledge",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Burning Jet",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Pick up the Pace",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Assurance",
+          "choice": "Nature",
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Blazing Wave",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Lightning Dash",
+          "choice": null,
+          "type": "Kineticist Feat",
+          "level": 5
+        },
+        {
+          "name": "Myriad Forms",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Skill Training",
+          "choice": "Athletics",
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Volcanic Escape",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Ancestral Paragon",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Dual Gate",
+        "Fire Element",
+        "Air Element",
+        "Kinetic Aura",
+        "Channel Elements",
+        "Impulses",
+        "Elemental Blast",
+        "Base Kinesis",
+        "Low-Light Vision",
+        "Change Shape (Kitsune)",
+        "Darkvision",
+        "Extract Element",
+        "Will Expertise",
+        "Expand the Portal",
+        "Air Impulse Junction",
+        "Kinetic Durability",
+        "Kinetic Expertise",
+        "Sylph"
+      ],
+      "weapons": [
+        {
+          "name": "Flyssa",
+          "base": "Flyssa",
+          "proficiency": "martial",
+          "damage": "d6 S",
+          "striking": null,
+          "extraDamage": [],
+          "potency": 0,
+          "runes": []
+        }
+      ],
+      "armor": [
+        {
+          "name": "Armored Cloak",
+          "base": "Armored Cloak",
+          "proficiency": "light",
+          "worn": true,
+          "potency": 0,
+          "resilient": null,
+          "runes": []
+        },
+        {
+          "name": "Armored Cloak",
+          "base": "Armored Cloak",
+          "proficiency": "light",
+          "worn": false,
+          "potency": 0,
+          "resilient": null,
+          "runes": []
+        }
+      ],
+      "spellcasting": [
+        {
+          "name": "Elementally Infused",
+          "tradition": "primal",
+          "type": "prepared",
+          "ability": "cha",
+          "innate": true,
+          "rank": "trained",
+          "dc": 21,
+          "attack": 11,
+          "slots": [
+            {
+              "rank": 0,
+              "count": 1
+            }
+          ],
+          "spells": [
+            {
+              "rank": 0,
+              "list": [
+                "Ignition"
+              ]
+            }
+          ]
+        }
+      ],
+      "focusSpells": [],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 0,
+      "money": {
+        "cp": 0,
+        "sp": 7,
+        "gp": 2028,
+        "pp": 0
+      },
+      "equipment": [
+        {
+          "name": "Chalk",
+          "qty": 10
+        },
+        {
+          "name": "Rations",
+          "qty": 4
+        },
+        {
+          "name": "Tent (Four-Person)",
+          "qty": 1
+        },
+        {
+          "name": "Timeless Salts",
+          "qty": 1
+        },
+        {
+          "name": "Bedroll",
+          "qty": 1
+        },
+        {
+          "name": "Pyrefeather Token",
+          "qty": 1
+        },
+        {
+          "name": "Dragon Turtle Scale",
+          "qty": 1
+        },
+        {
+          "name": "Staff of Air",
+          "qty": 1
+        },
+        {
+          "name": "Ring of Sigils",
+          "qty": 1
+        },
+        {
+          "name": "Torch",
+          "qty": 5
+        },
+        {
+          "name": "Manacles (Average)",
+          "qty": 2
+        },
+        {
+          "name": "Clothing (Explorer's)",
+          "qty": 1
+        },
+        {
+          "name": "Waterskin",
+          "qty": 4
+        },
+        {
+          "name": "Animal Staff",
+          "qty": 1
+        },
+        {
+          "name": "Weapon Siphon",
+          "qty": 1
+        },
+        {
+          "name": "Rope",
+          "qty": 1
+        },
+        {
+          "name": "Surprise Doll",
+          "qty": 1
+        },
+        {
+          "name": "Flint and Steel",
+          "qty": 1
+        },
+        {
+          "name": "Soap",
+          "qty": 1
+        },
+        {
+          "name": "Backfire Mantle",
+          "qty": 1
+        },
+        {
+          "name": "Explosive Missive",
+          "qty": 1
+        },
+        {
+          "name": "Shapespeak Mask",
+          "qty": 1
+        },
+        {
+          "name": "Healing Potion (Minor)",
+          "qty": 2
+        },
+        {
+          "name": "Disguise Kit",
+          "qty": 1
+        },
+        {
+          "name": "Necklace of Crackling Air",
+          "qty": 1
+        },
+        {
+          "name": "Ring of Minor Arcana",
+          "qty": 1
+        },
+        {
+          "name": "Healer's Gloves",
+          "qty": 1
+        },
+        {
+          "name": "Pendant of the Occult",
+          "qty": 1
+        },
+        {
+          "name": "Wolf Fang",
+          "qty": 1
+        },
+        {
+          "name": "Pyrefeather Cloak",
+          "qty": 1
+        },
+        {
+          "name": "Journeybread",
+          "qty": 1
+        },
+        {
+          "name": "Backpack",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "aegon",
+      "group": "the-alliance",
+      "name": "Aegon",
+      "player": null,
+      "level": 7,
+      "class": "Sorcerer",
+      "dualClass": null,
+      "ancestry": "Elf",
+      "heritage": "Nephilim",
+      "background": "Hermit (Occultism)",
+      "deity": null,
+      "size": "Medium",
+      "gender": null,
+      "age": null,
+      "keyAbility": "cha",
+      "languages": [],
+      "abilities": {
+        "str": 10,
+        "dex": 16,
+        "con": 14,
+        "int": 16,
+        "wis": 10,
+        "cha": 19
+      },
+      "mods": {
+        "str": 0,
+        "dex": 3,
+        "con": 2,
+        "int": 3,
+        "wis": 0,
+        "cha": 4
+      },
+      "ac": 23,
+      "shieldBonus": null,
+      "hp": 62,
+      "speed": 30,
+      "perception": 9,
+      "perceptionRank": "trained",
+      "saves": {
+        "fort": 13,
+        "ref": 12,
+        "will": 11
+      },
+      "saveRanks": {
+        "fort": "expert",
+        "ref": "trained",
+        "will": "expert"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "arcana",
+          "rank": "master",
+          "bonus": 16
+        },
+        {
+          "name": "athletics",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "crafting",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "deception",
+          "rank": "expert",
+          "bonus": 15
+        },
+        {
+          "name": "diplomacy",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "intimidation",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "medicine",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "nature",
+          "rank": "trained",
+          "bonus": 9
+        },
+        {
+          "name": "occultism",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "performance",
+          "rank": "untrained",
+          "bonus": 4
+        },
+        {
+          "name": "religion",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "society",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "stealth",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "survival",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "thievery",
+          "rank": "untrained",
+          "bonus": 3
+        }
+      ],
+      "lores": [
+        {
+          "name": "One Terrain",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "Legal",
+          "rank": "trained",
+          "bonus": 12
+        }
+      ],
+      "feats": [
+        {
+          "name": "Dubious Knowledge",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Lie to Me",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Nephilim",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Hellspawn",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Trick Magic Item",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Reach Spell",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Incredible Initiative",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Charlatan",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Primal Evolution",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Elven Instincts",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Recognize Spell",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Advanced Bloodline",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Quick Recognition",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Bloodline: Fey",
+        "Sorcerous Potency",
+        "Blood Magic",
+        "Low-Light Vision",
+        "Darkvision",
+        "Signature Spells",
+        "Magical Fortitude",
+        "Expert Spellcaster",
+        "Nephilim"
+      ],
+      "weapons": [],
+      "armor": [
+        {
+          "name": "+1 Raiment Explorer's Clothing",
+          "base": "Explorer's Clothing",
+          "proficiency": "unarmored",
+          "worn": true,
+          "potency": 1,
+          "resilient": null,
+          "runes": [
+            "Raiment"
+          ]
+        }
+      ],
+      "spellcasting": [
+        {
+          "name": "Sorcerer",
+          "tradition": "primal",
+          "type": "spontaneous",
+          "ability": "cha",
+          "innate": false,
+          "rank": "expert",
+          "dc": 25,
+          "attack": 15,
+          "slots": [
+            {
+              "rank": 0,
+              "count": 5
+            },
+            {
+              "rank": 1,
+              "count": 4
+            },
+            {
+              "rank": 2,
+              "count": 4
+            },
+            {
+              "rank": 3,
+              "count": 4
+            },
+            {
+              "rank": 4,
+              "count": 3
+            }
+          ],
+          "spells": [
+            {
+              "rank": 0,
+              "list": [
+                "Detect Magic",
+                "Prestidigitation",
+                "Needle Darts",
+                "Electric Arc",
+                "Figment"
+              ]
+            },
+            {
+              "rank": 1,
+              "list": [
+                "Summon Fey",
+                "Inkshot",
+                "500 Toads",
+                "Charm"
+              ]
+            },
+            {
+              "rank": 2,
+              "list": [
+                "Brine Dragon Bile",
+                "Frog Tongue",
+                "The Queen's Rainbow",
+                "Laughing Fit"
+              ]
+            },
+            {
+              "rank": 3,
+              "list": [
+                "Dive and Breach",
+                "Fireball",
+                "Blazing Bolt",
+                "Enthrall"
+              ]
+            },
+            {
+              "rank": 4,
+              "list": [
+                "Fey Form",
+                "Fly",
+                "Suggestion"
+              ]
+            }
+          ]
+        }
+      ],
+      "focusSpells": [
+        "Faerie Dust",
+        "Fey Disappearance"
+      ],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 2,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 15,
+        "pp": 0
+      },
+      "equipment": [
+        {
+          "name": "Staff of Nature's Cunning",
+          "qty": 1
+        },
+        {
+          "name": "Staff of Elemental Power",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "jericho",
+      "group": "the-alliance",
+      "name": "Jericho",
+      "player": null,
+      "level": 8,
+      "class": "Commander",
+      "dualClass": null,
+      "ancestry": "Human",
+      "heritage": "Versatile Human",
+      "background": "Emissary",
+      "deity": null,
+      "size": "Medium",
+      "gender": null,
+      "age": null,
+      "keyAbility": "int",
+      "languages": [],
+      "abilities": {
+        "str": 18,
+        "dex": 10,
+        "con": 14,
+        "int": 19,
+        "wis": 10,
+        "cha": 14
+      },
+      "mods": {
+        "str": 4,
+        "dex": 0,
+        "con": 2,
+        "int": 4,
+        "wis": 0,
+        "cha": 2
+      },
+      "ac": 27,
+      "shieldBonus": 2,
+      "hp": 88,
+      "speed": 20,
+      "perception": 12,
+      "perceptionRank": "expert",
+      "saves": {
+        "fort": 12,
+        "ref": 12,
+        "will": 12
+      },
+      "saveRanks": {
+        "fort": "trained",
+        "ref": "expert",
+        "will": "expert"
+      },
+      "classDC": 26,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "arcana",
+          "rank": "untrained",
+          "bonus": 4
+        },
+        {
+          "name": "athletics",
+          "rank": "trained",
+          "bonus": 14
+        },
+        {
+          "name": "crafting",
+          "rank": "trained",
+          "bonus": 14
+        },
+        {
+          "name": "deception",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "diplomacy",
+          "rank": "master",
+          "bonus": 16
+        },
+        {
+          "name": "intimidation",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "medicine",
+          "rank": "expert",
+          "bonus": 12
+        },
+        {
+          "name": "nature",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "occultism",
+          "rank": "untrained",
+          "bonus": 4
+        },
+        {
+          "name": "performance",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "religion",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "society",
+          "rank": "trained",
+          "bonus": 14
+        },
+        {
+          "name": "stealth",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "survival",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "thievery",
+          "rank": "untrained",
+          "bonus": 0
+        }
+      ],
+      "lores": [
+        {
+          "name": "Warfare",
+          "rank": "master",
+          "bonus": 18
+        },
+        {
+          "name": "A City",
+          "rank": "trained",
+          "bonus": 14
+        }
+      ],
+      "feats": [
+        {
+          "name": "Shield Block",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Multilingual",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Battle Medicine",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Versatile Human",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Incredible Initiative",
+          "choice": null,
+          "type": "General Feat",
+          "level": 1
+        },
+        {
+          "name": "Officer's Medical Training",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Natural Ambition",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Plant Banner",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Armor Assist",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Defensive Swap",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Predict Weather",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Risky Surgery",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Shielded Recovery",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Sense Allies",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Group Impression",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Shield Warden",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Shameless Request",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        },
+        {
+          "name": "Master of Apprentice",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 8
+        },
+        {
+          "name": "Rallying Banner",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 8
+        }
+      ],
+      "specials": [
+        "Commander's Banner",
+        "Strike Hard!",
+        "Gather to Me!",
+        "Double Team",
+        "End It!",
+        "Defensive Retreat",
+        "Drilled Reactions",
+        "Warfare Expertise",
+        "Military Expertise",
+        "Slip and Sizzle",
+        "Take the High Ground",
+        "Weapon Specialization",
+        "Versatile Human"
+      ],
+      "weapons": [
+        {
+          "name": "+1 Striking Flail",
+          "base": "Flail",
+          "proficiency": "martial",
+          "damage": "d6 B",
+          "striking": "striking",
+          "extraDamage": [],
+          "potency": 1,
+          "runes": []
+        }
+      ],
+      "armor": [
+        {
+          "name": "+1 Ready Full Plate",
+          "base": "Full Plate",
+          "proficiency": "heavy",
+          "worn": true,
+          "potency": 1,
+          "resilient": null,
+          "runes": [
+            "Ready"
+          ]
+        },
+        {
+          "name": "Steel Shield",
+          "base": "Steel Shield",
+          "proficiency": "shield",
+          "worn": true,
+          "potency": 0,
+          "resilient": null,
+          "runes": [
+            "Dragon's Breath (2nd-Level Spell)"
+          ]
+        }
+      ],
+      "spellcasting": [],
+      "focusSpells": [],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 0,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 15,
+        "pp": 0
+      },
+      "equipment": []
+    },
+    {
+      "id": "kali",
+      "group": "the-alliance",
+      "name": "Kali",
+      "player": null,
+      "level": 7,
+      "class": "Barbarian",
+      "dualClass": null,
+      "ancestry": "Human",
+      "heritage": "Beastkin",
+      "background": "Warrior",
+      "deity": null,
+      "size": "Medium",
+      "gender": null,
+      "age": null,
+      "keyAbility": "str",
+      "languages": [],
+      "abilities": {
+        "str": 19,
+        "dex": 14,
+        "con": 18,
+        "int": 10,
+        "wis": 10,
+        "cha": 14
+      },
+      "mods": {
+        "str": 4,
+        "dex": 2,
+        "con": 4,
+        "int": 0,
+        "wis": 0,
+        "cha": 2
+      },
+      "ac": 22,
+      "shieldBonus": null,
+      "hp": 120,
+      "speed": 30,
+      "perception": 11,
+      "perceptionRank": "expert",
+      "saves": {
+        "fort": 17,
+        "ref": 11,
+        "will": 11
+      },
+      "saveRanks": {
+        "fort": "master",
+        "ref": "trained",
+        "will": "expert"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "arcana",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "athletics",
+          "rank": "master",
+          "bonus": 17
+        },
+        {
+          "name": "crafting",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "deception",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "diplomacy",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "intimidation",
+          "rank": "expert",
+          "bonus": 13
+        },
+        {
+          "name": "medicine",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "nature",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "occultism",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "performance",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "religion",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "society",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "stealth",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "survival",
+          "rank": "trained",
+          "bonus": 9
+        },
+        {
+          "name": "thievery",
+          "rank": "untrained",
+          "bonus": 2
+        }
+      ],
+      "lores": [
+        {
+          "name": "Warfare",
+          "rank": "trained",
+          "bonus": 9
+        }
+      ],
+      "feats": [
+        {
+          "name": "Intimidating Glare",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Beastkin",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Raging Thrower",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Sudden Charge",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Animal Senses",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Titan Wrestler",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Shake it Off",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Powerful Leap",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Quick Jump",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Swipe",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Animalistic Resistance",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Terrifying Resistance",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Reactive Strike",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Wall Jump",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Rage",
+        "Quick-Tempered",
+        "Fury Instinct",
+        "Change Shape (Beastkin)",
+        "Scent (imprecise) 30 feet",
+        "Furious Footfalls",
+        "Brutality",
+        "Fury Instinct Specialization Ability",
+        "Juggernaut",
+        "Weapon Specialization",
+        "Beastkin"
+      ],
+      "weapons": [
+        {
+          "name": "+1 Striking Fearsome Greataxe",
+          "base": "Greataxe",
+          "proficiency": "martial",
+          "damage": "d12 S",
+          "striking": "striking",
+          "extraDamage": [],
+          "potency": 1,
+          "runes": [
+            "Fearsome"
+          ]
+        }
+      ],
+      "armor": [
+        {
+          "name": "+1 Deathless Explorer's Clothing",
+          "base": "Explorer's Clothing",
+          "proficiency": "unarmored",
+          "worn": true,
+          "potency": 1,
+          "resilient": null,
+          "runes": [
+            "Deathless"
+          ]
+        }
+      ],
+      "spellcasting": [],
+      "focusSpells": [],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 0,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 3,
+        "pp": 0
+      },
+      "equipment": [
+        {
+          "name": "Healing Potion (Lesser)",
+          "qty": 3
+        }
+      ]
+    },
+    {
+      "id": "mithri",
+      "group": "the-alliance",
+      "name": "Mithri",
+      "player": null,
+      "level": 7,
+      "class": "Rogue",
+      "dualClass": null,
+      "ancestry": "Fetchling",
+      "heritage": "Wisp Fetchling",
+      "background": "Criminal",
+      "deity": null,
+      "size": "Small",
+      "gender": null,
+      "age": null,
+      "keyAbility": "dex",
+      "languages": [],
+      "abilities": {
+        "str": 12,
+        "dex": 19,
+        "con": 18,
+        "int": 10,
+        "wis": 14,
+        "cha": 12
+      },
+      "mods": {
+        "str": 1,
+        "dex": 4,
+        "con": 4,
+        "int": 0,
+        "wis": 2,
+        "cha": 1
+      },
+      "ac": 25,
+      "shieldBonus": null,
+      "hp": 92,
+      "speed": 25,
+      "perception": 15,
+      "perceptionRank": "master",
+      "saves": {
+        "fort": 13,
+        "ref": 17,
+        "will": 13
+      },
+      "saveRanks": {
+        "fort": "trained",
+        "ref": "master",
+        "will": "expert"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "expert",
+          "bonus": 15
+        },
+        {
+          "name": "arcana",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "athletics",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "crafting",
+          "rank": "trained",
+          "bonus": 9
+        },
+        {
+          "name": "deception",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "diplomacy",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "intimidation",
+          "rank": "expert",
+          "bonus": 12
+        },
+        {
+          "name": "medicine",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "nature",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "occultism",
+          "rank": "expert",
+          "bonus": 11
+        },
+        {
+          "name": "performance",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "religion",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "society",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "stealth",
+          "rank": "master",
+          "bonus": 17
+        },
+        {
+          "name": "survival",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "thievery",
+          "rank": "expert",
+          "bonus": 15
+        }
+      ],
+      "lores": [
+        {
+          "name": "Underworld",
+          "rank": "trained",
+          "bonus": 9
+        }
+      ],
+      "feats": [
+        {
+          "name": "Experienced Smuggler",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Quick Squeeze",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Wisp Fetchling",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Dirty Trick",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 1
+        },
+        {
+          "name": "Tumble Behind",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Shadow Blending",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Pickpocket",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Nimble Dodge",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Cat Fall",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Subtle Theft",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 3
+        },
+        {
+          "name": "Rolling Landing",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Sabotage",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Steady Balance",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 5
+        },
+        {
+          "name": "Shadowy Disguise",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Tumbling Teamwork",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Slice and Swipe",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Foil Senses",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        },
+        {
+          "name": "Swift Sneak",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Thief Racket",
+        "Sneak Attack",
+        "Surprise Attack",
+        "Darkvision (Fetchling)",
+        "Deny Advantage",
+        "Weapon Tricks",
+        "Evasive Reflexes",
+        "Perception Mastery",
+        "Weapon Specialization",
+        "Wisp Fetchling"
+      ],
+      "weapons": [
+        {
+          "name": "Poisonous Dagger",
+          "base": "Poisonous Dagger",
+          "proficiency": "simple",
+          "damage": "d4 P",
+          "striking": "striking",
+          "extraDamage": [],
+          "potency": 1,
+          "runes": []
+        },
+        {
+          "name": "Serpent Dagger",
+          "base": "Serpent Dagger",
+          "proficiency": "simple",
+          "damage": "d4 P",
+          "striking": "striking",
+          "extraDamage": [],
+          "potency": 1,
+          "runes": []
+        }
+      ],
+      "armor": [
+        {
+          "name": "Arachnid Harness",
+          "base": "Arachnid Harness",
+          "proficiency": "light",
+          "worn": true,
+          "potency": 1,
+          "resilient": null,
+          "runes": []
+        }
+      ],
+      "spellcasting": [
+        {
+          "name": "Shadowy Disguise",
+          "tradition": "occult",
+          "type": "prepared",
+          "ability": "cha",
+          "innate": true,
+          "rank": "trained",
+          "dc": 20,
+          "attack": 10,
+          "slots": [
+            {
+              "rank": 1,
+              "count": 1
+            }
+          ],
+          "spells": [
+            {
+              "rank": 1,
+              "list": [
+                "Illusory Disguise"
+              ]
+            }
+          ]
+        }
+      ],
+      "focusSpells": [],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 0,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 15,
+        "pp": 0
+      },
+      "equipment": []
+    },
+    {
+      "id": "poppy",
+      "group": "the-alliance",
+      "name": "Poppy",
+      "player": null,
+      "level": 7,
+      "class": "Bard",
+      "dualClass": null,
+      "ancestry": "Awakened Animal",
+      "heritage": "Aiuvarin",
+      "background": "Royalty",
+      "deity": null,
+      "size": "Medium",
+      "gender": null,
+      "age": null,
+      "keyAbility": "cha",
+      "languages": [],
+      "abilities": {
+        "str": 10,
+        "dex": 16,
+        "con": 16,
+        "int": 8,
+        "wis": 16,
+        "cha": 19
+      },
+      "mods": {
+        "str": 0,
+        "dex": 3,
+        "con": 3,
+        "int": -1,
+        "wis": 3,
+        "cha": 4
+      },
+      "ac": 24,
+      "shieldBonus": null,
+      "hp": 85,
+      "speed": 20,
+      "perception": 14,
+      "perceptionRank": "expert",
+      "saves": {
+        "fort": 12,
+        "ref": 14,
+        "will": 14
+      },
+      "saveRanks": {
+        "fort": "trained",
+        "ref": "expert",
+        "will": "expert"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "arcana",
+          "rank": "untrained",
+          "bonus": -1
+        },
+        {
+          "name": "athletics",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "crafting",
+          "rank": "untrained",
+          "bonus": -1
+        },
+        {
+          "name": "deception",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "diplomacy",
+          "rank": "expert",
+          "bonus": 15
+        },
+        {
+          "name": "intimidation",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "medicine",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "nature",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "occultism",
+          "rank": "trained",
+          "bonus": 8
+        },
+        {
+          "name": "performance",
+          "rank": "master",
+          "bonus": 17
+        },
+        {
+          "name": "religion",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "society",
+          "rank": "trained",
+          "bonus": 8
+        },
+        {
+          "name": "stealth",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "survival",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "thievery",
+          "rank": "untrained",
+          "bonus": 3
+        }
+      ],
+      "lores": [],
+      "feats": [
+        {
+          "name": "Lingering Composition",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Courtly Graces",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Impressive Performance",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Aiuvarin",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "You're So Cute!",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Lengthy Diversion",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Hymn of Healing",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Assurance",
+          "choice": "Performance",
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Group Impression",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Inspiring Resilience",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Woodcraft",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Juggle",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Dirge of Doom",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Inflame Crowd",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Maestro",
+        "Composition Spells",
+        "Composition Cantrips",
+        "Medium",
+        "Low-Light Vision",
+        "Reflex Expertise",
+        "Signature Spells",
+        "Expert Spellcaster",
+        "Aiuvarin"
+      ],
+      "weapons": [],
+      "armor": [
+        {
+          "name": "+1 Raiment Wilderness Weave",
+          "base": "Wilderness Weave",
+          "proficiency": "light",
+          "worn": true,
+          "potency": 1,
+          "resilient": null,
+          "runes": [
+            "Raiment"
+          ]
+        }
+      ],
+      "spellcasting": [
+        {
+          "name": "Bard",
+          "tradition": "occult",
+          "type": "spontaneous",
+          "ability": "cha",
+          "innate": false,
+          "rank": "expert",
+          "dc": 25,
+          "attack": 15,
+          "slots": [
+            {
+              "rank": 0,
+              "count": 5
+            },
+            {
+              "rank": 1,
+              "count": 3
+            },
+            {
+              "rank": 2,
+              "count": 3
+            },
+            {
+              "rank": 3,
+              "count": 3
+            },
+            {
+              "rank": 4,
+              "count": 2
+            }
+          ],
+          "spells": [
+            {
+              "rank": 0,
+              "list": [
+                "Daze",
+                "Glamorize",
+                "Message",
+                "Prestidigitation",
+                "Shield"
+              ]
+            },
+            {
+              "rank": 1,
+              "list": [
+                "Bless",
+                "Charm",
+                "Force Barrage",
+                "Soothe"
+              ]
+            },
+            {
+              "rank": 2,
+              "list": [
+                "Paranoia",
+                "Confetti Cloud",
+                "Sonata Span"
+              ]
+            },
+            {
+              "rank": 3,
+              "list": [
+                "Cyclone Rondo",
+                "Focusing Hum",
+                "Shared Invisibility"
+              ]
+            },
+            {
+              "rank": 4,
+              "list": [
+                "Replicate",
+                "Infiltrator's Tunnel"
+              ]
+            }
+          ]
+        }
+      ],
+      "focusSpells": [
+        "Courageous Anthem",
+        "Dirge of Doom",
+        "Counter Performance",
+        "Lingering Composition",
+        "Hymn of Healing"
+      ],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 3,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 15,
+        "pp": 0
+      },
+      "equipment": []
+    },
+    {
+      "id": "tandrun",
+      "group": "the-alliance",
+      "name": "Tandrun",
+      "player": null,
+      "level": 7,
+      "class": "Runesmith",
+      "dualClass": null,
+      "ancestry": "Dwarf",
+      "heritage": "Anvil Dwarf",
+      "background": "Farmhand",
+      "deity": null,
+      "size": "Medium",
+      "gender": null,
+      "age": null,
+      "keyAbility": "int",
+      "languages": [],
+      "abilities": {
+        "str": 14,
+        "dex": 14,
+        "con": 18,
+        "int": 18,
+        "wis": 14,
+        "cha": 8
+      },
+      "mods": {
+        "str": 2,
+        "dex": 2,
+        "con": 4,
+        "int": 4,
+        "wis": 2,
+        "cha": -1
+      },
+      "ac": 25,
+      "shieldBonus": 1,
+      "hp": 94,
+      "speed": 20,
+      "perception": 11,
+      "perceptionRank": "trained",
+      "saves": {
+        "fort": 15,
+        "ref": 13,
+        "will": 13
+      },
+      "saveRanks": {
+        "fort": "expert",
+        "ref": "expert",
+        "will": "expert"
+      },
+      "classDC": 25,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "arcana",
+          "rank": "master",
+          "bonus": 17
+        },
+        {
+          "name": "athletics",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "crafting",
+          "rank": "expert",
+          "bonus": 15
+        },
+        {
+          "name": "deception",
+          "rank": "untrained",
+          "bonus": -1
+        },
+        {
+          "name": "diplomacy",
+          "rank": "untrained",
+          "bonus": -1
+        },
+        {
+          "name": "intimidation",
+          "rank": "trained",
+          "bonus": 8
+        },
+        {
+          "name": "medicine",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "nature",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "occultism",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "performance",
+          "rank": "untrained",
+          "bonus": -1
+        },
+        {
+          "name": "religion",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "society",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "stealth",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "survival",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "thievery",
+          "rank": "untrained",
+          "bonus": 2
+        }
+      ],
+      "lores": [
+        {
+          "name": "Farming",
+          "rank": "trained",
+          "bonus": 13
+        }
+      ],
+      "feats": [
+        {
+          "name": "Shield Block",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Assurance",
+          "choice": "Athletics",
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Specialty Crafting",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Magical Crafting",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 2
+        },
+        {
+          "name": "Anvil Dwarf",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Remote Detonation",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Clan Pistol",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Quick Repair",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Pattern Flight",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Improvised Repair",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Inventor",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Fortifying Knock",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Blast Resistance",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Assured Identification",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Tracing Trance",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Fleet",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Runes",
+        "Trace Runes",
+        "Invoke Rune",
+        "Runic Magic",
+        "Runic Repertoire",
+        "Darkvision",
+        "Runic Crafter",
+        "Weapon Expertise",
+        "Expert Runes",
+        "Reflex Expertise",
+        "Runic Optimization",
+        "Anvil Dwarf"
+      ],
+      "weapons": [
+        {
+          "name": "+1 Striking Called Clan Pistol",
+          "base": "Clan Pistol",
+          "proficiency": "martial",
+          "damage": "d6 P",
+          "striking": "striking",
+          "extraDamage": [],
+          "potency": 1,
+          "runes": [
+            "Called"
+          ]
+        }
+      ],
+      "armor": [
+        {
+          "name": "+1 Shadow Reactive Mail",
+          "base": "Reactive Mail",
+          "proficiency": "medium",
+          "worn": true,
+          "potency": 1,
+          "resilient": null,
+          "runes": [
+            "Shadow"
+          ]
+        },
+        {
+          "name": "Archer's Bulwark",
+          "base": "Archer's Bulwark",
+          "proficiency": "shield",
+          "worn": true,
+          "potency": 0,
+          "resilient": null,
+          "runes": []
+        }
+      ],
+      "spellcasting": [],
+      "focusSpells": [],
+      "specificProficiencies": [],
+      "resistances": [
+        "sonic 3",
+        "fire 3"
+      ],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 0,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 15,
+        "pp": 0
+      },
+      "equipment": []
+    }
+  ]
+}

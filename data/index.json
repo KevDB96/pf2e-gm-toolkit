@@ -1,0 +1,166 @@
+{
+  "_generated": "2026-08-22T11:34:05.818Z",
+  "_ruleset": "Remaster. Where a rule exists in both editions this keeps only the post-Remaster version (Player Core, Monster Core, GM Core); pre-Remaster content that was never reprinted is still included.",
+  "categories": [
+    {
+      "name": "creatures",
+      "file": "creatures.json",
+      "key": "creatures",
+      "label": "Creatures",
+      "glyph": "🐉",
+      "blurb": "Monsters and NPCs with full defensive stats.",
+      "count": 3743,
+      "bytes": 2424623
+    },
+    {
+      "name": "equipment",
+      "file": "equipment.json",
+      "key": "items",
+      "label": "Equipment",
+      "glyph": "🗡",
+      "blurb": "Gear, weapons, armour and shields.",
+      "count": 6823,
+      "bytes": 2990374
+    },
+    {
+      "name": "spells",
+      "file": "spells.json",
+      "key": "spells",
+      "label": "Spells",
+      "glyph": "✨",
+      "blurb": "Every spell, cantrip and focus spell.",
+      "count": 1811,
+      "bytes": 792737
+    },
+    {
+      "name": "feats",
+      "file": "feats.json",
+      "key": "feats",
+      "label": "Feats",
+      "glyph": "🎯",
+      "blurb": "Class, ancestry, skill and general feats.",
+      "count": 6296,
+      "bytes": 2248603
+    },
+    {
+      "name": "actions",
+      "file": "actions.json",
+      "key": "actions",
+      "label": "Actions",
+      "glyph": "⚡",
+      "blurb": "Basic and specialty actions with their costs.",
+      "count": 550,
+      "bytes": 209424
+    },
+    {
+      "name": "hazards",
+      "file": "hazards.json",
+      "key": "hazards",
+      "label": "Hazards",
+      "glyph": "🕳",
+      "blurb": "Traps and environmental dangers.",
+      "count": 553,
+      "bytes": 404509
+    },
+    {
+      "name": "conditions",
+      "file": "conditions.json",
+      "key": "conditions",
+      "label": "Conditions",
+      "glyph": "🌀",
+      "blurb": "What each condition actually does.",
+      "count": 56,
+      "bytes": 17227
+    },
+    {
+      "name": "classes",
+      "file": "classes.json",
+      "key": "classes",
+      "label": "Classes",
+      "glyph": "🛡",
+      "blurb": "HP, key attribute and proficiency progressions.",
+      "count": 29,
+      "bytes": 21224
+    },
+    {
+      "name": "ancestries",
+      "file": "ancestries.json",
+      "key": "ancestries",
+      "label": "Ancestries",
+      "glyph": "🧝",
+      "blurb": "Ancestries with HP, size, speed and vision.",
+      "count": 67,
+      "bytes": 29066
+    },
+    {
+      "name": "heritages",
+      "file": "heritages.json",
+      "key": "heritages",
+      "label": "Heritages",
+      "glyph": "🌿",
+      "blurb": "Heritage options for each ancestry.",
+      "count": 308,
+      "bytes": 94360
+    },
+    {
+      "name": "backgrounds",
+      "file": "backgrounds.json",
+      "key": "backgrounds",
+      "label": "Backgrounds",
+      "glyph": "📜",
+      "blurb": "Backgrounds with their attributes and skills.",
+      "count": 518,
+      "bytes": 235234
+    },
+    {
+      "name": "archetypes",
+      "file": "archetypes.json",
+      "key": "archetypes",
+      "label": "Archetypes",
+      "glyph": "🎭",
+      "blurb": "Multiclass and specialist archetypes.",
+      "count": 248,
+      "bytes": 105102
+    },
+    {
+      "name": "deities",
+      "file": "deities.json",
+      "key": "deities",
+      "label": "Deities",
+      "glyph": "🕊",
+      "blurb": "Edicts, anathema, domains and favoured weapons.",
+      "count": 484,
+      "bytes": 435268
+    },
+    {
+      "name": "rituals",
+      "file": "rituals.json",
+      "key": "rituals",
+      "label": "Rituals",
+      "glyph": "🕯",
+      "blurb": "Rituals with their checks and casting costs.",
+      "count": 162,
+      "bytes": 92869
+    },
+    {
+      "name": "skills",
+      "file": "skills.json",
+      "key": "skills",
+      "label": "Skills",
+      "glyph": "🎲",
+      "blurb": "The skill list and what each one governs.",
+      "count": 33,
+      "bytes": 10177
+    },
+    {
+      "name": "traits",
+      "file": "traits.json",
+      "key": "traits",
+      "label": "Traits",
+      "glyph": "🏷",
+      "blurb": "What every rules trait means.",
+      "count": 564,
+      "bytes": 158538
+    }
+  ]
+}

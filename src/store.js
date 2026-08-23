@@ -4,10 +4,14 @@
 const KEY = 'pf2e-gm-toolkit/v1';
 
 const DEFAULTS = {
-  party: { level: 1, size: 4, members: [] },
+  // Seeded for the Mists of Zalazar campaign; the header overrides it per session.
+  party: { level: 7, size: 5, members: [] },
   encounter: { entries: [] },       // { id, name, level, count, kind: 'creature'|'simple'|'complex' }
   combat: { round: 0, active: 0, combatants: [] },
-  loot: { pool: [], claimed: {} }
+  loot: { pool: [], claimed: {} },
+  notes: { entries: [] },         // { id, title, body, at } — your own session notes
+  characters: { extra: [] },      // PCs pasted in on this device; the repo roster is
+                                  // data/characters.json
 };
 
 function clone(v) { return JSON.parse(JSON.stringify(v)); }
