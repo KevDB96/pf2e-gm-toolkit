@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pf2e-gm-v20';
+const CACHE_NAME = 'pf2e-gm-v22';
 
 // Where this worker is served from: '/' locally, '/pf2e-gm-toolkit/' on GitHub Pages.
 // Every path test below is relative to it. An absolute '/src/' test passed locally and
@@ -28,8 +28,17 @@ const OFFLINE_URLS = [
   './src/views/notes.js',
   './src/views/party.js',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './icons/icon-maskable-192.png',
+  './icons/icon-maskable-512.png'
 ];
+
+// Google Fonts. Cinzel and Inter are the only cross-origin assets the app loads, and
+// they were never cached: cachePut() refuses anything cross-origin, so offline the app
+// silently fell back to system-ui and Georgia. They cannot be precached — the woff2 URLs
+// live inside the stylesheet and vary by browser — so they are cached on first use
+// instead, which is fine because installing already requires one online load.
+const FONT_ORIGINS = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 
 // Small data files, warmed in the background after activation. Together well under
 // 2 MB, so pulling them costs little and makes the Campaign screen and most of the
@@ -109,8 +118,21 @@ function isLive(url) {
     LIVE_DATA.some(f => url.pathname.endsWith('/data/' + f));
 }
 
+/**
+ * A cross-origin stylesheet or font is requested no-cors, so what comes back is an
+ * opaque response: `ok` is false and `status` is 0 even on success. `cache.put()` stores
+ * one anyway — unlike `cache.add()`, which rejects it — and it replays fine, so the
+ * fonts survive offline. Nothing else cross-origin is stored: an opaque response hides
+ * its own failures, and that is only an acceptable trade for two known font hosts.
+ */
+function storable(request, response) {
+  const origin = new URL(request.url).origin;
+  if (FONT_ORIGINS.includes(origin)) return response.ok || response.type === 'opaque';
+  return response.ok && origin === self.location.origin;
+}
+
 function cachePut(request, response) {
-  if (response.ok && new URL(request.url).origin === self.location.origin) {
+  if (storable(request, response)) {
     const copy = response.clone();
     caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
   }
@@ -139,8 +161,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for reference data and icons — multi-megabyte and effectively immutable
-  // between regenerations, and stored on first use so whatever you open goes offline.
+  // Cache-first for reference data, icons and the Google Fonts files — multi-megabyte
+  // and effectively immutable between regenerations, and stored on first use so whatever
+  // you open goes offline. Fonts land here because isLive() is false for cross-origin.
   event.respondWith(caches.match(request).then(hit =>
     hit || fetch(request).then(resp => cachePut(request, resp))));
 });

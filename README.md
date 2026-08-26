@@ -41,6 +41,14 @@ To install it on a phone: open the URL in the browser and use *Add to Home Scree
 then launches standalone and works offline, warming the small reference files on first run
 and caching the large ones as you open them.
 
+`icons/` holds two pairs. `icon-192.png` and `icon-512.png` are the plain icons; the
+`icon-maskable-*.png` pair is the same art inset to 90% so it survives the circular mask
+Android applies to an adaptive icon. Both pairs are listed in the manifest with the
+matching `purpose`. Replacing the art means replacing all four — a maskable icon whose
+content strays outside the middle 80% gets its corners clipped on the home screen. The art
+uses the same tokens as the app, `--accent` on `--bg`, so it should be recoloured whenever
+the palette is.
+
 ## Tests
 
 ```powershell
@@ -336,7 +344,11 @@ it up from the manifest with no view change.
   **network-first**, with the cache only as an offline fallback. It has to update as one
   unit: cache-first left a new `index.html` paired with a stale `app.js`, so a newly
   added tab rendered but its route did not exist and the tab silently did nothing. Only
-  `data/` and `icons/` are cache-first.
+  `data/`, `icons/` and the Google Fonts files are cache-first.
+- Cinzel and Inter are the only cross-origin assets, and they are cached on first use.
+  They cannot be precached — the `woff2` URLs live inside the stylesheet and vary by
+  browser — so the fonts go offline after one online load, which installing needs anyway.
+  Until this was added the app fell back to `system-ui`/Georgia whenever it was offline.
 - Colour lives entirely in the `:root` tokens in [styles.css](styles.css) — greyscale
   ground, purple for every primary accent, green for healthy/done/low, and red reserved
   for danger. Each accent has three forms: `--accent` (text/marks), `--accent-soft`

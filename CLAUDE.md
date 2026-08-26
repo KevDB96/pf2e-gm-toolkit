@@ -35,6 +35,23 @@ conventions. This file only records the things that are easy to get wrong.
   stale `app.js`, so a newly added tab renders while its route does not exist and the
   tab silently does nothing for a whole session. Only `data/` and `icons/` are
   cache-first.
+- **`cachePut()` stores two cross-origin hosts on purpose.** Cinzel and Inter come from
+  `fonts.googleapis.com` and `fonts.gstatic.com`, and a cross-origin stylesheet or font is
+  requested no-cors, so the response is *opaque*: `ok` is false and `status` is 0 even on
+  success. `storable()` therefore accepts `type === 'opaque'` for those two origins only —
+  do not simplify it back to a plain same-origin test, which is what left the app rendering
+  in `system-ui`/Georgia whenever it was offline. They cannot go in `OFFLINE_URLS`: the
+  `woff2` URLs live inside the stylesheet and vary by browser, so they are cached on first
+  use. Nothing else cross-origin is cached — an opaque response hides its own failures.
+- **The icons come in two pairs and both are listed in the manifest.** `icon-192/512.png`
+  are `purpose: "any"`; `icon-maskable-192/512.png` are the same art inset to 90% for
+  `purpose: "maskable"`, because Android masks an adaptive icon to a circle and the plain
+  art overflows that safe zone by a few pixels at the d20's top and bottom points. Replace
+  all four together, and keep maskable content inside the middle 80%. The art follows the
+  same tokens as the app — `--accent` `#b592f6` on `--bg` `#0c0c10` — so recolouring the
+  palette means recolouring these too; they were gold against a warm dark until the
+  purple accent landed, and looked like a different app on the home screen.
+
 - **Paths stay relative; the service worker derives its own base.** The app is deployed to
   GitHub Pages under `/pf2e-gm-toolkit/`, not a domain root, so a leading-slash path works
   locally and 404s only in production. `BASE` in `service-worker.js` comes from
