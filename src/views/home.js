@@ -29,7 +29,7 @@ function status(view) {
   const { level, size } = state.party;
 
   if (view === 'sound') {
-    return state.sound.url ? 'YouTube link ready' : 'No track selected';
+    return 'Open saved tracks in YouTube';
   }
 
   if (view === 'encounters') {
