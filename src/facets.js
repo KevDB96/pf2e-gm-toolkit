@@ -12,6 +12,7 @@ import { caps, esc } from './dom.js';
 
 export const SIZE_ORDER = ['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'];
 export const RARITY_ORDER = ['common', 'uncommon', 'rare', 'unique'];
+export const ACTION_ORDER = ['free action', 'reaction', 'single action', 'two actions', 'three actions'];
 
 /** The comparable form of a value. Filtering is case- and spacing-insensitive. */
 export const facetKey = v => String(v ?? '').toLowerCase().trim();
@@ -49,7 +50,7 @@ const CANDIDATES = [
   { id: 'damageType', label: 'Damage type', field: 'damageType' },
   { id: 'hazardType', label: 'Hazard type', field: 'hazardType' },
   { id: 'complexity', label: 'Complexity', field: 'complexity' },
-  { id: 'actionCount', label: 'Actions', field: 'actionCount', numeric: true },
+  { id: 'actions', label: 'Actions', field: 'actions', order: ACTION_ORDER },
   { id: 'attribute', label: 'Attribute', field: 'attribute' },
   { id: 'keyAbility', label: 'Key attribute', field: 'keyAbility' },
   { id: 'archetypeCategory', label: 'Archetype', field: 'archetypeCategory' },
@@ -155,7 +156,18 @@ export function facetOptions(records, axis) {
   const entries = [...found.entries()];
   entries.sort(([a, x], [b, y]) => {
     if (axis.numeric) return Number(a) - Number(b);
-    if (axis.order) return axis.order.indexOf(a) - axis.order.indexOf(b);
+    if (axis.order) {
+      const ia = axis.order.indexOf(a);
+      const ib = axis.order.indexOf(b);
+      // A value outside the order list (the `actions` axis also holds compound and
+      // duration values like "1 minute" that aren't a fixed cost) sorts after every
+      // known one, alphabetically among itself — not first, which is where a bare
+      // indexOf(-1) would otherwise put it.
+      if (ia === -1 && ib === -1) return x.label.localeCompare(y.label);
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    }
     return x.label.localeCompare(y.label);
   });
   return new Map(entries);

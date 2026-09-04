@@ -101,6 +101,45 @@ a{color:var(--accent);text-decoration-color:var(--accent-edge)}
 .sound-player iframe{display:block;width:100%;height:100%;border:0}
 @media (min-width:480px){.sound-player{aspect-ratio:16/9}}
 
+/* ---------- BGM: dice, folders ----------
+   Own namespace: `.sound-*` above is the add-a-link form, and none of this shares
+   anything with it. Every control here is an anchor, never a button — see the note in
+   src/views/sound.js — so they are styled to read as buttons rather than as links.
+   The whole track row is the link too, which is what lets the play glyph be small
+   without dropping the tap target below 44px: `.bgm-go` is decoration, not the control. */
+.bgm-die{display:flex;align-items:center;gap:12px;min-height:56px;padding:9px 14px;
+  margin-bottom:9px;text-decoration:none;color:var(--ink);border-radius:12px;
+  border:1px solid var(--accent-edge);background:var(--accent-soft)}
+.bgm-die:last-child{margin-bottom:0}
+.bgm-die:active{transform:scale(0.985)}
+.bgm-die .dice{flex:0 0 auto;font-size:1.4rem;line-height:1}
+.bgm-die .grow{display:block;min-width:0}
+.bgm-die .name{display:block;font-weight:600;font-size:0.95rem}
+.bgm-last{display:block;font-size:0.72rem;color:var(--accent);margin-top:3px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bgm-last:empty{display:none}
+
+.bgm-folder{border-bottom:1px solid var(--line)}
+.bgm-folder:last-child{border-bottom:0}
+.bgm-open{width:100%;display:flex;align-items:center;gap:10px;text-align:left;
+  padding:11px 0;background:none;border:none;border-radius:0;color:var(--ink)}
+.bgm-open:active{background:var(--panel-2)}
+.bgm-open .grow{display:block;min-width:0}
+.bgm-open .name{display:block;font-weight:600;font-size:0.95rem}
+.bgm-open .sub{display:block;font-size:0.72rem;color:var(--muted);margin-top:2px}
+.bgm-open .chev{flex:0 0 auto;color:var(--muted);font-size:1.1rem;padding-left:4px}
+.bgm-body{padding:0 0 8px}
+.bgm-row{display:flex;align-items:center;gap:10px;min-height:44px;padding:7px 0 7px 12px;
+  text-decoration:none;color:var(--ink);border-top:1px solid var(--line)}
+.bgm-row:active{background:var(--panel-2)}
+.bgm-row .grow{display:block;min-width:0}
+.bgm-row .name{display:block;font-size:0.86rem;line-height:1.35}
+.bgm-row .sub{display:block;font-size:0.7rem;color:var(--muted);margin-top:2px}
+.bgm-go{flex:0 0 auto;color:var(--accent);font-size:0.72rem;padding-right:2px}
+.bgm-row-wrap{display:flex;align-items:center;gap:8px}
+.bgm-row-wrap .bgm-row{flex:1 1 auto}
+.bgm-row-wrap button.icon{flex:0 0 auto;min-width:32px;min-height:32px;font-size:0.72rem}
+
 /* ---------- controls ---------- */
 button,input,select{font:inherit}
 button{min-height:44px;background:var(--panel-2);color:var(--ink);border:1px solid var(--line);
@@ -113,6 +152,14 @@ button.icon{min-width:38px;min-height:38px;padding:0;display:grid;place-items:ce
 input[type=text],input[type=number],input[type=search],select{min-height:44px;width:100%;
   background:rgba(0,0,0,0.28);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:0 12px}
 input:focus,select:focus{outline:none;border-color:var(--accent)}
+/* Native number-input spinners are an unwanted "+1"/"-1" stepper glued to the right edge
+   of the box: it eats into the field's width, so centred text stops looking centred and a
+   three-digit value (like combat HP) clips behind it. Every number in this app is either
+   typed or dragged (see the HP slider and the party-chip Lvl/PCs steppers), never spun, so
+   the stepper is suppressed everywhere rather than only where it was first noticed. */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
 /* Not label.field: a range filter is two selects under one caption (facets.js), and a
    label may only own one control, so that one is a div wearing the same class. */
 .field{display:flex;flex-direction:column;gap:5px;font-size:0.74rem;color:var(--muted)}
@@ -160,6 +207,14 @@ input:focus,select:focus{outline:none;border-color:var(--accent)}
 .pick{flex:0 0 auto;min-height:38px;padding:0 13px;border-radius:999px;font-size:0.8rem;
   background:var(--panel);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .pick.on{background:var(--accent-soft);border-color:var(--accent-edge);color:var(--accent);font-weight:600}
+
+/* ---------- subnav (Run / Table sub-strip) ---------- */
+/* Sibling of #view, not inside it — #view is replaced wholesale on every switch, so a
+   listener bound inside would need re-binding on every render; see app.js and the
+   CLAUDE.md note on this. Deliberately not sticky: .topbar already claims top:0 and
+   z-index:20, and a second sticky element here would overlap it. */
+#subnav{margin-bottom:12px}
+#subnav .pick{flex:1 1 0;min-width:0;min-height:44px;text-align:center}
 
 /* ---------- tags and badges ---------- */
 .tag{display:inline-block;font-size:0.68rem;letter-spacing:0.02em;padding:3px 8px;border-radius:6px;
@@ -263,6 +318,28 @@ h2 + .card-group{margin-top:4px}
   color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-edge);
   border-radius:8px;padding:3px 6px}
 
+/* The encounter planner's name+sub block, linked to the Archives when the entry carries
+   a creature record (see sendToCombat()'s sibling, row(), in encounters.js). Block-level
+   so the whole name/sub area is the tap target, not just the text line, and colour reset
+   so a link inside .grow does not turn the row accent-coloured the way a bare anchor
+   would. A custom hand-typed entry has no url and renders .name/.sub outside any anchor,
+   unchanged from before this existed. */
+.enc-link{display:block;color:inherit;text-decoration:none}
+/* Elite/Weak sits on its own line below the sub-line, not beside the stepper — at 390px
+   there is roughly 186px left in a row for the level badge, stepper and delete button,
+   which will not also hold two chips next to a creature name. Reuses .pick (the picker
+   strip's pill) rather than .chip, which the combat tracker's condition chips already
+   own — see "CSS is one global namespace" in CLAUDE.md. .pick's own min-height is 38px,
+   fine inside a horizontally-scrolling .picker strip, but these two chips are a
+   standalone control and the app's own mobile-first floor is 44px. */
+.enc-adjust{display:flex;gap:6px;margin-top:6px}
+.enc-adjust .pick{min-height:44px}
+
+/* One heading per category block in the Library's "All" search results. */
+.group-head{font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.04em;
+  text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+.group-head:first-child{margin-top:0}
+
 /* ---------- combat tracker ---------- */
 /* The board: the party down the left, what they are fighting down the right, both in
    initiative order. Two columns at every width — seeing both sides at once is the point —
@@ -294,7 +371,14 @@ h2 + .card-group{margin-top:4px}
 .hprow{display:flex;align-items:center;gap:6px}
 .hp{flex:0 0 auto;display:flex;align-items:center;gap:3px;font-variant-numeric:tabular-nums;
   font-size:0.8rem}
-.hp input{width:2.9em;text-align:center;padding:0;min-height:30px;font-size:0.8rem}
+/* Sized for the worst case, a three-digit current over a three-digit max ("142/200") in
+   the tracker's two-column board: at 390px a column is ~163px, so a combatant card (8px×2
+   padding) has ~147px inside. At font-size 0.8rem (12.8px) tabular-nums digits run close to
+   0.6em each, so "142" is ~23px of glyph — 3.2em (~41px) box leaves it comfortably centred
+   with room either side now the native spinner (above) is gone. That still leaves .hpwrap,
+   the actual slider control, plenty of room: input 41px + .hp's 3px gap + the "/200" span
+   (~27px) + .hprow's 6px gap ≈ 77px used out of ~147px, nowhere near collapsing the bar. */
+.hp input{width:3.2em;text-align:center;padding:0;min-height:30px;font-size:0.8rem}
 .hpbar{height:8px;border-radius:999px;background:rgba(0,0,0,0.35);overflow:hidden}
 .hpbar > div{height:100%;background:var(--green);transition:width 200ms ease}
 .hpbar.warn > div{background:var(--violet)}
@@ -327,6 +411,12 @@ h2 + .card-group{margin-top:4px}
 .chip{font-size:0.66rem;padding:3px 7px;border-radius:999px;background:var(--blood-soft);
   border:1px solid var(--blood-edge);cursor:pointer}
 .chip.add{background:var(--panel-2);border-color:var(--line);color:var(--muted)}
+
+/* What the last "Next turn" tap did to conditions — combat.js's turnReport. Sits under
+   the round header, the same place a GM is already looking, and stays out of the way
+   (border-top only, no fill) until there is something to say. */
+.turn-report{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);
+  font-size:0.8rem;color:var(--ink)}
 
 /* ---------- loot ---------- */
 .coins{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}

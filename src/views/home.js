@@ -5,6 +5,9 @@ import { esc, on, qs } from '../dom.js';
 import { threatFor } from '../pf2e.js';
 import { manifest, campaign, characters } from '../data.js';
 import { totalXP } from './encounters.js';
+import * as library from './library.js';
+
+const HOME_RECENT = 5;   // how many of the Library's recents to surface on Home
 
 const TILES = [
   { view: 'encounters', glyph: '⚔', title: 'Encounters' },
@@ -79,9 +82,14 @@ function status(view) {
 export function mount(root) {
   root.innerHTML = `
     <div class="menu" id="menu">${TILES.map(tile).join('')}</div>
+    <div class="picker" id="recent" hidden></div>
     <div class="empty" id="party-note"></div>`;
 
   on(root, 'click', '[data-go]', (e, el) => { location.hash = '#/' + el.dataset.go; });
+  on(root, 'click', '[data-recent-cat]', (e, el) => {
+    library.openRecord(el.dataset.recentCat, el.dataset.recentId);
+    location.hash = '#/library';
+  });
 
   if (libraryCount === null) {
     manifest().then(cats => {
@@ -102,7 +110,18 @@ export function mount(root) {
     });
   }
 
+  drawRecent(root);
   update(root);
+}
+
+function drawRecent(root) {
+  const el = qs('#recent', root);
+  if (!el) return;
+  const list = state.ui.recent.slice(0, HOME_RECENT);
+  el.hidden = !list.length;
+  el.innerHTML = list.map(r => `
+    <button class="pick" data-recent-cat="${esc(r.cat)}" data-recent-id="${esc(r.id)}">${esc(r.name)}</button>`
+  ).join('');
 }
 
 function tile(t) {
@@ -118,6 +137,7 @@ function tile(t) {
 }
 
 export function update(root) {
+  drawRecent(root);
   for (const t of TILES) {
     const el = qs(`[data-status="${t.view}"]`, root);
     if (el) el.textContent = status(t.view);

@@ -16,6 +16,7 @@ import { writeFile, mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { creatureOffence } from './aon-text.mjs';
+import { buildSearchIndex } from './search-index.mjs';
 
 const ES = 'https://elasticsearch.aonprd.com/aon/_search';
 const AON = 'https://2e.aonprd.com';
@@ -131,7 +132,6 @@ function compact(obj) {
 // AoN field name -> app field name, where a plain snake_case-to-camelCase pass is wrong
 // or unhelpfully terse.
 const RENAME = {
-  actions_number: 'actionCount',
   heighten_level: 'heightened',
   is_general_background: 'generalBackground',
   item_category: 'category',
@@ -258,7 +258,7 @@ const item = kind => i => compact({
   url: link(i.url)
 });
 
-const SPELL_FIELDS = [...SHARED, 'actions', 'actions_number', 'component', 'range_raw',
+const SPELL_FIELDS = [...SHARED, 'actions', 'component', 'range_raw',
   'target', 'saving_throw', 'tradition', 'spell_type', 'heighten_level'];
 
 const spell = s => compact({
@@ -268,8 +268,11 @@ const spell = s => compact({
   type: s.spell_type,
   traits: list(s.trait),
   rarity: s.rarity,
+  // `actions` ("Single Action", "1 minute", ...) is the only action-cost field to use.
+  // AoN's sibling `actions_number` looks like a count but is a duration-in-seconds sort
+  // key (Free Action 0, Reaction 1, an action 2s, "1 minute" 60), so it is not carried
+  // through here — it made every detail sheet print a second, contradictory "Actions" row.
   actions: tidy(s.actions),
-  actionCount: s.actions_number ?? null,
   components: list(s.component),
   range: tidy(s.range_raw),
   target: tidy(s.target),
@@ -335,16 +338,16 @@ const TARGETS = {
     file: 'feats.json', key: 'feats', label: 'Feats', glyph: '\u{1F3AF}',
     blurb: 'Class, ancestry, skill and general feats.',
     build: async () => (await fetchCategory('feat', [...SHARED, 'actions',
-      'actions_number', 'prerequisite', 'trigger', 'frequency', 'archetype', 'skill',
-      'access'])).map(mapper(['actions', 'actions_number', 'prerequisite', 'trigger',
+      'prerequisite', 'trigger', 'frequency', 'archetype', 'skill',
+      'access'])).map(mapper(['actions', 'prerequisite', 'trigger',
         'frequency', 'archetype', 'skill', 'access']))
   },
   actions: {
     file: 'actions.json', key: 'actions', label: 'Actions', glyph: '⚡',
     blurb: 'Basic and specialty actions with their costs.',
     build: async () => (await fetchCategory('action', [...SHARED, 'actions',
-      'actions_number', 'cost', 'trigger', 'requirement', 'frequency']))
-      .map(mapper(['actions', 'actions_number', 'cost', 'trigger', 'requirement',
+      'cost', 'trigger', 'requirement', 'frequency']))
+      .map(mapper(['actions', 'cost', 'trigger', 'requirement',
         'frequency']))
   },
   hazards: {
@@ -455,6 +458,7 @@ if (unknown.length) {
 await mkdir(OUT, { recursive: true });
 
 const written = {};
+const recordsByName = {};
 for (const name of wanted) {
   const target = TARGETS[name];
   console.log('\n' + name);
@@ -468,6 +472,7 @@ for (const name of wanted) {
       ' record(s) with no name: ' +
       built.filter(r => !r.name).map(r => r.id).join(', '));
   }
+  recordsByName[name] = records;
   const payload = {
     _licence: LICENCE,
     _source: 'Archives of Nethys, Elasticsearch index aon (elasticsearch.aonprd.com)',
@@ -505,8 +510,14 @@ if (wanted.length === Object.keys(TARGETS).length) {
   const total = Object.values(written).reduce((n, w) => n + w.bytes, 0);
   console.log('\nwrote data/index.json — ' + manifest.categories.length + ' categories, ' +
     (total / 1024 / 1024).toFixed(2) + ' MB total');
+
+  const searchPayload = buildSearchIndex(recordsByName, { licence: LICENCE, ruleset: RULESET });
+  const searchJson = JSON.stringify(searchPayload);
+  await writeFile(join(OUT, 'search.json'), searchJson + '\n', 'utf8');
+  console.log('wrote data/search.json — ' + searchPayload._count + ' entries, ' +
+    (searchJson.length / 1024 / 1024).toFixed(2) + ' MB');
 } else {
-  console.log('\nPartial run: data/index.json left alone.');
+  console.log('\nPartial run: data/index.json and data/search.json left alone.');
 }
 
 console.log('Done. Remember to bump CACHE_NAME in service-worker.js.');

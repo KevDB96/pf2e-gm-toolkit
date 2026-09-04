@@ -33,6 +33,22 @@ export const CONDITIONS = [
 ];
 
 /**
+ * Conditions out of CONDITIONS whose chip carries a number — Clumsy 1, Frightened 2.
+ * Persistent Damage carries a damage type instead of a value and already has its own
+ * step in the picker, so it is deliberately not here. Doomed and Dying take a value too
+ * but are not in CONDITIONS at all, so they stay out of this list as well.
+ */
+export const VALUED_CONDITIONS = [
+  'Clumsy', 'Drained', 'Enfeebled', 'Frightened', 'Sickened', 'Slowed', 'Stunned',
+  'Stupefied', 'Wounded'
+];
+
+/** Whether a condition name is one that carries a value. */
+export function takesValue(name) {
+  return VALUED_CONDITIONS.includes(name);
+}
+
+/**
  * Conditions that another condition hands out with it, straight from the Remaster
  * condition entries (the same text data/conditions.json carries): Prone is "You are
  * off-guard", Grabbed is "giving you the off-guard and immobilized conditions", Restrained
@@ -479,6 +495,89 @@ export function actionIcons(actions) {
   return out;
 }
 
+// --- elite and weak ------------------------------------------------------------
+
+/**
+ * Elite and Weak creature adjustments, transcribed from:
+ *   Elite — https://2e.aonprd.com/Rules.aspx?ID=3264
+ *   Weak  — https://2e.aonprd.com/Rules.aspx?ID=3265
+ *
+ * Both templates touch the same set of numbers, elite up and weak down. Only level, HP
+ * and AC are things the app tracks and adjusts below; the rest is recorded here because
+ * a GM reading this table needs the whole rule, not just the third the app computes:
+ *   - AC, attack modifiers, DCs, saving throws, Perception and skill modifiers: ±2
+ *   - Strikes and other offensive abilities: ±2 damage, or ±4 for one with a use limit
+ *     (a spellcaster's spells, a dragon's breath)
+ *   - HP: banded on the creature's *starting* level — see adjustedHP()
+ *   - level: elite +1, weak -1, each with a special case at the bottom of the scale —
+ *     see adjustedLevel()
+ *
+ * `adjust` is 'elite', 'weak', or anything else — null, undefined, a typo — meaning
+ * unchanged, so a caller can pass a planner entry's `adjust` field straight through
+ * without validating it first.
+ */
+
+/** Elite's HP table, keyed on the creature's starting level. ID 3264. */
+const ELITE_HP_BANDS = [
+  { max: 1, delta: 10 },
+  { max: 4, delta: 15 },
+  { max: 19, delta: 20 },
+  { max: Infinity, delta: 30 }
+];
+
+/**
+ * Weak's HP table, keyed on the creature's starting level. ID 3265. The published table
+ * starts at level 1 and says nothing about level 0 or -1, which this app allows a
+ * creature to be — there is no rule to quote for that gap, so a sub-1 creature takes the
+ * lowest band (10) as the nearest fit, a choice this app makes rather than a number
+ * Paizo published. adjustedHP() also floors the result at 1 either way, so a weak
+ * creature can never end at 0 or negative HP.
+ */
+const WEAK_HP_BANDS = [
+  { max: 2, delta: 10 },
+  { max: 5, delta: 15 },
+  { max: 20, delta: 20 },
+  { max: Infinity, delta: 30 }
+];
+
+/**
+ * The level change alone. Elite normally adds 1 and weak normally subtracts 1, but each
+ * has a special case at the bottom of the scale: elite adds 2 instead at level -1 or 0,
+ * and weak subtracts 2 instead at level 1 — both tables call this out explicitly rather
+ * than leaving it to the general rule.
+ */
+export function adjustedLevel(level, adjust) {
+  if (adjust === 'elite') return level === -1 || level === 0 ? level + 2 : level + 1;
+  if (adjust === 'weak') return level === 1 ? level - 2 : level - 1;
+  return level;
+}
+
+/**
+ * HP after Elite or Weak, banded on the creature's *starting* `level` (before
+ * adjustment) — a level 1 creature made elite adds 10 even though its adjusted level is
+ * 2, because the table keys off where it started, not where it lands. Passes `null`
+ * (or `undefined`) through unchanged for a creature with no HP recorded, and floors the
+ * result at 1 so nothing here documents a dead or negative-HP creature.
+ */
+export function adjustedHP(hp, level, adjust) {
+  if (hp === null || hp === undefined) return null;
+  if (adjust === 'elite') {
+    return hp + ELITE_HP_BANDS.find(b => level <= b.max).delta;
+  }
+  if (adjust === 'weak') {
+    return Math.max(1, hp - WEAK_HP_BANDS.find(b => level <= b.max).delta);
+  }
+  return hp;
+}
+
+/** AC after Elite (+2) or Weak (-2). Passes `null`/`undefined` through unchanged. */
+export function adjustedAC(ac, adjust) {
+  if (ac === null || ac === undefined) return null;
+  if (adjust === 'elite') return ac + 2;
+  if (adjust === 'weak') return ac - 2;
+  return ac;
+}
+
 // --- checks ------------------------------------------------------------------
 
 /** The four degrees of success, worst first, so a degree is an index 0..3. */
@@ -564,6 +663,27 @@ export function parseCondition(chip) {
 }
 
 /**
+ * The bare condition out of a chip string — the name half of parseCondition(), for a
+ * call site that only wants to look the condition up (a description, the implied-
+ * condition chain) and would otherwise have to destructure the whole thing. Strips both
+ * a trailing value and a trailing parenthetical, so "Frightened 2", "Persistent Damage
+ * (fire)" and "Prone" all resolve to their entry in CONDITIONS.
+ */
+export function conditionName(text) {
+  return parseCondition(text).name;
+}
+
+/** The trailing number on a chip, or null when it does not carry one. */
+export function conditionValue(text) {
+  return parseCondition(text).value;
+}
+
+/** Build a chip string. A null or zero value is the same as none: the bare name. */
+export function withConditionValue(name, n) {
+  return n ? `${name} ${n}` : name;
+}
+
+/**
  * One modifier set for a list of condition chips, with penalties already resolved against
  * each other by type. Everything it reports is a penalty, so the numbers are negative or
  * zero.
@@ -599,6 +719,59 @@ export function conditionModifiers(conditions = []) {
     actions: canAct ? Math.max(0, 3 - lost) : 0,
     canAct
   };
+}
+
+/**
+ * What a combatant's condition chips do at the end of their own turn.
+ *
+ * Frightened is the one condition with a plain automatic decrease: it goes down by 1 and
+ * drops off entirely at 0, per its own Player Core condition entry. A Frightened chip with no
+ * number at all is treated as Frightened 1 — every Frightened the rules hand out carries
+ * a value, so a valueless one is a chip from before values existed — and it ends the same
+ * way a Frightened 1 does.
+ *
+ * Everything else here is a reminder for the GM, never a change the app makes on its own:
+ * - Persistent damage is rolled and saved against at the table, not by the app (see the
+ *   "Rules accuracy" note in CLAUDE.md), so its chip is left exactly as it is and a
+ *   reminder names the damage type and the DC 15 flat check.
+ * - Stunned and Slowed are deliberately not decremented here even though they carry a
+ *   value: they reduce actions at the *start* of a turn, not the end, and Stunned's
+ *   decrease is by however many actions were actually lost, which only the GM at the
+ *   table knows. Automating either would be automating a number the app cannot see.
+ *
+ * Every other condition, valued or not, passes through untouched.
+ */
+export function endOfTurnConditions(list) {
+  const conditions = [];
+  const ticked = [];
+  const reminders = [];
+
+  for (const chip of list || []) {
+    const { name, value, note } = parseCondition(chip);
+
+    if (name === 'Frightened') {
+      const current = value ?? 1;
+      const next = current - 1;
+      if (next > 0) {
+        conditions.push(withConditionValue('Frightened', next));
+        ticked.push(`Frightened ${current} → ${next}`);
+      } else {
+        ticked.push('Frightened ended');
+      }
+      continue;
+    }
+
+    if (name === 'Persistent Damage') {
+      reminders.push(
+        `persistent${note ? ' ' + note : ''}: take the damage, then DC ${PERSISTENT_FLAT_DC} flat check to end it`);
+      conditions.push(chip);
+      continue;
+    }
+
+    conditions.push(chip);
+  }
+
+  return { conditions, ticked, reminders };
 }
 
 // --- damage ------------------------------------------------------------------

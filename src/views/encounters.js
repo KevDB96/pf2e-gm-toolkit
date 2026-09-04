@@ -2,8 +2,8 @@
 
 import { state, save, uid } from '../store.js';
 import { esc, on, sheet, tip, qs } from '../dom.js';
-import { creatureXP, hazardXP, budgets, threatFor, threatScale, threatPosition, xpAward }
-  from '../pf2e.js';
+import { creatureXP, hazardXP, budgets, threatFor, threatScale, threatPosition, xpAward,
+  adjustedLevel, adjustedHP, adjustedAC } from '../pf2e.js';
 import { creatures, traits } from '../data.js';
 import { recordTip } from '../records.js';
 import { buildFacets, creatureTypeNames, facetChange, facetOptions, facetPasses, facetSelects }
@@ -11,10 +11,13 @@ import { buildFacets, creatureTypeNames, facetChange, facetOptions, facetPasses,
 
 const KIND_LABEL = { creature: 'Creature', simple: 'Simple hazard', complex: 'Complex hazard' };
 
+// entry.adjust is undefined on rows saved before Elite/Weak existed; adjustedLevel()
+// treats anything but 'elite'/'weak' as unchanged, so that reads the same as null.
 function entryXP(entry, partyLevel) {
+  const level = adjustedLevel(entry.level, entry.adjust);
   const each = entry.kind === 'creature'
-    ? creatureXP(entry.level, partyLevel)
-    : hazardXP(entry.level, partyLevel, entry.kind === 'complex');
+    ? creatureXP(level, partyLevel)
+    : hazardXP(level, partyLevel, entry.kind === 'complex');
   return each === null ? null : each * entry.count;
 }
 
@@ -74,12 +77,21 @@ function wire(root) {
   });
   on(root, 'click', '[data-clear]', () => { state.encounter.entries = []; save(); });
   on(root, 'click', '[data-to-combat]', () => toCombat());
+  on(root, 'click', '[data-adjust]', (e, el) => setAdjust(el.dataset.adjust, el.dataset.kind));
 }
 
 function bump(id, delta) {
   const entry = state.encounter.entries.find(x => x.id === id);
   if (!entry) return;
   entry.count = Math.max(1, entry.count + delta);
+  save();
+}
+
+/** Elite and Weak are mutually exclusive and each toggles off when tapped again. */
+function setAdjust(id, kind) {
+  const entry = state.encounter.entries.find(x => x.id === id);
+  if (!entry) return;
+  entry.adjust = entry.adjust === kind ? null : kind;
   save();
 }
 
@@ -125,12 +137,34 @@ function row(e, partyLevel) {
   const sub = xp === null
     ? '<span style="color:var(--blood)">outside the −4/+4 XP band</span>'
     : `${KIND_LABEL[e.kind]} · ${xp} XP`;
+  // The badge shows the adjusted level — that is the level the budget above is already
+  // using — and the prefix is rendered here only; e.name itself is never touched, so
+  // toggling Elite/Weak off again shows the original name with nothing to undo.
+  const lvl = adjustedLevel(e.level, e.adjust);
+  const prefix = e.adjust === 'elite' ? 'Elite ' : e.adjust === 'weak' ? 'Weak ' : '';
+  const nameBlock = `<div class="name">${prefix}${esc(e.name)}</div><div class="sub">${sub}</div>`;
+  // A planned creature carries the full bestiary record when it was added from the
+  // picker or the Library — see addFromBestiary() and the Library's "Add to encounter"
+  // — so its url is already there; a hand-typed custom entry has no creature record and
+  // renders the same block with no link, exactly as it did before this feature existed.
+  const url = e.creature?.url;
+  const nameHtml = url
+    ? `<a class="enc-link" href="${esc(url)}" target="_blank" rel="noopener"
+        ${tip('Read it on the Archives of Nethys. Opens in a new tab.')}>${nameBlock}</a>`
+    : nameBlock;
+  // Elite/Weak only makes sense for a creature — a hazard's numbers are not built the
+  // same way — so the toggle is left off hazard rows entirely rather than shown disabled.
+  const toggle = e.kind === 'creature' ? `
+    <div class="enc-adjust">
+      <button class="pick${e.adjust === 'elite' ? ' on' : ''}" data-adjust="${e.id}" data-kind="elite">Elite</button>
+      <button class="pick${e.adjust === 'weak' ? ' on' : ''}" data-adjust="${e.id}" data-kind="weak">Weak</button>
+    </div>` : '';
   return `
     <div class="item">
-      <span class="lvl">${e.level}</span>
+      <span class="lvl">${lvl}</span>
       <div class="grow">
-        <div class="name">${esc(e.name)}</div>
-        <div class="sub">${sub}</div>
+        ${nameHtml}
+        ${toggle}
       </div>
       <div class="stepper">
         <button class="icon" data-dec="${e.id}">&minus;</button>
@@ -145,7 +179,7 @@ export function addEntry(name, level, kind = 'creature', creature = null) {
   const match = state.encounter.entries
     .find(e => e.name === name && e.level === level && e.kind === kind);
   if (match) match.count += 1;
-  else state.encounter.entries.push({ id: uid('enc'), name, level, count: 1, kind, creature });
+  else state.encounter.entries.push({ id: uid('enc'), name, level, count: 1, kind, creature, adjust: null });
   save();
 }
 
@@ -272,10 +306,15 @@ export function sendToCombat() {
   let added = 0;
   for (const e of state.encounter.entries) {
     if (e.kind !== 'creature') continue;
+    const prefix = e.adjust === 'elite' ? 'Elite ' : e.adjust === 'weak' ? 'Weak ' : '';
+    // Adjusted, not the sheet's own numbers — an elite goblin belongs in the tracker
+    // with elite HP and AC, or the fight is not the one the planner budgeted for.
+    const hp = adjustedHP(e.creature?.hp ?? null, e.level, e.adjust);
+    const ac = adjustedAC(e.creature?.ac ?? null, e.adjust);
     for (let i = 0; i < e.count; i++) {
       state.combat.combatants.push({
         id: uid('c'),
-        name: e.count > 1 ? `${e.name} ${i + 1}` : e.name,
+        name: prefix + (e.count > 1 ? `${e.name} ${i + 1}` : e.name),
         // The planner is already holding the whole record — it reads hp and ac off it two
         // lines down — so keeping its id costs nothing and is the only reliable way back
         // to the creature's Strikes and saves. Names repeat across the bestiary; ids do
@@ -284,9 +323,9 @@ export function sendToCombat() {
         isPC: false,
         side: 'npc',
         init: null,
-        hp: e.creature?.hp ?? null,
-        maxHp: e.creature?.hp ?? null,
-        ac: e.creature?.ac ?? null,
+        hp,
+        maxHp: hp,
+        ac,
         conditions: []
       });
       added += 1;

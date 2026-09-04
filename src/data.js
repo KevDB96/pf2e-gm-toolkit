@@ -59,9 +59,20 @@ export function campaign() {
   return json('campaign.json');
 }
 
-/** Hand-authored BGM links, kept separate from the campaign notes. */
+/**
+ * Hand-authored BGM links, kept separate from the campaign notes, as the folders the
+ * BGM screen shows: [{ key, label, random, tracks: [{ label, url, by, mins }] }].
+ *
+ * A pre-folder file was one flat `tracks` array of campaign themes, so one is still
+ * accepted and becomes the Ambience folder — the file lives in the repository and an
+ * older copy can come back from the service-worker cache.
+ */
 export function soundtrack() {
-  return json('soundtrack.json').then(j => j?.tracks || []);
+  return json('soundtrack.json').then(j => {
+    if (j?.groups) return j.groups;
+    if (j?.tracks) return [{ key: 'ambience', label: 'Ambience', random: false, tracks: j.tracks }];
+    return [];
+  });
 }
 
 /**
@@ -91,4 +102,15 @@ export function equipment() {
 /** Creatures, used by the encounter planner's quick-add sheet. */
 export function creatures() {
   return json('creatures.json').then(j => j?.creatures || []);
+}
+
+/**
+ * The cross-category name index behind the Library's global search: id, name and level
+ * (when the category has one) for every record in every category file, keyed by category
+ * name. One file instead of fourteen, and names only, is what keeps it to ~1 MB — small
+ * enough to load on first use rather than at boot, the same trade equipment() and codex()
+ * already make.
+ */
+export function searchIndex() {
+  return json('search.json').then(j => j?.categories || null);
 }

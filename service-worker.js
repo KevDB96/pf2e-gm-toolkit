@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pf2e-gm-v32';
+const CACHE_NAME = 'pf2e-gm-v42';
 
 // Where this worker is served from: '/' locally, '/pf2e-gm-toolkit/' on GitHub Pages.
 // Every path test below is relative to it. An absolute '/src/' test passed locally and
@@ -15,12 +15,14 @@ const OFFLINE_URLS = [
   './src/app.js',
   './src/store.js',
   './src/pf2e.js',
+  './src/wake.js',
   './src/dom.js',
   './src/data.js',
   './src/pathbuilder.js',
   './src/facets.js',
   './src/records.js',
   './src/youtube.js',
+  './src/search.js',
   './src/views/home.js',
   './src/views/encounters.js',
   './src/views/combat.js',
@@ -43,11 +45,13 @@ const OFFLINE_URLS = [
 // instead, which is fine because installing already requires one online load.
 const FONT_ORIGINS = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 
-// Small data files, warmed in the background after activation. Together well under
-// 2 MB, so pulling them costs little and makes the Campaign screen and most of the
-// Library work offline straight after install.
+// Small data files, warmed in the background after activation. Together about 4 MB,
+// so pulling them costs little and makes the Campaign screen and most of the Library
+// work offline straight after install. search.json is what lets the Library's global
+// search work offline before any one category has been opened.
 const WARM_URLS = [
   './data/index.json',
+  './data/search.json',
   './data/campaign.json',
   './data/characters.json',
   './data/codex.json',
@@ -67,7 +71,7 @@ const WARM_URLS = [
 
 // Files that change between deploys and must never be served from a stale cache.
 // Declared here because the activate handler below uses it.
-const LIVE_DATA = ['characters.json', 'campaign.json', 'codex.json', 'index.json'];
+const LIVE_DATA = ['characters.json', 'campaign.json', 'codex.json', 'index.json', 'search.json'];
 
 // creatures (2.4 MB), equipment (3.0 MB), feats (2.3 MB) and spells (0.8 MB) are left
 // out on purpose — 8 MB of background download on mobile data is not a decision the app

@@ -2,13 +2,24 @@
 
 import { state, save, uid } from '../store.js';
 import { brief, esc, on, sheet, tip, qs, qsa } from '../dom.js';
-import { CONDITIONS, PERSISTENT_DAMAGE_TYPES, impliedConditions } from '../pf2e.js';
+import {
+  CONDITIONS, PERSISTENT_DAMAGE_TYPES, impliedConditions, takesValue, conditionName,
+  withConditionValue, endOfTurnConditions
+} from '../pf2e.js';
 import { conditions as loadConditions, characters as loadCharacters } from '../data.js';
 import { plannedCount, sendToCombat } from './encounters.js';
 
 // What each condition does, keyed by name, for the hover description on a chip. Empty
 // until data/conditions.json arrives; a chip with no summary yet simply has no tooltip.
 let conditionText = new Map();
+
+// What nextTurn() did to the combatant whose turn just ended, for the line printed near
+// the round counter — "Kobold Warrior · Frightened 2 → 1 · persistent fire: take the
+// damage, then DC 15 flat check to end it". Held here rather than written straight into
+// the DOM, the same way the BGM view holds `handed`: update() rebuilds the board on every
+// state change, so anything written only into the DOM would be wiped by the next render.
+// Cleared whenever the turn moves on again or combat ends.
+let turnReport = null;
 
 function ordered() {
   // Highest initiative first; anyone without a roll yet sorts to the bottom.
@@ -69,6 +80,7 @@ function shell() {
         <button class="primary" data-next>Next turn</button>
       </div>
       <div class="muted" id="turn-of" style="margin-top:6px"></div>
+      <div class="turn-report" id="turn-report" hidden></div>
     </div>
 
     <div class="board" id="board"></div>
@@ -123,6 +135,12 @@ export function update(root) {
   qs('#turn-of', root).textContent = list.length === 0
     ? 'No combatants yet. Add PCs, or send an encounter over from the planner.'
     : (state.combat.round === 0 ? 'Press Next turn to begin.' : `Turn: ${active ? active.name : '—'}`);
+
+  // What the last "Next turn" tap did — cleared once the turn moves on again or combat
+  // ends, so it never survives past the moment it is still useful for.
+  const report = qs('#turn-report', root);
+  report.hidden = !turnReport;
+  report.textContent = turnReport || '';
 
   // Both sides at once: the party down the left, whatever they are fighting down the
   // right, each column in initiative order. Turn order is still the one interleaved list —
@@ -258,13 +276,33 @@ function dragHP(el) {
   row.classList.toggle('is-dead', c.hp <= 0);
 }
 
+/**
+ * Apply endOfTurnConditions() to the combatant whose turn is ending, and build the line
+ * for the round counter out of what it reports. Mutates the combatant's own conditions;
+ * returns null when there is nothing worth printing (nothing ticked, nothing to remind).
+ */
+function endTurnFor(c) {
+  const { conditions, ticked, reminders } = endOfTurnConditions(c.conditions);
+  c.conditions = conditions;
+  const parts = [...ticked, ...reminders];
+  return parts.length ? `${c.name} · ${parts.join(' · ')}` : null;
+}
+
 function nextTurn() {
   const list = ordered();
   if (!list.length) return;
   if (state.combat.round === 0) {
+    // Round 0 -> 1 starts the first turn; nobody's turn has ended yet.
     state.combat.round = 1;
     state.combat.active = 0;
+    turnReport = null;
   } else {
+    // ordered() re-sorts on every call, so the combatant whose turn is ending has to be
+    // read out of *this* list, before the pointer moves — including the last combatant
+    // in the round, whose end-of-turn happens right as the round rolls over.
+    const ending = list[state.combat.active];
+    turnReport = ending ? endTurnFor(ending) : null;
+
     state.combat.active += 1;
     if (state.combat.active >= list.length) {
       state.combat.active = 0;
@@ -276,6 +314,7 @@ function nextTurn() {
 
 function endCombat() {
   state.combat = { round: 0, active: 0, combatants: [] };
+  turnReport = null;
   save();
 }
 
@@ -442,19 +481,15 @@ function addCombatant(isPC) {
 const PERSISTENT = 'Persistent Damage';
 
 /**
- * A chip's condition without its parenthetical, which is how "Persistent Damage (fire)"
- * still finds the description and the knock-ons filed under Persistent Damage.
- */
-const baseCondition = cond => String(cond).replace(/\s*\([^)]*\)\s*$/, '');
-
-/**
  * The hover description for a chip: what the condition mechanically does, and what it
- * brings with it. The rules text goes through brief() here rather than being left to
- * tip(), so the knock-on conditions sit inside the budget instead of competing with the
- * prose for it.
+ * brings with it. Goes through conditionName() rather than the raw chip text, so
+ * "Frightened 2" and "Persistent Damage (fire)" both still find their entry — getting
+ * this wrong silently drops the tooltip. The rules text goes through brief() here rather
+ * than being left to tip(), so the knock-on conditions sit inside the budget instead of
+ * competing with the prose for it.
  */
 function describe(cond) {
-  const base = baseCondition(cond);
+  const base = conditionName(cond);
   const also = impliedConditions(base);
   return [
     brief(conditionText.get(base), 100),
@@ -466,17 +501,30 @@ function describe(cond) {
  * A condition and everything the rules hand out with it — prone is also off-guard, and
  * grabbed is off-guard and immobilized — because applying them one at a time by hand is
  * how a −2 to AC gets forgotten mid-fight. See IMPLIED_CONDITIONS in src/pf2e.js.
+ *
+ * `name` may already carry a value ("Frightened 2") or a persistent-damage parenthetical.
+ * A valued condition the combatant already has is matched by conditionName() and its old
+ * chip replaced, rather than dedup'd with includes() — "Frightened 1" and "Frightened 3"
+ * are the same condition at two different values, not two chips.
  */
 function addCondition(c, name) {
-  for (const cond of [name, ...impliedConditions(baseCondition(name))]) {
-    if (!c.conditions.includes(cond)) c.conditions.push(cond);
+  for (const cond of [name, ...impliedConditions(conditionName(name))]) {
+    const cname = conditionName(cond);
+    if (takesValue(cname)) {
+      c.conditions = c.conditions.filter(x => conditionName(x) !== cname);
+      c.conditions.push(cond);
+    } else if (!c.conditions.includes(cond)) {
+      c.conditions.push(cond);
+    }
   }
 }
 
 /**
- * The condition picker. Persistent damage is the one condition that needs a second tap:
- * "persistent damage" alone does not say what it is doing, so picking it swaps the sheet
- * over to a damage type and files the chip as "Persistent Damage (fire)".
+ * The condition picker. Two conditions need a second tap rather than filing the chip on
+ * the first: persistent damage, because "persistent damage" alone does not say what it
+ * is doing, and every valued condition, because "Frightened" alone has no value on it
+ * yet. Both swap the sheet's contents over to their own row of choices — a damage type
+ * for persistent damage, values 1-4 for a valued condition — the same shape either way.
  *
  * The second step replaces the contents of the sheet already open rather than stacking
  * another one over it — two sheets deep, closing the top one looks like a sheet that
@@ -493,6 +541,10 @@ function openConditions(id) {
     <span class="chip add" data-pick="${esc(value)}"
           style="font-size:0.8rem;padding:8px 12px"${tip(text)}>${esc(label)}</span>`;
 
+  const backChip = `
+    <span class="chip add" data-back style="font-size:0.8rem;padding:8px 12px"
+      >&larr; Conditions</span>`;
+
   const listConditions = () => {
     title.textContent = `Conditions · ${c.name}`;
     pick.innerHTML = CONDITIONS.map(cond => chip(cond, cond, describe(cond))).join('');
@@ -500,22 +552,32 @@ function openConditions(id) {
 
   const listTypes = () => {
     title.textContent = 'Persistent damage';
-    pick.innerHTML = `
-      <span class="chip add" data-back style="font-size:0.8rem;padding:8px 12px"
-        >&larr; Conditions</span>` +
+    pick.innerHTML = backChip +
       PERSISTENT_DAMAGE_TYPES
         .map(t => chip(`${PERSISTENT} (${t.toLowerCase()})`, t, conditionText.get(PERSISTENT)))
         .join('');
   };
 
+  const listValues = (name) => {
+    title.textContent = `${name} · value`;
+    const text = describe(name);
+    pick.innerHTML = backChip +
+      [1, 2, 3, 4].map(n => chip(withConditionValue(name, n), String(n), text)).join('');
+  };
+
   listConditions();
   on(node, 'click', '[data-back]', listConditions);
   on(node, 'click', '[data-pick]', (e, el) => {
-    if (el.dataset.pick === PERSISTENT) {
+    const picked = el.dataset.pick;
+    if (picked === PERSISTENT) {
       listTypes();
       return;
     }
-    addCondition(c, el.dataset.pick);
+    if (takesValue(picked)) {
+      listValues(picked);
+      return;
+    }
+    addCondition(c, picked);
     save();
     close();
   });

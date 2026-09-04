@@ -67,13 +67,13 @@ skill lists, and dice parsing — plus the Pathbuilder conversion, the filter fa
 | Screen | What it does |
 | --- | --- |
 | **Home** | The landing menu. One tile per screen, each showing what is waiting there. |
-| **Plan** (Encounters) | Add creatures and hazards, watch the needle move across a gauge that runs trivial on the left to extreme on the right, then push the roster into the tracker — or pull it from the tracker instead. The bestiary picker filters by type, size, rarity, family, trait, a level range, the party's XP band, or name. |
-| **Combat** | Both sides of the fight at once: the party down the left, enemies down the right, each column in initiative order, with a round counter and whose turn it is above them. The planned encounter comes in with one tap from here, or gets pushed over from the planner. Initiative is typed in — the die is rolled at the table — and each row prints the Perception modifier to add to it. HP is a typed number and a bar you drag, nothing else on the row. A condition applies everything the rules attach to it — prone also sets off-guard, grabbed also sets off-guard and immobilized — and persistent damage asks which damage type. PCs come straight out of the imported roster: tick a few or take the whole party, with AC, HP and Perception from the sheet. Anything added picks its side, so a charmed PC or a friendly NPC lands in the right column. |
+| **Plan** (Encounters) | Add creatures and hazards, watch the needle move across a gauge that runs trivial on the left to extreme on the right, then push the roster into the tracker — or pull it from the tracker instead. The bestiary picker filters by type, size, rarity, family, trait, a level range, the party's XP band, or name. A creature can be toggled Elite or Weak, which adjusts its level, XP and (once sent to the tracker) HP and AC to match; a planned creature added from the bestiary or Library also links its name straight to the Archives of Nethys. |
+| **Combat** | Both sides of the fight at once: the party down the left, enemies down the right, each column in initiative order, with a round counter and whose turn it is above them. The planned encounter comes in with one tap from here, or gets pushed over from the planner. Initiative is typed in — the die is rolled at the table — and each row prints the Perception modifier to add to it. HP is a typed number and a bar you drag, nothing else on the row. A condition applies everything the rules attach to it — prone also sets off-guard, grabbed also sets off-guard and immobilized — and persistent damage asks which damage type; a condition that carries a number, like Frightened, asks for that next. Pressing Next turn ticks Frightened down by 1 for whoever's turn just ended and prints the change, and reminds you of a persistent-damage flat check without rolling it — every other valued condition is yours to adjust by hand. PCs come straight out of the imported roster: tick a few or take the whole party, with AC, HP and Perception from the sheet. Anything added picks its side, so a charmed PC or a friendly NPC lands in the right column. |
 | **Library** | One browser over all sixteen reference categories. Search by name, trait or summary, and filter on whatever fields the category has — a level range, type, tradition, size, rarity, category, group; creatures also filter to the party's XP band and add straight to an encounter. |
 | **Loot** | The level's expected treasure budget in coins, a running hoard, per-character claims, and a rolled selection of usable items at the party's level or one above it — with the leftover handed out as gold, split evenly and already claimed. Every suggestion opens on the Archives of Nethys from the row, so an item can be read before it goes in the hoard. |
 | **Campaign** (Notes) | Where the campaign is now, every arc with its beats, the NPC roster, reference tables — and your own session notes. |
 | **Party** | The player characters, grouped by campaign or one-shot. Each opens a GM-facing sheet: AC, HP, saves, Perception, every skill trained or not, class DC, spellcasting, and feats grouped by category with their action costs. |
-| **BGM** | Open the built-in campaign tracks in the official YouTube app, or save additional named YouTube links on this device. A Premium account can keep playback running in the background. |
+| **BGM** | Three dice, in reach. **Combat** and **Boss** each open a random piece of at least half an hour, so one tap covers a whole fight, and **Victory** opens a short triumphant fanfare, the sting after a win — each die then names what it rolled. Everything opens in the official YouTube app, and a Premium account keeps playback going in the background. Below that, collapsed, are folders holding every track — including **Situational** (story cues: a character's death, a farewell, the heroes' return, rising tension, a long rest) and **Ambience** — for the times you want a particular one by hand, plus any links you saved on this device. |
 
 Hovering anything with a description shows what it mechanically does, in a line: a creature's AC, HP and saves, a spell's cost, range and save, what a condition does to you and what it applies alongside itself.
 
@@ -154,6 +154,12 @@ count. The Library screen builds its picker from it, so **adding a category to
 `TARGETS` in the tool puts it in the app with no view change**. The manifest is only
 rewritten on a full run; a partial run leaves it alone rather than dropping categories.
 
+`data/search.json` is a cross-category name index for the Library's global search: id,
+name and level (when the category has one) for every record in every category, keyed by
+category name — one ~1 MB file instead of loading all sixteen category files (~9.8 MB)
+just to search by name. It is generated and, like `data/index.json`, only rewritten on a
+full `npm run data` run; a partial run (named targets) leaves it alone.
+
 Creature records carry their Strikes — name, attack bonus, damage expression and traits —
 parsed out of the stat block by [tools/aon-text.mjs](tools/aon-text.mjs), along with
 `immunities`, `spellDC` and the activatable abilities under `specials`. That detail is
@@ -188,8 +194,30 @@ does not touch it. It holds the campaign title, the party, which arc is current,
 arc with its beats and detail sections, the antagonists, the NPC roster, the kings list
 and the loot table. Edit it directly to change any of that.
 
-`data/soundtrack.json` is also hand-authored and never generated. It holds the named
-YouTube links shown under BGM, separate from the campaign notes.
+`data/soundtrack.json` is also hand-authored and never generated. It holds the YouTube
+links shown under BGM, separate from the campaign notes, as the folders that screen
+shows: `groups`, each with a `key`, a `label`, a `random` flag and its `tracks`.
+
+A group with `random: true` is a **pool**: the screen gives it a die that opens one of
+its tracks at random. `Combat` and `Boss` are the long pools, so **every track in one
+must be a single video at least 30 minutes long** — a roll has to cover a whole fight,
+and a five-minute piece ending mid-encounter is exactly what the die is there to avoid.
+`Victory` is the opposite: short triumphant fanfares, the sting you play once the last
+enemy drops, so its tracks are seconds long by design. Each track records its `by` and
+either `mins` or `secs`, whichever actually tells you something — a nine-second fanfare
+described as "0 min" would be wrong about the only thing that matters about it.
+
+`Ambience` holds the campaign's own themes and `Situational` the one-off cues — a
+character's death (several, since it is the cue you reach for under pressure), a
+farewell, the heroes' return, rising tension, a long rest. Neither is rolled: you pick
+those by hand, because the moment already chose the music.
+
+The pools are drawn from [Bardify](https://www.youtube.com/@bardify),
+[RPG Soundtracks](https://www.youtube.com/@RPGSoundtracks),
+[Michael Ghelfi Studios](https://www.youtube.com/@MichaelGhelfiStudios) and
+[Zinkas the Bard](https://www.youtube.com/@ZinkasTheBard), with the death cues and
+fanfares from a wider set of TTRPG and royalty-free composers; `_sources` credits every
+channel in the file.
 
 Session notes typed in the app are a different thing: they live in `state.notes` and
 persist to `localStorage`, so regenerating or editing `campaign.json` never touches
@@ -311,7 +339,7 @@ src/youtube.js        pure YouTube URL validation and embed-URL builder
 src/views/*.js        one module per screen, each exporting mount() and update()
 data/index.json       manifest the Library reads to build its category list
 data/campaign.json    HAND-AUTHORED campaign notes — never regenerated
-data/soundtrack.json  HAND-AUTHORED BGM links — never regenerated
+data/soundtrack.json  HAND-AUTHORED BGM folders — never regenerated
 data/codex.json       full rules text for what the PCs use — see "The codex"
 data/characters.json  player characters — imported, never regenerated by fetch-aon
 data/*.json           generated reference data — see "Reference data" above
@@ -324,10 +352,12 @@ tools/wealth.mjs             values party gear against the published wealth tabl
 
 ### Adding a view
 
-Create `src/views/thing.js` exporting `mount(root)` and optionally `update(root)`,
-register it in the `VIEWS` map in [src/app.js](src/app.js), add a `.tab` button in
-[index.html](index.html), and list the new file in `OFFLINE_URLS` in
-[service-worker.js](service-worker.js).
+Create `src/views/thing.js` exporting `mount(root)` and optionally `update(root)`, then
+register it in the `VIEWS` map in [src/app.js](src/app.js). From there it either gets its
+own `.tab` button in [index.html](index.html), or — if it belongs alongside existing
+related screens — is added to that tab's `views` array in the `GROUPS` map in
+[src/app.js](src/app.js) instead, where it picks up the subnav strip for free. Either way,
+list the new file in `OFFLINE_URLS` in [service-worker.js](service-worker.js).
 
 Adding a *reference category* is different and easier: add it to `TARGETS` in
 [tools/fetch-aon.mjs](tools/fetch-aon.mjs) and re-run `npm run data`. The Library picks

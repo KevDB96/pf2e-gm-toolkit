@@ -2,6 +2,7 @@
 
 import { state, save, subscribe } from './store.js';
 import { qs, qsa, installTips } from './dom.js';
+import { keepAwake } from './wake.js';
 import * as home from './views/home.js';
 import * as encounters from './views/encounters.js';
 import * as combat from './views/combat.js';
@@ -22,12 +23,36 @@ const VIEWS = {
   sound:      { title: 'BGM',        mod: sound }
 };
 
+// A tab that opens more than one screen: the strip below the header switches between
+// its members. `views` order is the order the sub-strip renders in.
+const GROUPS = {
+  run:   { title: 'Run',   views: ['encounters', 'combat'] },
+  table: { title: 'Table', views: ['party', 'loot', 'notes'] }
+};
+
+/** The group id holding a view, or null if the view has its own tab. */
+function groupOf(view) {
+  for (const [id, g] of Object.entries(GROUPS)) {
+    if (g.views.includes(view)) return id;
+  }
+  return null;
+}
+
 let root = qs('#view');
 let current = null;
 
 function viewFromHash() {
   const name = location.hash.replace(/^#\/?/, '');
-  return VIEWS[name] ? name : 'home';
+  if (VIEWS[name]) return name;
+  // A group hash (#/run, #/table) resolves to that group's remembered member — never
+  // by reassigning location.hash here, which would fire another hashchange and re-enter
+  // render() for something that already resolves cleanly in one pass.
+  const g = GROUPS[name];
+  if (g) {
+    const remembered = state.ui.group[name];
+    return g.views.includes(remembered) ? remembered : g.views[0];
+  }
+  return 'home';
 }
 
 /**
@@ -52,14 +77,38 @@ function freshRoot() {
 
 function render() {
   const name = viewFromHash();
-  qs('#view-title').textContent = VIEWS[name].title;
-  qsa('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
+  const gid = groupOf(name);
+
   if (current !== name) {
     current = name;
     VIEWS[name].mod.mount(freshRoot());
   } else {
     VIEWS[name].mod.update?.(root);
   }
+
+  const subnav = qs('#subnav');
+  if (gid) {
+    qs('#view-title').textContent = GROUPS[gid].title;
+    subnav.innerHTML = GROUPS[gid].views.map(v =>
+      `<button class="pick${v === name ? ' on' : ''}" data-view="${v}" role="tab" aria-selected="${v === name}">${VIEWS[v].title}</button>`
+    ).join('');
+    subnav.hidden = false;
+    // Remember this group's last sub-screen, but only persist when it actually changed —
+    // save() notifies every subscriber, and calling it on every render is pointless churn.
+    if (state.ui.group[gid] !== name) {
+      state.ui.group[gid] = name;
+      save();
+    }
+  } else {
+    qs('#view-title').textContent = VIEWS[name].title;
+    subnav.hidden = true;
+  }
+
+  qsa('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === name || t.dataset.view === gid));
+
+  // Combat and BGM are the two screens a GM leaves open on the table; Home and the
+  // Library do not need to burn battery holding the phone awake.
+  keepAwake(name === 'combat' || name === 'sound');
 }
 
 // --- party header ---------------------------------------------------------
@@ -85,7 +134,20 @@ function clamp(n, lo, hi) {
 
 // --- boot ----------------------------------------------------------------
 qsa('.tab').forEach(tab => {
-  tab.addEventListener('click', () => { location.hash = '#/' + tab.dataset.view; });
+  tab.addEventListener('click', () => {
+    const v = tab.dataset.view;
+    const g = GROUPS[v];
+    const remembered = g && state.ui.group[v];
+    location.hash = '#/' + (g ? (g.views.includes(remembered) ? remembered : g.views[0]) : v);
+  });
+});
+
+// #subnav is a persistent node — see CLAUDE.md — so its listener is bound exactly once
+// here at boot via delegation, never inside render(), even though its buttons are
+// replaced by innerHTML on every render.
+qs('#subnav').addEventListener('click', (e) => {
+  const btn = e.target.closest('.pick');
+  if (btn) location.hash = '#/' + btn.dataset.view;
 });
 window.addEventListener('hashchange', render);
 subscribe(() => VIEWS[current]?.mod.update?.(root));

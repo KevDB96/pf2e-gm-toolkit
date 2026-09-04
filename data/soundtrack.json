@@ -1,11 +1,1015 @@
 {
-  "_note": "Hand-authored BGM links. These open externally in YouTube.",
-  "tracks": [
-    { "label": "The Inbetween", "url": "https://www.youtube.com/watch?v=pk5IwDX2p-o&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB" },
-    { "label": "The Pyramid", "url": "https://www.youtube.com/watch?v=Ybk0RJ3OoVU&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=2" },
-    { "label": "Zalazar Forever", "url": "https://www.youtube.com/watch?v=2aouWFI-Xso&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=3" },
-    { "label": "Bitania", "url": "https://www.youtube.com/watch?v=bFIee-C1KoA&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=4" },
-    { "label": "Circus 1", "url": "https://www.youtube.com/watch?v=4S3VseNyKfs&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=6" },
-    { "label": "Circus 2", "url": "https://www.youtube.com/watch?v=2PNX8arJLoU&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=5" }
+  "_note": "Hand-authored BGM links. Never generated — fetch-aon.mjs does not touch this file. Every track opens externally in the YouTube app. A group with random:true is a pool the BGM screen rolls: Combat and Boss hold single videos of at least 30 minutes, because one roll has to cover a whole fight, while Victory holds short fanfares, because a victory sting is over in a bar or two. Ambience and Situational are picked by hand and are not rolled.",
+  "_sources": [
+    "Adventurer's Music Pack",
+    "Alexander Nakarada - CreatorChords",
+    "Bardify",
+    "Dungeons & Dragons & Dining & Dudes",
+    "FerTheBard",
+    "Francis",
+    "Ivan Duch",
+    "Konstantin Kasyanov Composer",
+    "LUKARTH",
+    "Legends From Beyond",
+    "Lucas Quinn Creations",
+    "Lux Aeterna Audio",
+    "Mack Walters Music",
+    "Michael Ghelfi Studios",
+    "MiguelAbuel",
+    "PPEAK – Video Game & DnD Music",
+    "Quelli del Magma",
+    "RPG Songsmith",
+    "RPG Soundtracks",
+    "Rafael Krux - Topic",
+    "Scattered Sounds",
+    "Stone Cast | TTRPG Combat Music & Ambience",
+    "Supernova Collective",
+    "Vudan Dreams",
+    "Zinkas the Bard"
+  ],
+  "groups": [
+    {
+      "key": "ambience",
+      "label": "Ambience",
+      "random": false,
+      "tracks": [
+        {
+          "label": "The Inbetween",
+          "url": "https://www.youtube.com/watch?v=pk5IwDX2p-o&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB"
+        },
+        {
+          "label": "The Pyramid",
+          "url": "https://www.youtube.com/watch?v=Ybk0RJ3OoVU&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=2"
+        },
+        {
+          "label": "Zalazar Forever",
+          "url": "https://www.youtube.com/watch?v=2aouWFI-Xso&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=3"
+        },
+        {
+          "label": "Bitania",
+          "url": "https://www.youtube.com/watch?v=bFIee-C1KoA&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=4"
+        },
+        {
+          "label": "Circus 1",
+          "url": "https://www.youtube.com/watch?v=4S3VseNyKfs&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=6"
+        },
+        {
+          "label": "Circus 2",
+          "url": "https://www.youtube.com/watch?v=2PNX8arJLoU&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=5"
+        }
+      ]
+    },
+    {
+      "key": "combat",
+      "label": "Combat",
+      "random": true,
+      "tracks": [
+        {
+          "label": "Low Level Combat",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=2GX9lVHfnxs"
+        },
+        {
+          "label": "Ambush!",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=8Q7cioftmKs"
+        },
+        {
+          "label": "Epic Combat",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=CMjWhGWKWqU"
+        },
+        {
+          "label": "Quirky Combat",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=QnX4rkyygOg"
+        },
+        {
+          "label": "Duel",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=_YpKEpF0oxo"
+        },
+        {
+          "label": "Surprise!",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=sd1Otp7s1Fk"
+        },
+        {
+          "label": "Skeleton Battle",
+          "by": "Bardify",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=zp8ZlBUGdgs"
+        },
+        {
+          "label": "Mage Battle",
+          "by": "Bardify",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=Cnse9bjma9s"
+        },
+        {
+          "label": "Ship Combat",
+          "by": "Bardify",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=YWLllXzFFA8"
+        },
+        {
+          "label": "Orc War Camp",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=ahL4VXohPdU"
+        },
+        {
+          "label": "Battle Arena",
+          "by": "Bardify",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=3YO67uD8TAo"
+        },
+        {
+          "label": "Chase",
+          "by": "Bardify",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=fq8OSrIUST4"
+        },
+        {
+          "label": "Aberration Fight",
+          "by": "Bardify",
+          "mins": 61,
+          "url": "https://www.youtube.com/watch?v=WahaiTaVw2k"
+        },
+        {
+          "label": "Ancient Construct Fight",
+          "by": "Bardify",
+          "mins": 61,
+          "url": "https://www.youtube.com/watch?v=ha7gIWdxidE"
+        },
+        {
+          "label": "Pirate Attack!",
+          "by": "Bardify",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=c4-S9N1ecOo"
+        },
+        {
+          "label": "Struggle in the Jungle",
+          "by": "Bardify",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=w54512C_A2k"
+        },
+        {
+          "label": "Running From Guards",
+          "by": "Bardify",
+          "mins": 59,
+          "url": "https://www.youtube.com/watch?v=_rj_7rrgq9s"
+        },
+        {
+          "label": "Deadly Combat",
+          "by": "RPG Soundtracks",
+          "mins": 67,
+          "url": "https://www.youtube.com/watch?v=m-1S1V1PZHA"
+        },
+        {
+          "label": "Low Level Combat",
+          "by": "RPG Soundtracks",
+          "mins": 64,
+          "url": "https://www.youtube.com/watch?v=i-ZdUvk9xXw"
+        },
+        {
+          "label": "Goblin Ambush in the Woods",
+          "by": "RPG Soundtracks",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=LNnn_tjO9mY"
+        },
+        {
+          "label": "Zombies & Undead",
+          "by": "RPG Soundtracks",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=0v5AUb_ltmM"
+        },
+        {
+          "label": "Gnolls on the Road",
+          "by": "RPG Soundtracks",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=CEIG9gDlEIE"
+        },
+        {
+          "label": "Owlbear Nest",
+          "by": "RPG Soundtracks",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=ZJWU85xQwp4"
+        },
+        {
+          "label": "Awakened Skeletons",
+          "by": "RPG Soundtracks",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=cSf58dzPlew"
+        },
+        {
+          "label": "Tense Fight",
+          "by": "RPG Soundtracks",
+          "mins": 64,
+          "url": "https://www.youtube.com/watch?v=378jfMSW8V4"
+        },
+        {
+          "label": "Ambush!",
+          "by": "RPG Soundtracks",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=gkdX7kQaxZA"
+        },
+        {
+          "label": "Heroic Action",
+          "by": "RPG Soundtracks",
+          "mins": 61,
+          "url": "https://www.youtube.com/watch?v=C8OxuNQTr5g"
+        },
+        {
+          "label": "Warg Scouts",
+          "by": "RPG Soundtracks",
+          "mins": 66,
+          "url": "https://www.youtube.com/watch?v=X2_KfR-xF2Y"
+        },
+        {
+          "label": "Night Forest Ambush",
+          "by": "RPG Soundtracks",
+          "mins": 64,
+          "url": "https://www.youtube.com/watch?v=lgB-U8yDh_c"
+        },
+        {
+          "label": "City Under Attack",
+          "by": "RPG Soundtracks",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=ieZrvRJ2qCI"
+        },
+        {
+          "label": "Castle Invasion",
+          "by": "RPG Soundtracks",
+          "mins": 61,
+          "url": "https://www.youtube.com/watch?v=ca6EPy2rEzg"
+        },
+        {
+          "label": "Warsong Battle",
+          "by": "RPG Soundtracks",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=WMLpIGpUeoA"
+        },
+        {
+          "label": "Desert Fight",
+          "by": "RPG Soundtracks",
+          "mins": 61,
+          "url": "https://www.youtube.com/watch?v=F71QAFFzX0c"
+        },
+        {
+          "label": "Caves of Chaos",
+          "by": "RPG Soundtracks",
+          "mins": 61,
+          "url": "https://www.youtube.com/watch?v=qE7L0mF1Hrg"
+        },
+        {
+          "label": "Dare of the Storm",
+          "by": "RPG Soundtracks",
+          "mins": 61,
+          "url": "https://www.youtube.com/watch?v=LQjQcHBrAts"
+        },
+        {
+          "label": "Vanguard's Might",
+          "by": "Michael Ghelfi Studios",
+          "mins": 70,
+          "url": "https://www.youtube.com/watch?v=YNtJNhgMhsE"
+        },
+        {
+          "label": "Paladin's Resolve",
+          "by": "Michael Ghelfi Studios",
+          "mins": 61,
+          "url": "https://www.youtube.com/watch?v=vDlTq_5q_oQ"
+        },
+        {
+          "label": "Cannibal's Path",
+          "by": "Michael Ghelfi Studios",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=QXfp_edmYPo"
+        },
+        {
+          "label": "Warlords of Arethen",
+          "by": "Michael Ghelfi Studios",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=7ov4C-Vyyi0"
+        },
+        {
+          "label": "Giants of Emberfall",
+          "by": "Michael Ghelfi Studios",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=gXYnUvln9So"
+        },
+        {
+          "label": "Last March of the Serpent King",
+          "by": "Michael Ghelfi Studios",
+          "mins": 58,
+          "url": "https://www.youtube.com/watch?v=wX3tCTsIyq8"
+        },
+        {
+          "label": "Guardians",
+          "by": "Michael Ghelfi Studios",
+          "mins": 59,
+          "url": "https://www.youtube.com/watch?v=L1_ZDZdM_n8"
+        },
+        {
+          "label": "Momentum",
+          "by": "Michael Ghelfi Studios",
+          "mins": 58,
+          "url": "https://www.youtube.com/watch?v=7EBY-CWr02A"
+        },
+        {
+          "label": "Golden Gate Guardians",
+          "by": "Michael Ghelfi Studios",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=HMLO7oSNk1g"
+        },
+        {
+          "label": "Epic Combat (3 hours)",
+          "by": "Michael Ghelfi Studios",
+          "mins": 178,
+          "url": "https://www.youtube.com/watch?v=ozquB9G6YQw"
+        },
+        {
+          "label": "Ultimate Combat Playlist",
+          "by": "Zinkas the Bard",
+          "mins": 120,
+          "url": "https://www.youtube.com/watch?v=KaCbu6Lygkc"
+        },
+        {
+          "label": "Bandit Combat",
+          "by": "Zinkas the Bard",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=V7lEgxlpBto"
+        },
+        {
+          "label": "Gnoll Combat",
+          "by": "Zinkas the Bard",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=CEjz43bhkPU"
+        },
+        {
+          "label": "Lizardfolk Combat",
+          "by": "Zinkas the Bard",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=yaWz-YvO45g"
+        },
+        {
+          "label": "Cult Battle",
+          "by": "Zinkas the Bard",
+          "mins": 61,
+          "url": "https://www.youtube.com/watch?v=NHuRniA3F6s"
+        },
+        {
+          "label": "Orc Combat",
+          "by": "Zinkas the Bard",
+          "mins": 35,
+          "url": "https://www.youtube.com/watch?v=6gWPAAwBc00"
+        },
+        {
+          "label": "Goblin Battle",
+          "by": "Zinkas the Bard",
+          "mins": 33,
+          "url": "https://www.youtube.com/watch?v=gtMMnsvCrnc"
+        },
+        {
+          "label": "Elemental Battle",
+          "by": "Zinkas the Bard",
+          "mins": 50,
+          "url": "https://www.youtube.com/watch?v=f0GuV7GYxBA"
+        },
+        {
+          "label": "Golem Battle",
+          "by": "Zinkas the Bard",
+          "mins": 32,
+          "url": "https://www.youtube.com/watch?v=RV1CLLhE-Qg"
+        },
+        {
+          "label": "Wolf Encounter",
+          "by": "Zinkas the Bard",
+          "mins": 40,
+          "url": "https://www.youtube.com/watch?v=iY7Pg_IcIVc"
+        },
+        {
+          "label": "Werewolf Encounter",
+          "by": "Zinkas the Bard",
+          "mins": 58,
+          "url": "https://www.youtube.com/watch?v=U1WJmvTfB98"
+        },
+        {
+          "label": "Wizard Duel",
+          "by": "Zinkas the Bard",
+          "mins": 59,
+          "url": "https://www.youtube.com/watch?v=mGnu5dcKoIw"
+        },
+        {
+          "label": "Siege",
+          "by": "Zinkas the Bard",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=Iw3gJE69i9A"
+        },
+        {
+          "label": "Chase Scene",
+          "by": "Zinkas the Bard",
+          "mins": 119,
+          "url": "https://www.youtube.com/watch?v=jT0EBHignX0"
+        },
+        {
+          "label": "Hag Combat",
+          "by": "Zinkas the Bard",
+          "mins": 65,
+          "url": "https://www.youtube.com/watch?v=-uGMcj5bhk8"
+        },
+        {
+          "label": "Giant Spider Battle",
+          "by": "Zinkas the Bard",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=F0pTsCfc7EE"
+        }
+      ]
+    },
+    {
+      "key": "boss",
+      "label": "Boss",
+      "random": true,
+      "tracks": [
+        {
+          "label": "Final Boss",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=mWT11B_-sjQ"
+        },
+        {
+          "label": "Dungeon Boss",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=tBI63CPbW9c"
+        },
+        {
+          "label": "Epic Fight",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=H8n7K3jABhI"
+        },
+        {
+          "label": "The Last Fight",
+          "by": "Bardify",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=wz4gTbWZmq0"
+        },
+        {
+          "label": "Mythic Encounter",
+          "by": "Bardify",
+          "mins": 64,
+          "url": "https://www.youtube.com/watch?v=u_Egrjv-TYI"
+        },
+        {
+          "label": "Fiend Fight",
+          "by": "Bardify",
+          "mins": 65,
+          "url": "https://www.youtube.com/watch?v=ZXXGpziGgs4"
+        },
+        {
+          "label": "Battle of Lost Souls",
+          "by": "Bardify",
+          "mins": 59,
+          "url": "https://www.youtube.com/watch?v=xdhwil8WlEM"
+        },
+        {
+          "label": "Assault of Tenacity",
+          "by": "Bardify",
+          "mins": 58,
+          "url": "https://www.youtube.com/watch?v=5TeUMQ37m0g"
+        },
+        {
+          "label": "Dragon Boss Fight",
+          "by": "RPG Soundtracks",
+          "mins": 61,
+          "url": "https://www.youtube.com/watch?v=qCbjgRnZCJc"
+        },
+        {
+          "label": "Boss Encounter: Efreeti's Bargain",
+          "by": "RPG Soundtracks",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=2OCf9z3OZXM"
+        },
+        {
+          "label": "Demon Lord Combat",
+          "by": "RPG Soundtracks",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=pYSs3dBoXbI"
+        },
+        {
+          "label": "Lich Combat",
+          "by": "RPG Soundtracks",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=donMBqUvZ98"
+        },
+        {
+          "label": "Vampire Combat",
+          "by": "RPG Soundtracks",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=R7P58EVtC50"
+        },
+        {
+          "label": "Fire Giant",
+          "by": "RPG Soundtracks",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=HpZR2dK0mAI"
+        },
+        {
+          "label": "Storm Giant",
+          "by": "RPG Soundtracks",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=FCdk4Hg31LA"
+        },
+        {
+          "label": "Dragon Lair Epic Fight",
+          "by": "RPG Soundtracks",
+          "mins": 61,
+          "url": "https://www.youtube.com/watch?v=7RR_Pw4CBmY"
+        },
+        {
+          "label": "Hag Coven",
+          "by": "RPG Soundtracks",
+          "mins": 61,
+          "url": "https://www.youtube.com/watch?v=mW0GqxhJqvc"
+        },
+        {
+          "label": "Epic Fight",
+          "by": "RPG Soundtracks",
+          "mins": 71,
+          "url": "https://www.youtube.com/watch?v=BWoGeXrNs_g"
+        },
+        {
+          "label": "Eye of Madness",
+          "by": "RPG Soundtracks",
+          "mins": 71,
+          "url": "https://www.youtube.com/watch?v=SCedYysK5fc"
+        },
+        {
+          "label": "Demonic Invasion",
+          "by": "RPG Soundtracks",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=xMtoNGOLV0s"
+        },
+        {
+          "label": "Final Sacrifice",
+          "by": "RPG Soundtracks",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=jFa4QL3w4rU"
+        },
+        {
+          "label": "Conquering the Land",
+          "by": "RPG Soundtracks",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=XNS0FtsNe3w"
+        },
+        {
+          "label": "Valkyrie's Call",
+          "by": "RPG Soundtracks",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=ecJjYjVM5Ds"
+        },
+        {
+          "label": "Arcane Duel Mastery",
+          "by": "RPG Soundtracks",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=3fpU21bquCU"
+        },
+        {
+          "label": "Fiend Fight",
+          "by": "RPG Soundtracks",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=EwXjWnR0mIc"
+        },
+        {
+          "label": "Queen's Memoirs",
+          "by": "Michael Ghelfi Studios",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=3zebwae35l4"
+        },
+        {
+          "label": "The Banshee",
+          "by": "Michael Ghelfi Studios",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=k9H-qtO2E8I"
+        },
+        {
+          "label": "Haraxxas",
+          "by": "Michael Ghelfi Studios",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=ZOKgx-ssJb4"
+        },
+        {
+          "label": "Wardens of Wildwood",
+          "by": "Michael Ghelfi Studios",
+          "mins": 59,
+          "url": "https://www.youtube.com/watch?v=f0yakmNdho4"
+        },
+        {
+          "label": "Boss Battle",
+          "by": "Zinkas the Bard",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=i7BWXgBzOCQ"
+        },
+        {
+          "label": "Celestial Combat",
+          "by": "Zinkas the Bard",
+          "mins": 122,
+          "url": "https://www.youtube.com/watch?v=3zGT-BJaL34"
+        },
+        {
+          "label": "Dragon Battle",
+          "by": "Zinkas the Bard",
+          "mins": 33,
+          "url": "https://www.youtube.com/watch?v=ox31hETbqfw"
+        },
+        {
+          "label": "Lich Battle",
+          "by": "Zinkas the Bard",
+          "mins": 36,
+          "url": "https://www.youtube.com/watch?v=rBDoa9bHMJU"
+        },
+        {
+          "label": "Beholder Combat",
+          "by": "Zinkas the Bard",
+          "mins": 44,
+          "url": "https://www.youtube.com/watch?v=GbpvfeExkdI"
+        },
+        {
+          "label": "Kraken Battle",
+          "by": "Zinkas the Bard",
+          "mins": 37,
+          "url": "https://www.youtube.com/watch?v=vg1_XAbBFkM"
+        },
+        {
+          "label": "Devil Combat",
+          "by": "Zinkas the Bard",
+          "mins": 31,
+          "url": "https://www.youtube.com/watch?v=xEWryKpd-bs"
+        },
+        {
+          "label": "Vampire Battle",
+          "by": "Zinkas the Bard",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=FoSBodR5OrU"
+        },
+        {
+          "label": "Necromancer Encounter",
+          "by": "Zinkas the Bard",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=Tp2wh_Mwsco"
+        },
+        {
+          "label": "False Hydra Combat",
+          "by": "Zinkas the Bard",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=fLERkyTRFi8"
+        },
+        {
+          "label": "Red Wizard Combat",
+          "by": "Zinkas the Bard",
+          "mins": 59,
+          "url": "https://www.youtube.com/watch?v=ZAiM8kto__4"
+        }
+      ]
+    },
+    {
+      "key": "situational",
+      "label": "Situational",
+      "random": false,
+      "tracks": [
+        {
+          "label": "A character dies",
+          "by": "Stone Cast | TTRPG Combat Music & Ambience",
+          "mins": 67,
+          "url": "https://www.youtube.com/watch?v=VBjfJBmkM7c"
+        },
+        {
+          "label": "A character dies, quietly",
+          "by": "Zinkas the Bard",
+          "mins": 33,
+          "url": "https://www.youtube.com/watch?v=V14tW0snNiQ"
+        },
+        {
+          "label": "A character dies, tragically",
+          "by": "Supernova Collective",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=HcHngVSyB7A"
+        },
+        {
+          "label": "Death of a friend",
+          "by": "PPEAK – Video Game & DnD Music",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=ce0Z3IZAyK4"
+        },
+        {
+          "label": "Mourning a companion",
+          "by": "RPG Songsmith",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=3Ze5kuYfya8"
+        },
+        {
+          "label": "A funeral march",
+          "by": "FerTheBard",
+          "mins": 64,
+          "url": "https://www.youtube.com/watch?v=1LGZUaQVEkM"
+        },
+        {
+          "label": "Mourning the fallen",
+          "by": "Michael Ghelfi Studios",
+          "mins": 7,
+          "url": "https://www.youtube.com/watch?v=jWyxu3PGspk"
+        },
+        {
+          "label": "Farewell",
+          "by": "Bardify",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=ofRMvTxQCHI"
+        },
+        {
+          "label": "Last goodbye",
+          "by": "Bardify",
+          "mins": 64,
+          "url": "https://www.youtube.com/watch?v=mFsQpCjRyvY"
+        },
+        {
+          "label": "Betrayal",
+          "by": "Bardify",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=HNd7P7C-lWg"
+        },
+        {
+          "label": "Tragic ending",
+          "by": "RPG Soundtracks",
+          "mins": 56,
+          "url": "https://www.youtube.com/watch?v=_nc69jPVzbw"
+        },
+        {
+          "label": "A city in sorrow",
+          "by": "Bardify",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=fXA8zHLdYF0"
+        },
+        {
+          "label": "A promise made",
+          "by": "Michael Ghelfi Studios",
+          "mins": 60,
+          "url": "https://www.youtube.com/watch?v=sRAXOqNB-UI"
+        },
+        {
+          "label": "The heroes return",
+          "by": "RPG Soundtracks",
+          "mins": 65,
+          "url": "https://www.youtube.com/watch?v=qrPgeKOjL58"
+        },
+        {
+          "label": "The adventure ends",
+          "by": "Bardify",
+          "mins": 64,
+          "url": "https://www.youtube.com/watch?v=S9FsrV72wGY"
+        },
+        {
+          "label": "Journey's end",
+          "by": "Bardify",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=HCN51NOW5IE"
+        },
+        {
+          "label": "A new dawn",
+          "by": "Bardify",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=FT4QX_9NhAY"
+        },
+        {
+          "label": "Hope rekindled",
+          "by": "Michael Ghelfi Studios",
+          "mins": 180,
+          "url": "https://www.youtube.com/watch?v=IJ1bcuw2CMs"
+        },
+        {
+          "label": "Tension rising",
+          "by": "Michael Ghelfi Studios",
+          "mins": 180,
+          "url": "https://www.youtube.com/watch?v=sfCqQ6i3vW0"
+        },
+        {
+          "label": "Suspense",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=EApZmmYg_oQ"
+        },
+        {
+          "label": "Investigating a mystery",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=7wBzL62Va1k"
+        },
+        {
+          "label": "Sneaking in",
+          "by": "Zinkas the Bard",
+          "mins": 30,
+          "url": "https://www.youtube.com/watch?v=VZGON0yIkTI"
+        },
+        {
+          "label": "Fleeing through the dark",
+          "by": "RPG Soundtracks",
+          "mins": 68,
+          "url": "https://www.youtube.com/watch?v=tq-jNKZwLxA"
+        },
+        {
+          "label": "A dark ritual",
+          "by": "Bardify",
+          "mins": 63,
+          "url": "https://www.youtube.com/watch?v=5Y7oXb_Vmsc"
+        },
+        {
+          "label": "Something eldritch",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=izLY7u-Q5yA"
+        },
+        {
+          "label": "Long rest",
+          "by": "Bardify",
+          "mins": 64,
+          "url": "https://www.youtube.com/watch?v=7T3SU4Ht1Yw"
+        },
+        {
+          "label": "Shopping for magic",
+          "by": "Bardify",
+          "mins": 62,
+          "url": "https://www.youtube.com/watch?v=tpi5qsXm_cM"
+        },
+        {
+          "label": "A festival",
+          "by": "RPG Soundtracks",
+          "mins": 65,
+          "url": "https://www.youtube.com/watch?v=dB2omtw-PUc"
+        }
+      ]
+    },
+    {
+      "key": "victory",
+      "label": "Victory",
+      "random": true,
+      "tracks": [
+        {
+          "label": "Encounter fanfare",
+          "by": "Dungeons & Dragons & Dining & Dudes",
+          "secs": 9,
+          "url": "https://www.youtube.com/watch?v=kC-vnkIq5CU"
+        },
+        {
+          "label": "RPG victory fanfare",
+          "by": "Lux Aeterna Audio",
+          "secs": 12,
+          "url": "https://www.youtube.com/watch?v=kMwPZx5G9Lk"
+        },
+        {
+          "label": "Light Wills Ever",
+          "by": "Lux Aeterna Audio",
+          "secs": 23,
+          "url": "https://www.youtube.com/watch?v=hyI5hoi8hKA"
+        },
+        {
+          "label": "Spellsword fanfare",
+          "by": "Lux Aeterna Audio",
+          "secs": 40,
+          "url": "https://www.youtube.com/watch?v=-kz1tC-O59s"
+        },
+        {
+          "label": "Spellsword fanfare II",
+          "by": "Lux Aeterna Audio",
+          "secs": 40,
+          "url": "https://www.youtube.com/watch?v=VrvyFl1N5lA"
+        },
+        {
+          "label": "Level up",
+          "by": "Lux Aeterna Audio",
+          "secs": 25,
+          "url": "https://www.youtube.com/watch?v=lvginf9gLvE"
+        },
+        {
+          "label": "Victory theme",
+          "by": "Scattered Sounds",
+          "secs": 11,
+          "url": "https://www.youtube.com/watch?v=ZsU6g5Zh2i0"
+        },
+        {
+          "label": "Victory on the piano",
+          "by": "Scattered Sounds",
+          "secs": 19,
+          "url": "https://www.youtube.com/watch?v=AKqTNplcrcI"
+        },
+        {
+          "label": "Boss battle victory",
+          "by": "Adventurer's Music Pack",
+          "secs": 29,
+          "url": "https://www.youtube.com/watch?v=biE2vvI8Xd0"
+        },
+        {
+          "label": "Orna's fanfare",
+          "by": "Francis",
+          "secs": 51,
+          "url": "https://www.youtube.com/watch?v=ds9I22aHEOs"
+        },
+        {
+          "label": "Victory!",
+          "by": "Alexander Nakarada - CreatorChords",
+          "secs": 40,
+          "url": "https://www.youtube.com/watch?v=7VYjIJMZfo8"
+        },
+        {
+          "label": "Victory fanfare",
+          "by": "Konstantin Kasyanov Composer",
+          "secs": 55,
+          "url": "https://www.youtube.com/watch?v=Vs9rA1HFDR8"
+        },
+        {
+          "label": "Triumphant hero theme",
+          "by": "Mack Walters Music",
+          "secs": 53,
+          "url": "https://www.youtube.com/watch?v=MnhcXMinvG0"
+        },
+        {
+          "label": "Victory",
+          "by": "Ivan Duch",
+          "secs": 138,
+          "url": "https://www.youtube.com/watch?v=5MdvNcSMwKc"
+        },
+        {
+          "label": "Epic victory fanfare",
+          "by": "Quelli del Magma",
+          "secs": 99,
+          "url": "https://www.youtube.com/watch?v=oUkQtyRgy8o"
+        },
+        {
+          "label": "Epic victory fanfare, extended",
+          "by": "Quelli del Magma",
+          "secs": 131,
+          "url": "https://www.youtube.com/watch?v=5fglW54nCIc"
+        },
+        {
+          "label": "Victory theme",
+          "by": "MiguelAbuel",
+          "secs": 132,
+          "url": "https://www.youtube.com/watch?v=UBut9Qp1Rto"
+        },
+        {
+          "label": "Battle triumph fanfare",
+          "by": "Rafael Krux - Topic",
+          "secs": 85,
+          "url": "https://www.youtube.com/watch?v=g8y14reWKxE"
+        },
+        {
+          "label": "Medieval fanfare",
+          "by": "Rafael Krux - Topic",
+          "secs": 104,
+          "url": "https://www.youtube.com/watch?v=ze-p1F4Ebt8"
+        },
+        {
+          "label": "The return",
+          "by": "Legends From Beyond",
+          "secs": 157,
+          "url": "https://www.youtube.com/watch?v=Rh-tSCvQD2U"
+        },
+        {
+          "label": "Victory on the horizon",
+          "by": "Michael Ghelfi Studios",
+          "secs": 192,
+          "url": "https://www.youtube.com/watch?v=RA_OH-iY6hc"
+        },
+        {
+          "label": "Triumphant ending",
+          "by": "Michael Ghelfi Studios",
+          "secs": 195,
+          "url": "https://www.youtube.com/watch?v=GXi42GC98lA"
+        },
+        {
+          "label": "Bellona's victory",
+          "by": "Lucas Quinn Creations",
+          "secs": 181,
+          "url": "https://www.youtube.com/watch?v=-B5Mf-JJfPk"
+        },
+        {
+          "label": "Triumph of the heroes",
+          "by": "Vudan Dreams",
+          "secs": 203,
+          "url": "https://www.youtube.com/watch?v=hLgK09445BI"
+        },
+        {
+          "label": "The price of victory",
+          "by": "LUKARTH",
+          "secs": 112,
+          "url": "https://www.youtube.com/watch?v=0ZS1sJHsBFQ"
+        }
+      ]
+    }
   ]
 }

@@ -4,14 +4,15 @@
 // search and the detail sheet are all generic. Creatures get two extras (the party XP
 // band filter and add-to-encounter) because that is what a GM actually does with them.
 
-import { state } from '../store.js';
+import { state, save } from '../store.js';
 import { caps, esc, on, sheet, tip, qs, qsa } from '../dom.js';
 import { creatureXP, LEVEL_DC, actionIcons } from '../pf2e.js';
-import { manifest, records, traits as loadTraits } from '../data.js';
+import { manifest, records, searchIndex, traits as loadTraits } from '../data.js';
 import { recordTip } from '../records.js';
 import { buildFacets, creatureTypeNames, facetChange, facetOptions, facetPasses, facetSelects }
   from '../facets.js';
 import { addEntry } from './encounters.js';
+import { searchAll } from '../search.js';
 
 const RENDER_CAP = 200;
 
@@ -25,12 +26,18 @@ let chosen = {};        // axis id -> chosen value
 let creatureTypes = new Set();
 let loading = false;
 
+const ALL = '__all__';           // the "All" chip's data-cat value
+let global = false;              // true when "All" is selected; `active` is null then
+let searchIndexData;             // undefined = not requested yet, null = missing, else the index
+let indexLoading = false;
+let pending = null;              // { cat, id } queued by openRecord() until categories load
+
 // Fields that get bespoke treatment, or are plumbing the reader does not want to see.
 const SKIP = new Set(['id', 'name', 'url', 'notes', 'traits', 'source', 'level', 'kind',
   'strikes', 'specials']);
 
 const LABEL = {
-  ac: 'AC', hp: 'HP', dexCap: 'Dex cap', levelDC: 'Level DC', actionCount: 'Actions', priceRaw: 'Price',
+  ac: 'AC', hp: 'HP', dexCap: 'Dex cap', levelDC: 'Level DC', priceRaw: 'Price',
   bulkRaw: 'Bulk', damageType: 'Damage type', keyAbility: 'Key attribute',
   attributeFlaw: 'Attribute flaw', hazardType: 'Hazard type', primaryCheck: 'Primary check',
   secondaryCheck: 'Secondary check', secondaryCasters: 'Secondary casters',
@@ -63,6 +70,7 @@ export function mount(root) {
       </label>
       <div class="row wrap" id="facets" style="margin-top:10px;gap:8px"></div>
     </div>
+    <div class="picker" id="recent" hidden></div>
     <div class="row spread">
       <span class="muted" id="count"></span>
       <button class="ghost" id="clear" hidden
@@ -83,7 +91,14 @@ export function mount(root) {
     draw(root);
   });
   on(root, 'click', '[data-cat]', (e, el) => select(root, el.dataset.cat));
-  on(root, 'click', '[data-open]', (e, el) => openDetail(el.dataset.open));
+  on(root, 'click', '[data-open]', (e, el) => {
+    const r = rows.find(x => x.id === el.dataset.open);
+    if (r) openDetailFor(r, active);
+  });
+  on(root, 'click', '[data-hit-cat]', (e, el) => openByRef(el.dataset.hitCat, el.dataset.hitId));
+  on(root, 'click', '[data-see]', (e, el) => seeAll(root, el.dataset.see, el.dataset.seeQuery));
+  on(root, 'click', '[data-recent-cat]', (e, el) => openByRef(el.dataset.recentCat, el.dataset.recentId));
+  on(root, 'click', '[data-clear-recent]', () => { state.ui.recent = []; save(); });
 
   loadTraits().then(list => { creatureTypes = creatureTypeNames(list); draw(root); });
 
@@ -95,18 +110,23 @@ export function mount(root) {
       return;
     }
     drawChips(root);
-    select(root, active?.name || categories[0].name);
+    select(root, global ? ALL : (active?.name || categories[0].name));
+    maybeOpenPending();
   });
 }
 
 function drawChips(root) {
-  qs('#cats', root).innerHTML = categories.map(c => `
-    <button class="pick" data-cat="${esc(c.name)}">
-      <span aria-hidden="true">${c.glyph}</span> ${esc(c.label)}
-    </button>`).join('');
+  qs('#cats', root).innerHTML =
+    `<button class="pick" data-cat="${ALL}"><span aria-hidden="true">🔍</span> All</button>` +
+    categories.map(c => `
+      <button class="pick" data-cat="${esc(c.name)}">
+        <span aria-hidden="true">${c.glyph}</span> ${esc(c.label)}
+      </button>`).join('');
 }
 
 function select(root, name) {
+  if (name === ALL) { selectGlobal(root); return; }
+  global = false;
   const next = categories.find(c => c.name === name);
   if (!next) return;
   active = next;
@@ -120,7 +140,7 @@ function select(root, name) {
   if (band) band.checked = false;
   qs('#band-wrap', root).hidden = active.name !== 'creatures';
 
-  qsa('.pick', root).forEach(el => el.classList.toggle('on', el.dataset.cat === name));
+  qsa('#cats .pick', root).forEach(el => el.classList.toggle('on', el.dataset.cat === name));
 
   rows = [];
   loading = true;
@@ -134,12 +154,35 @@ function select(root, name) {
   });
 }
 
+function selectGlobal(root) {
+  global = true;
+  active = null;
+  query = '';
+  axes = [];
+  chosen = {};
+  bandOnly = false;
+  const search = qs('#search', root);
+  if (search) { search.value = ''; search.placeholder = 'Search everything…'; }
+  const band = qs('#band', root);
+  if (band) band.checked = false;
+  qs('#band-wrap', root).hidden = true;
+  qs('#facets', root).innerHTML = '';
+  qsa('#cats .pick', root).forEach(el => el.classList.toggle('on', el.dataset.cat === ALL));
+  rows = [];
+  if (searchIndexData === undefined && !indexLoading) {
+    indexLoading = true;
+    searchIndex().then(idx => { indexLoading = false; searchIndexData = idx; draw(root); });
+  }
+  draw(root);
+}
+
 /**
  * The records matching the search, the XP band and every chosen filter. `skip` drops one
  * axis from the test, which is how each dropdown lists what is still reachable through the
  * other filters instead of only the value already picked.
  */
 function filtered(skip = null) {
+  if (!active) return [];
   const needle = query.trim().toLowerCase();
   const active = skip ? axes.filter(a => a !== skip) : axes;
   return rows.filter(r => {
@@ -160,6 +203,9 @@ function draw(root) {
   const results = qs('#results', root);
   const count = qs('#count', root);
   if (!results) return;
+
+  drawRecent(root);
+  if (global) { drawGlobal(root, results, count); return; }
 
   if (loading) {
     count.textContent = '';
@@ -188,7 +234,77 @@ function draw(root) {
         : `No ${esc(active?.label.toLowerCase() || 'records')} loaded.`}</div>`;
 }
 
+function drawRecent(root) {
+  const el = qs('#recent', root);
+  if (!el) return;
+  const list = state.ui.recent;
+  if (query.trim() || !list.length) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML = list.map(r => `
+      <button class="pick" data-recent-cat="${esc(r.cat)}" data-recent-id="${esc(r.id)}">${esc(r.name)}</button>`
+    ).join('') +
+    '<button class="pick" data-clear-recent>Clear recent</button>';
+}
+
+function drawGlobal(root, results, count) {
+  qs('#facets', root).innerHTML = '';
+  count.textContent = '';
+  qs('#clear', root).hidden = !query && !Object.values(chosen).some(Boolean);
+
+  if (indexLoading) {
+    results.innerHTML = '<div class="empty">Loading the search index&hellip;</div>';
+    return;
+  }
+  if (searchIndexData === null) {
+    results.innerHTML =
+      '<div class="empty">No data/search.json — run <code>npm run data</code>.</div>';
+    return;
+  }
+  if (!query.trim()) {
+    results.innerHTML = '';
+    return;
+  }
+  const groups = searchAll(searchIndexData, query, { perCategory: 6 });
+  results.innerHTML = groups.length
+    ? groups.map(groupBlock).join('')
+    : '<div class="empty">Nothing matches that search.</div>';
+}
+
+function groupBlock(g) {
+  const cat = categories.find(c => c.name === g.category);
+  if (!cat) return '';
+  const rowsHtml = g.hits.map(h => globalRow(cat, h)).join('');
+  const more = g.total > g.hits.length
+    ? `<button class="ghost" data-see="${esc(cat.name)}" data-see-query="${esc(query)}"
+              style="min-height:44px;width:100%;font-size:0.78rem;margin-top:4px">
+        See all ${g.total} in ${esc(cat.label)}
+      </button>`
+    : '';
+  return `
+    <div class="group-head">${cat.glyph} ${esc(cat.label)} · ${g.total}</div>
+    <div class="list">${rowsHtml}</div>
+    ${more}`;
+}
+
+function globalRow(cat, h) {
+  return `
+    <button class="item" data-hit-cat="${esc(cat.name)}" data-hit-id="${esc(h.id)}" style="text-align:left">
+      ${h.level === undefined ? '' : `<span class="lvl">${h.level}</span>`}
+      <div class="grow">
+        <div class="name">${esc(h.name)}</div>
+      </div>
+    </button>`;
+}
+
+function seeAll(root, catName, savedQuery) {
+  select(root, catName);
+  query = savedQuery;
+  const search = qs('#search', root);
+  if (search) search.value = savedQuery;
+}
+
 function row(r) {
+  if (!active) return '';
   const xp = active.name === 'creatures' ? creatureXP(r.level, state.party.level) : null;
   const sub = (r.traits || []).join(' · ') || r.notes || '';
   return `
@@ -229,6 +345,16 @@ function stat(k, v) {
   if (v === null || v === undefined || v === '') return '';
   // Action costs read as icons, the way Pathbuilder and the Archives show them.
   if (k === 'actions') v = actionIcons(v);
+  // The only field in data/*.json this app shows in feet: rituals' `area`, confirmed with
+  // the user. The generator stores it as an array of numbers, and 0 in that array means
+  // "nothing recorded" rather than an area of zero (e.g. Ash-Strewn Ending) — drop those
+  // instead of printing "Area 0 feet". Keyed on the field name, not the category, per
+  // CLAUDE.md: a view must not special-case one category of records.
+  if (k === 'area') {
+    const feet = (Array.isArray(v) ? v : [v]).filter(n => typeof n === 'number' && n > 0);
+    if (!feet.length) return '';
+    v = feet.join(', ') + ' feet';
+  }
   if (Array.isArray(v)) { if (!v.length) return ''; v = v.join(', '); }
   if (typeof v === 'object') {
     // The keys inside a value are names of things — Fort, Dex, Acrobatics, Holy — and are
@@ -243,45 +369,85 @@ function stat(k, v) {
   return `<div class="share"><span class="muted">${esc(label(k))}</span><b>${esc(v)}</b></div>`;
 }
 
-function openDetail(id) {
-  const r = rows.find(x => x.id === id);
-  if (!r) return;
-
+function openDetailFor(record, categoryEntry) {
   const head = [
-    active.label.replace(/s$/, ''),
-    r.level === undefined ? null : `level ${r.level}`,
-    r.rarity && r.rarity !== 'common' ? r.rarity : null
+    categoryEntry.label.replace(/s$/, ''),
+    record.level === undefined ? null : `level ${record.level}`,
+    record.rarity && record.rarity !== 'common' ? record.rarity : null
   ].filter(Boolean).join(' · ');
 
-  // Everything the record carries that is not handled above, in file order.
-  const extras = Object.keys(r)
+  const extras = Object.keys(record)
     .filter(k => !SKIP.has(k) && !REDUNDANT.has(k) && k !== 'rarity')
-    .map(k => stat(k, r[k]))
+    .map(k => stat(k, record[k]))
     .join('');
 
-  const isCreature = active.name === 'creatures';
+  const isCreature = categoryEntry.name === 'creatures';
   const body = `
     <div class="muted">${esc(head)}</div>
-    ${(r.traits || []).length
-      ? `<div class="row wrap" style="gap:6px">${r.traits
+    ${(record.traits || []).length
+      ? `<div class="row wrap" style="gap:6px">${record.traits
           .map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>`
       : ''}
     ${extras || isCreature ? `<div class="card">${extras}${
-      isCreature ? stat('levelDC', LEVEL_DC[Math.max(0, r.level)]) : ''}</div>` : ''}
-    ${(r.strikes || []).length
-      ? `<div class="card"><h2>Strikes</h2>${strikeRows(r.strikes)}</div>` : ''}
-    ${(r.specials || []).length
-      ? `<div class="card"><h2>Abilities</h2>${strikeRows(r.specials)}</div>` : ''}
-    ${r.notes ? `<div class="card"><h2>Summary</h2><div class="muted">${esc(r.notes)}</div></div>` : ''}
-    ${r.url ? `<div class="muted" style="font-size:0.72rem">
-      <a href="${esc(r.url)}" target="_blank" rel="noopener">Open on Archives of Nethys</a>
+      isCreature ? stat('levelDC', LEVEL_DC[Math.max(0, record.level)]) : ''}</div>` : ''}
+    ${(record.strikes || []).length
+      ? `<div class="card"><h2>Strikes</h2>${strikeRows(record.strikes)}</div>` : ''}
+    ${(record.specials || []).length
+      ? `<div class="card"><h2>Abilities</h2>${strikeRows(record.specials)}</div>` : ''}
+    ${record.notes ? `<div class="card"><h2>Summary</h2><div class="muted">${esc(record.notes)}</div></div>` : ''}
+    ${record.url ? `<div class="muted" style="font-size:0.72rem">
+      <a href="${esc(record.url)}" target="_blank" rel="noopener">Open on Archives of Nethys</a>
     </div>` : ''}
     ${isCreature ? '<button class="primary" data-to-encounter>Add to encounter</button>' : ''}`;
 
-  const { node, close } = sheet(r.name, body);
+  const { node, close } = sheet(record.name, body);
   on(node, 'click', '[data-to-encounter]', () => {
-    addEntry(r.name, r.level, 'creature', r);
+    addEntry(record.name, record.level, 'creature', record);
     close();
     location.hash = '#/encounters';
   });
+
+  remember(categoryEntry.name, record.id, record.name);
+}
+
+function remember(cat, id, name) {
+  const kept = state.ui.recent.filter(r => !(r.cat === cat && r.id === id));
+  kept.unshift({ cat, id, name });
+  state.ui.recent = kept.slice(0, 12);
+  save();
+}
+
+function dropRecent(cat, id) {
+  const before = state.ui.recent.length;
+  state.ui.recent = state.ui.recent.filter(r => !(r.cat === cat && r.id === id));
+  if (state.ui.recent.length !== before) save();
+}
+
+function openByRef(cat, id) {
+  const catEntry = categories.find(c => c.name === cat);
+  if (!catEntry) { dropRecent(cat, id); return; }
+  records(catEntry).then(list => {
+    const r = list.find(x => x.id === id);
+    if (!r) { dropRecent(cat, id); return; }
+    openDetailFor(r, catEntry);
+  });
+}
+
+function maybeOpenPending() {
+  if (!pending || !categories.length) return;
+  const { cat, id } = pending;
+  pending = null;
+  openByRef(cat, id);
+}
+
+/**
+ * Queue a Library record to open, for Home's "recently opened" strip — Home cannot build
+ * a Library detail sheet itself, since the sheet needs the manifest entry and the loaded
+ * category records. If Library has already been mounted this session (categories loaded),
+ * this opens the sheet immediately; otherwise mount() opens it once the manifest resolves.
+ * Never import home.js from here — this dependency runs one way only.
+ */
+export function openRecord(cat, id) {
+  pending = { cat, id };
+  maybeOpenPending();
 }

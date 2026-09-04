@@ -13,6 +13,9 @@ const DEFAULTS = {
   sound: { url: '', saved: [] },  // Last YouTube URL and named links on this device
   characters: { extra: [] },      // PCs pasted in on this device; the repo roster is
                                   // data/characters.json
+  ui: { group: { run: 'encounters', table: 'party' }, recent: [] },
+  // group: last sub-screen used in each group. recent: the Library's last 12 opened
+  // records, newest first — { cat, id, name }, cat being the manifest category name.
 };
 
 function clone(v) { return JSON.parse(JSON.stringify(v)); }

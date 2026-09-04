@@ -75,6 +75,64 @@ test('the threat gauge runs trivial to extreme and re-proportions with party siz
   assert.equal(pf2e.threatPosition(400, 4), 100);   // beyond extreme pins to the right
 });
 
+test('elite/weak level adjustment carries the special cases at the bottom of each scale', () => {
+  // Elite: normally +1, but +2 at level -1 or 0 — the two lowest levels the app allows.
+  assert.equal(pf2e.adjustedLevel(-1, 'elite'), 1);
+  assert.equal(pf2e.adjustedLevel(0, 'elite'), 2);
+  assert.equal(pf2e.adjustedLevel(1, 'elite'), 2);   // level 1 is not a special case: +1
+  assert.equal(pf2e.adjustedLevel(5, 'elite'), 6);
+
+  // Weak: normally -1, but -2 at level 1 specifically (level 0 is not the special case).
+  assert.equal(pf2e.adjustedLevel(1, 'weak'), -1);
+  assert.equal(pf2e.adjustedLevel(2, 'weak'), 1);
+  assert.equal(pf2e.adjustedLevel(0, 'weak'), -1);
+  assert.equal(pf2e.adjustedLevel(5, 'weak'), 4);
+
+  // Anything else — null, undefined, a typo — is unchanged, not an error.
+  assert.equal(pf2e.adjustedLevel(3, null), 3);
+  assert.equal(pf2e.adjustedLevel(3, undefined), 3);
+  assert.equal(pf2e.adjustedLevel(3, 'sturdy'), 3);
+});
+
+test('elite HP adds by the starting level\'s band, every edge included', () => {
+  assert.equal(pf2e.adjustedHP(10, 1, 'elite'), 20);    // level 1 or lower: +10
+  assert.equal(pf2e.adjustedHP(10, 0, 'elite'), 20);    // a level below 1 still reads as +10
+  assert.equal(pf2e.adjustedHP(10, -1, 'elite'), 20);
+  assert.equal(pf2e.adjustedHP(20, 2, 'elite'), 35);    // levels 2-4: +15
+  assert.equal(pf2e.adjustedHP(20, 4, 'elite'), 35);
+  assert.equal(pf2e.adjustedHP(50, 5, 'elite'), 70);    // levels 5-19: +20
+  assert.equal(pf2e.adjustedHP(50, 19, 'elite'), 70);
+  assert.equal(pf2e.adjustedHP(200, 20, 'elite'), 230); // level 20+: +30
+});
+
+test('weak HP subtracts by the starting level\'s band and never drops below 1', () => {
+  assert.equal(pf2e.adjustedHP(20, 1, 'weak'), 10);     // levels 1-2: -10
+  assert.equal(pf2e.adjustedHP(20, 2, 'weak'), 10);
+  assert.equal(pf2e.adjustedHP(30, 3, 'weak'), 15);     // levels 3-5: -15
+  assert.equal(pf2e.adjustedHP(30, 5, 'weak'), 15);
+  assert.equal(pf2e.adjustedHP(40, 6, 'weak'), 20);      // levels 6-20: -20
+  assert.equal(pf2e.adjustedHP(40, 20, 'weak'), 20);
+  assert.equal(pf2e.adjustedHP(60, 21, 'weak'), 30);     // level 21+: -30
+  // The published table says nothing about level 0; the app takes the lowest band (-10)
+  // as the nearest fit rather than a rule, and never lets the result reach 0 or below.
+  assert.equal(pf2e.adjustedHP(20, 0, 'weak'), 10);
+  assert.equal(pf2e.adjustedHP(8, 1, 'weak'), 1);       // 8 - 10 floors at 1, not 0 or -2
+});
+
+test('elite/weak AC is a flat ±2, and both HP and AC pass a missing value straight through', () => {
+  assert.equal(pf2e.adjustedAC(18, 'elite'), 20);
+  assert.equal(pf2e.adjustedAC(18, 'weak'), 16);
+  assert.equal(pf2e.adjustedAC(null, 'elite'), null);
+  assert.equal(pf2e.adjustedAC(undefined, 'weak'), null);
+  assert.equal(pf2e.adjustedHP(null, 5, 'elite'), null);
+  assert.equal(pf2e.adjustedHP(undefined, 5, 'weak'), null);
+
+  // A null or unrecognised adjust leaves every one of these untouched.
+  assert.equal(pf2e.adjustedAC(18, null), 18);
+  assert.equal(pf2e.adjustedAC(18, 'sturdy'), 18);
+  assert.equal(pf2e.adjustedHP(30, 5, undefined), 30);
+});
+
 test('loot suggestions keep to the level band and spread across categories', () => {
   const items = [
     { id: 'w1', name: 'Sword', level: 7, category: 'Weapons', price: 10000 },
@@ -674,6 +732,75 @@ test('slowed takes actions away and paralysed takes the whole turn', () => {
 
 test('a condition the table does not model is ignored rather than throwing', () => {
   assert.equal(pf2e.conditionModifiers(['Grabbed', 'Dazzled', 'Nonsense 4']).attack, 0);
+});
+
+test('conditionName and conditionValue round-trip through withConditionValue', () => {
+  // The normal case: a valued chip built by the picker reads back the same value.
+  assert.equal(pf2e.conditionName(pf2e.withConditionValue('Frightened', 2)), 'Frightened');
+  assert.equal(pf2e.conditionValue(pf2e.withConditionValue('Frightened', 2)), 2);
+  // A null or zero value collapses to the bare name, same as a condition with none at all.
+  assert.equal(pf2e.withConditionValue('Prone', null), 'Prone');
+  assert.equal(pf2e.withConditionValue('Prone', 0), 'Prone');
+  assert.equal(pf2e.conditionValue(pf2e.withConditionValue('Prone', null)), null);
+  // A persistent-damage chip's parenthetical is not a value — the name still resolves
+  // past it, and asking for its value gives null rather than misreading the note.
+  assert.equal(pf2e.conditionName('Persistent Damage (fire)'), 'Persistent Damage');
+  assert.equal(pf2e.conditionValue('Persistent Damage (fire)'), null);
+});
+
+test('takesValue names exactly the conditions whose chip carries a number', () => {
+  assert.equal(pf2e.takesValue('Frightened'), true);
+  assert.equal(pf2e.takesValue('Clumsy'), true);
+  // Persistent Damage carries a damage type, not a value, and already has its own step.
+  assert.equal(pf2e.takesValue('Persistent Damage'), false);
+  assert.equal(pf2e.takesValue('Prone'), false);
+  for (const name of pf2e.VALUED_CONDITIONS) {
+    assert.ok(pf2e.CONDITIONS.includes(name), `${name} is not a listed condition`);
+  }
+});
+
+test('frightened decreases by 1 at the end of the turn and ends at 0', () => {
+  const three = pf2e.endOfTurnConditions(['Frightened 3']);
+  assert.deepEqual(three.conditions, ['Frightened 2']);
+  assert.deepEqual(three.ticked, ['Frightened 3 → 2']);
+  assert.deepEqual(three.reminders, []);
+
+  const one = pf2e.endOfTurnConditions(['Frightened 1']);
+  assert.deepEqual(one.conditions, []);
+  assert.deepEqual(one.ticked, ['Frightened ended']);
+
+  // A valueless Frightened is a chip from before values existed — treated as Frightened 1,
+  // so it ends rather than silently surviving forever.
+  const bare = pf2e.endOfTurnConditions(['Frightened']);
+  assert.deepEqual(bare.conditions, []);
+  assert.deepEqual(bare.ticked, ['Frightened ended']);
+});
+
+test('no other condition is decremented at end of turn, valued or not', () => {
+  // This is the assertion that stops someone "improving" this into decrementing
+  // everything with a number: Clumsy, Stunned, Slowed and Wounded are untouched. Stunned
+  // and Slowed in particular reduce actions at the *start* of a turn, and Stunned's own
+  // decrease is by however many actions were actually lost — a number only the GM knows.
+  const list = ['Clumsy 1', 'Stunned 2', 'Slowed 1', 'Wounded 3'];
+  const result = pf2e.endOfTurnConditions(list);
+  assert.deepEqual(result.conditions, list);
+  assert.deepEqual(result.ticked, []);
+  assert.deepEqual(result.reminders, []);
+});
+
+test('persistent damage produces a reminder and is never rolled or altered by the app', () => {
+  const result = pf2e.endOfTurnConditions(['Persistent Damage (fire)']);
+  // The chip itself is untouched — the app does not roll the flat check or apply damage.
+  assert.deepEqual(result.conditions, ['Persistent Damage (fire)']);
+  assert.deepEqual(result.ticked, []);
+  assert.equal(result.reminders.length, 1);
+  assert.match(result.reminders[0], /fire/);
+  assert.match(result.reminders[0], /DC 15 flat check/);
+});
+
+test('a combatant with no conditions comes back unchanged with nothing to report', () => {
+  assert.deepEqual(pf2e.endOfTurnConditions([]), { conditions: [], ticked: [], reminders: [] });
+  assert.deepEqual(pf2e.endOfTurnConditions(undefined), { conditions: [], ticked: [], reminders: [] });
 });
 
 // --- damage ------------------------------------------------------------------

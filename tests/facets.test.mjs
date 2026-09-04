@@ -6,7 +6,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  buildFacets, creatureTypeNames, facetChange, facetKey, facetOptions, facetPasses, facetSelects
+  ACTION_ORDER, buildFacets, creatureTypeNames, facetChange, facetKey, facetOptions,
+  facetPasses, facetSelects
 } from '../src/facets.js';
 
 const TRAIT_FILE = [
@@ -152,4 +153,38 @@ test('the two ends of a range keep each other honest', () => {
   assert.equal(facetChange({ level: { min: 3, max: null } }, at(''), axes).level, '');
   // Every other axis is still one value.
   assert.equal(facetChange({}, { dataset: { facet: 'size' }, value: 'large' }, axes).size, 'large');
+});
+
+// AoN's `actions` field ("Free Action", "Single Action", ... but also duration strings
+// like "1 hour" for rituals and long casts) is the only action-cost field the app uses —
+// see CLAUDE.md, "Reference data". An axis with an `order` list has to put those known
+// costs first, cheapest first, and still make sense of everything an order list can't
+// name.
+const ACTIONS = [
+  { id: 'x1', name: 'Coup de Grace', actions: 'Two Actions' },
+  { id: 'x2', name: 'Recall Knowledge', actions: 'Free Action' },
+  { id: 'x3', name: 'Long Ritual', actions: '1 minute' },
+  { id: 'x4', name: 'Strike', actions: 'Single Action' },
+  { id: 'x5', name: 'Extended Ritual', actions: '1 hour' }
+];
+
+test('an ordered axis sorts its known values first and pushes the rest to the end', () => {
+  const axis = { field: 'actions', order: ACTION_ORDER };
+  const options = facetOptions(ACTIONS, axis);
+  // Free Action, Single Action and Two Actions in cost order; "1 hour" and "1 minute"
+  // are not a fixed cost, so they land after every known one, sorted by label like any
+  // other unrecognised value rather than first (a bare indexOf(-1) would put them there).
+  assert.deepEqual([...options.keys()],
+    ['free action', 'single action', 'two actions', '1 hour', '1 minute']);
+});
+
+test('the Library offers an Actions dropdown over the real actions field, in cost order', () => {
+  const axes = buildFacets(ACTIONS);
+  const actions = axes.find(a => a.id === 'actions');
+  assert.ok(actions, 'buildFacets() should surface an "actions" axis');
+  assert.equal(actions.label, 'Actions');
+
+  const options = facetOptions(ACTIONS, actions);
+  assert.deepEqual([...options.keys()],
+    ['free action', 'single action', 'two actions', '1 hour', '1 minute']);
 });
