@@ -269,6 +269,12 @@ A `.picker` strip inside a bottom sheet needs `flex:0 0 auto` — `.sheet` is a 
 so without it a long list below squashes the chip strip into a row of empty outlines. That
 rule now lives on `.picker` itself; do not remove it.
 
+A sheet that browses a long list — the bestiary picker is the first — cannot size itself
+by content the way `.sheet` normally does: the match count swings from 0 to 60 on every
+keystroke, and `.modal` anchors the sheet to the bottom edge, so it visibly grows and
+shrinks upward as the count changes. `.sheet-browse` fixes the sheet's height instead and
+gives its list `flex:1 1 auto; min-height:0` so the list is the only part that scrolls.
+
 Hover descriptions are the exception to "views own their DOM": `tip(text)` writes a
 `data-tip` attribute and `installTips()` in `src/dom.js` owns the single `.tip` element
 that shows it. Do not build a CSS-only tooltip inside a bottom sheet — `.sheet` scrolls

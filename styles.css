@@ -461,3 +461,20 @@ h2 + .card-group{margin-top:4px}
 .modal .sheet{width:100%;max-width:640px;max-height:82vh;overflow-y:auto;background:var(--bg-2);
   border:1px solid var(--line);border-radius:18px 18px 0 0;padding:18px 14px calc(18px + env(safe-area-inset-bottom));
   display:flex;flex-direction:column;gap:12px}
+
+/* A sheet that browses a long, filtered list (the bestiary picker, and any future
+   picker built the same way) cannot use .sheet's plain height-by-content sizing: the
+   match count swings from 0 to 60 on every keystroke, and .modal pins the sheet to the
+   bottom edge, so it visibly grows and shrinks upward as the count changes. .sheet-browse
+   fixes the frame at the same 82vh instead and turns the results list into the only
+   flexible, scrolling child. As with .picker below, a flex item will not shrink below its
+   content without min-height:0, so the list needs both flex:1 1 auto and min-height:0 or
+   it overflows the sheet rather than scrolling inside it; the rows above the list get
+   flex:0 0 auto for the same reason .picker does, so they stay put while only the list
+   scrolls. The outer sheet stays overflow-y:auto rather than hidden — not to let the
+   sheet itself scroll in ordinary use, but so a viewport too short for the rows above
+   the list degrades into a scroll instead of clipping them once min-height:0 has
+   squeezed the list to nothing. */
+.modal .sheet.sheet-browse{height:82vh;overflow-y:auto}
+.sheet-browse > *{flex:0 0 auto}
+.sheet-browse .list{flex:1 1 auto;min-height:0;overflow-y:auto}

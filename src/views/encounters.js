@@ -221,6 +221,7 @@ async function addFromBestiary() {
     </div>
     <div class="list" id="b-list"></div>`;
   const { node, close } = sheet('Bestiary', body);
+  qs('.sheet', node).classList.add('sheet-browse');
   const list = qs('#b-list', node);
   const chosen = {};
   let query = '';
