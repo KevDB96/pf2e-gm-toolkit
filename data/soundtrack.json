@@ -1,0 +1,11 @@
+{
+  "_note": "Hand-authored BGM links. These open externally in YouTube.",
+  "tracks": [
+    { "label": "The Inbetween", "url": "https://www.youtube.com/watch?v=pk5IwDX2p-o&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB" },
+    { "label": "The Pyramid", "url": "https://www.youtube.com/watch?v=Ybk0RJ3OoVU&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=2" },
+    { "label": "Zalazar Forever", "url": "https://www.youtube.com/watch?v=2aouWFI-Xso&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=3" },
+    { "label": "Bitania", "url": "https://www.youtube.com/watch?v=bFIee-C1KoA&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=4" },
+    { "label": "Circus 1", "url": "https://www.youtube.com/watch?v=4S3VseNyKfs&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=6" },
+    { "label": "Circus 2", "url": "https://www.youtube.com/watch?v=2PNX8arJLoU&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=5" }
+  ]
+}

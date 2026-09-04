@@ -6,14 +6,6 @@
     "arc": "circus",
     "note": "The Undermine is finished. Four PCs emerge from the mine directly into the waiting Circus; afterward the new PC arrives with the missive that begins Pre-Wargames."
   },
-  "soundtrack": [
-    { "label": "The Inbetween", "url": "https://www.youtube.com/watch?v=pk5IwDX2p-o&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB" },
-    { "label": "The Pyramid", "url": "https://www.youtube.com/watch?v=Ybk0RJ3OoVU&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=2" },
-    { "label": "Zalazar Forever", "url": "https://www.youtube.com/watch?v=2aouWFI-Xso&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=3" },
-    { "label": "Bitania", "url": "https://www.youtube.com/watch?v=bFIee-C1KoA&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=4" },
-    { "label": "Circus 1", "url": "https://www.youtube.com/watch?v=4S3VseNyKfs&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=6" },
-    { "label": "Circus 2", "url": "https://www.youtube.com/watch?v=2PNX8arJLoU&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=5" }
-  ],
   "arcs": [
     {
       "id": "frontier-isle",
@@ -122,85 +114,72 @@
       "status": "current",
       "summary": "A genuine one-day festival waiting outside the mine, its cheerful attractions quietly conditioning visitors for transformation. The investigation leads through Lo'paal's music box to a Blood God shrine.",
       "beats": [
-        "The session opens as the four PCs emerge from the Undermine and find the Circus fully erected immediately outside, almost as if it is inviting them in.",
-        "It is a legitimate one-day festival: colourful tents, cheerful music, excellent food, skilled performers and well-treated animals. Most staff are innocent and most attractions are exactly what they appear to be.",
-        "Lo'paal operates openly as the charismatic Ringmaster and welcomes them with: 'Everything here is free. The only cost is curiosity.'",
-        "The party plays games and explores two or three attractions. Select experiences quietly repeat the idea that mortal limits are arbitrary and transformation is beautiful.",
-        "Clues connect the corrupted attractions to the central performance hall, Lo'paal's headquarters and an ornate music box described as the heart of the Circus's inspiration.",
-        "The music box is a portal to a hidden shrine of the Blood God. The party confronts Lo'paal there.",
-        "Lo'paal fights until the prepared ritual summons a single level-10 creature: a Severe encounter for four level-7 PCs. He escapes through the shrine if still able.",
-        "After the shrine is resolved, the new player character arrives carrying the missive that sends the party back toward the Pyramid. The Eye of Zalazar is not mentioned until the following Pre-Wargames arc."
+        "Exit the mine: the fully erected Circus waits directly outside, almost inviting them in.",
+        "Free roam: choose 2–3 attractions; most of the festival and its staff are genuine.",
+        "Investigation: clues point to the central tent, Lo'paal's office and the music box.",
+        "Finale: enter the Blood God shrine, fight Lo'paal, then the creature he summons.",
+        "Exit: the new PC arrives with the missive; the Eye is first mentioned in Pre-Wargames."
       ],
       "detail": {
-        "Opening and tone": [
-          "The Circus should initially feel like a reward after the Undermine. Let the party relax and enjoy it before the wrongness becomes clear.",
-          "Play Circus 1 from the mine exit through the ordinary games and early attractions. Switch to Circus 2 when the repeated pattern becomes undeniable or when the party enters the central hall.",
-          "The corruption is selective and protected by plausible deniability. Do not make every performer sinister; innocent staff make the operation believable and give the party people to protect."
+        "Festival entrance — Lo'paal": [
+          "NPC: Lo'paal, Ringmaster; charismatic, theatrical, fully aware, deflects serious questions with showmanship.",
+          "Do: enter from the mine, meet Lo'paal, choose 2–3 attractions.",
+          "Line: 'Everything here is free. The only cost is curiosity.'"
         ],
-        "Ordinary games": [
-          "Test Your Potential: Athletics DC 18 rings the bell, DC 23 launches the weight through it, DC 28 breaks the machine and earns an invoice.",
-          "Impossible Ring Toss: three ranged attacks against AC 18, 22 and 26. The final bottle subtly moves unless someone notices.",
-          "Goblin Target Gallery: three attacks against mechanical targets painted as unpopular Undermine supervisors.",
-          "Fortune Tent: give each PC one amusing prediction and one accurate observation based on behaviour, posture, equipment or overheard conversation.",
-          "Prizes should be silly rather than valuable: an anatomically questionable plush toy, candied fruit, a commemorative Ringmaster mask or a music-box token."
+        "Normal attractions": [
+          "Acrobats and jugglers: skilled troll performers; genuine show.",
+          "Games: ring toss, strength test and target shooting; standard carnival play.",
+          "Food and animals: festival treats; trained, well-treated creatures.",
+          "Fortune tellers: some genuine seers, some theatrical charlatans.",
+          "Fire juggler: holds one PC's gaze too long, then continues normally."
         ],
-        "Memory Palace Maze — Ki'kara the Seer": [
-          "Mirrors lag behind movement and show visitors doing something they have never done but might secretly want. Whispers can be dismissed as echoes.",
-          "Automatic clue: a maintenance label behind a mirror bears a music box surrounded by four figures.",
-          "Perception DC 23: the whispers repeat 'Reflect. Grow. Shape. Consume.' Perception DC 28: the reflections respond to desire rather than fear. Perception DC 31: Ki'kara's exit questions follow a prepared diagnostic tree.",
-          "Ki'kara profiles visitors as resistant, receptive or requiring directed exposure and reports directly to Lo'paal."
+        "Memory Palace Maze — Ki'kara": [
+          "NPC: cryptic seer; profiles visitors, reports to Lo'paal, says 'The mirrors show only truth.'",
+          "Do: navigate mirrors; describe a reflection doing something the PC might want to do.",
+          "Signs: reflections lag; whispers between panels; exit interview asks what they learned.",
+          "Perception DC 28: whispers are real words. Perception DC 31: Ki'kara's questions follow a profiling pattern."
         ],
-        "Garden of Growth — Di'tola the Collector": [
-          "Di'tola sincerely believes she is conducting botanical research. Flowers have impossible colours, vines visibly reach toward visitors, and mushrooms pulse like heartbeats.",
-          "Automatic clue: every plant slowly turns toward the central tent, ignoring the sun.",
-          "Nature DC 23: unrelated species are being forced toward one alien growth pattern. Perception DC 28: spores deliberately cling to visitors. Occultism or Religion DC 28: the pulsing matches the four-beat festival motif.",
-          "If persuaded that something is wrong, Di'tola shares delivery records showing that her corrupted soil comes from the main hall."
+        "Garden of Growth — Di'tola": [
+          "NPC: passionate researcher; completely unaware; proudly defensive of her methods.",
+          "Do: inspect impossible flowers, visibly growing vines and heartbeat mushrooms.",
+          "Nature DC 23: this growth is impossible even with normal magic.",
+          "Perception DC 28: seeds or spores attach themselves to visitors."
         ],
-        "Sculptor's Workshop — Vol'tola the Sculptor": [
-          "Living clay grows eyes and teeth while nearby spectators unconsciously imitate its poses. Vol'tola knows it has special properties but believes she is making revolutionary art.",
-          "Automatic clue: a surgical-looking tool bears the music-box symbol.",
-          "Crafting or Occultism DC 23: the clay responds to the audience, not Vol'tola. Perception DC 28: spectators mirror it. Society or Crafting DC 28: several tools were designed for flesh rather than clay.",
-          "Her ledger records a private installation beneath the central tent."
+        "Sculptor's Workshop — Vol'tola": [
+          "NPC: revolutionary artist; knows the clay has special properties, not the full conditioning purpose.",
+          "Do: watch living clay reshape; answer her questions about physical potential.",
+          "Signs: eyes and teeth form; spectators copy poses; tools look surgical.",
+          "Crafting or Occultism DC 28: final forms were not intended. Perception DC 31: spectators are unconsciously mimicking them."
         ],
-        "Palate Palace — Ku'taal the Hunger Host": [
-          "The food is genuinely extraordinary. Contestants eat impossible amounts while Ku'taal encourages them to trust their bodies and transcend ordinary limits.",
-          "A participating PC makes three Fortitude DC 23 saves. Each success earns another impossible helping; failure merely means they are full and Ku'taal reassuringly says they will get there.",
-          "Automatic clue: the winner receives a music-box token and an invitation to a private tasting beneath the main hall.",
-          "Medicine DC 23: contestants temporarily override natural limits. Medicine DC 28: Ku'taal's widening jaw and extra teeth are progressive physical changes. Perception DC 28: staff separate especially receptive visitors from the others."
+        "Palate Palace — Ku'taal": [
+          "NPC: enthusiastic host; unaware of the conditioning; subtly altered; dismisses concern as small thinking.",
+          "Do: enter the eating contest; describe increasingly wonderful and disturbing food.",
+          "Fortitude DC 23, three checks: each success allows another impossible helping; failure means full.",
+          "Medicine DC 28: winners' widened jaws and extra teeth are real physiological changes."
         ],
-        "Investigation structure": [
-          "The four phases are Reflect, Grow, Shape and Consume: question the current self, reject natural limits, normalise deliberate reshaping, then surrender to appetite.",
-          "Every visited corrupted attraction gives its core clue automatically. DC 23 finds actionable evidence; DC 28 reveals the corruption's nature; DC 31 catches the active profiling. Never gate entry to the finale behind the high DCs.",
-          "Two phases let the party infer a pattern; three clues lead directly to the main hall. If necessary, an innocent maintenance worker mentions Lo'paal's personal modifications beneath the main tent.",
-          "The fire juggler who holds eye contact for too long can serve as another lead: if followed, they deliver sealed sheet music to the main hall without knowing its purpose."
+        "Central tent — Lo'paal's headquarters": [
+          "Clues: odd staff meetings, special rehearsals, nervousness about the ornate music box.",
+          "Maintenance worker: innocent, practical; noticed Lo'paal ordering special modifications.",
+          "Find: attraction plans, readiness reports, expansion contracts and staff lists marked Full, Partial or Unaware.",
+          "Music box sequence: mirror, flower, clay figure, open mouth.",
+          "Performance, Occultism or Religion DC 23: open portal. Thievery DC 28: bypass it."
         ],
-        "Lo'paal's headquarters": [
-          "The office contains psychological profiles, soil and sculpture deliveries, expansion contracts, readiness assessments and staff lists divided into Full Knowledge, Partial Knowledge and Unaware.",
-          "The documents prove that the Circus primes settlements for transition and mention an unnamed patron plus post-failure contingencies, but do not expose Zuni yet.",
-          "The Unmasked conspiracy is cut: no magical masks, identity-copying operation or pyramid infiltration is part of this session. Lo'paal directly runs the Troupe's conditioning operation as a servant of the Blood God."
+        "Blood God shrine — Lo'paal": [
+          "Scene: rib-like poles, wet curtains, breathing organ pipes, person-sized music box.",
+          "Lo'paal: use level-6 Puppeteer; reskin puppets as miniature PCs.",
+          "Trigger: summon at end of round 2 or when Lo'paal reaches half HP; ritual completes even if he falls.",
+          "Line: 'Every circus needs a little mystery, don't you think?'"
         ],
-        "Music-box portal": [
-          "Four rotating figures depict a mirrored mask, flowering vine, clay body and open mouth. Setting them to Reflection, Growth, Reshaping and Consumption, then winding the box, plays the festival melody backward and opens the shrine.",
-          "Performance DC 23 reconstructs the missing coda; Occultism or Religion DC 23 identifies the ritual sequence; Thievery DC 28 bypasses it. Breaking the box opens the portal violently and gives Lo'paal time to prepare."
+        "Summon — The Grand Marionette": [
+          "Creature: level-10 Roper, reskinned as a fleshy marionette; aberration.",
+          "Stats: AC 29; HP 215; Reflex +15; fire weakness 10; 50-foot strands.",
+          "Four PCs: standard Roper. Five PCs: Elite Roper, level 11.",
+          "Total with Lo'paal: 150 XP for four PCs; 190 XP for five PCs; Severe either way."
         ],
-        "Shrine and Lo'paal": [
-          "Tent poles become ribs, curtains resemble wet tissue, and organ pipes inhale before sounding. The four attractions appear in miniature around a person-sized music box.",
-          "Lo'paal remains theatrical rather than raving: 'You enjoyed yourselves. That matters more than you understand.' 'We never forced anyone to change.' 'Every circus needs a little mystery, don't you think?'",
-          "Use the level-6 Puppeteer statistics for Lo'paal, reskinning its puppets as miniature versions of the PCs made by the music box.",
-          "At the end of round 2 or when Lo'paal falls below half HP, the preloaded ritual summons the creature even if Lo'paal has been incapacitated. If able, he escapes through a closing fold in the shrine.",
-          "Lo'paal plus the summon total 150 XP, still Severe for four level-7 PCs but close to Extreme. Investigation advantages should grant positioning or information rather than preventing the summon."
-        ],
-        "Suggested summon — The Grand Marionette": [
-          "Use the level-10 Roper stat block, renamed the Grand Marionette. It is an aberration, and a single level-10 creature is 120 XP: Severe for four level-7 PCs.",
-          "It descends from the darkness above the shrine like a fleshy circus puppet. Its 50-foot strands resemble tent ropes and marionette strings, letting it lash, entangle and pull PCs around the ring while its central body barely moves.",
-          "Keep the Roper's statistics and abilities unchanged: AC 29, HP 215, jaws, Reactive Lash, Extend Strands, Flurry of Strands and Pull the Strands. Its Reflex +15 is its weakest save and it has weakness 10 to fire.",
-          "With four PCs, use the standard Roper. With five PCs, apply the Elite adjustment, making it level 11 and worth 160 XP; the summon remains Severe against five level-7 PCs.",
-          "Including level-6 Lo'paal, the full sequence is 150 XP for four PCs or 190 XP for five PCs. Both remain Severe, just below their respective Extreme thresholds of 160 and 200 XP."
-        ],
-        "Ending": [
-          "The shrine folds back into the music box when the creature dies. The party has time to seize Lo'paal's documents before returning to the fair.",
-          "The innocent performers are frightened and help destroy corrupted materials. The legitimate parts of the Circus remain genuinely legitimate.",
-          "Only after the Circus is resolved does the new player character arrive with the missive. This closes the session and leads into Pre-Wargames."
+        "After the fight": [
+          "Take Lo'paal's documents; shrine folds into the music box.",
+          "Return to frightened, mostly innocent circus staff.",
+          "New PC arrives with the missive; continue to Pre-Wargames."
         ]
       }
     },

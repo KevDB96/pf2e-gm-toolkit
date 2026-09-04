@@ -59,6 +59,11 @@ export function campaign() {
   return json('campaign.json');
 }
 
+/** Hand-authored BGM links, kept separate from the campaign notes. */
+export function soundtrack() {
+  return json('soundtrack.json').then(j => j?.tracks || []);
+}
+
 /**
  * Conditions with their summaries, for the combat tracker's chips. 17 KB, and the
  * tracker is the one screen a GM leaves open, so it loads with the view.

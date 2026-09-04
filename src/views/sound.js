@@ -2,7 +2,7 @@
 
 import { state, save, uid } from '../store.js';
 import { esc, on, qs } from '../dom.js';
-import { campaign } from '../data.js';
+import { soundtrack } from '../data.js';
 import { youtubeExternalUrl, youtubeSource } from '../youtube.js';
 
 export function mount(root) {
@@ -27,7 +27,7 @@ export function mount(root) {
     </section>
     <section class="card sound-library">
       <h2>Saved tracks</h2>
-      <div id="sound-campaign"><p class="empty">Loading campaign tracks&hellip;</p></div>
+      <div id="sound-builtin"><p class="empty">Loading tracks&hellip;</p></div>
       <div id="sound-saved"></div>
     </section>
     <section class="sound-player" id="sound-player"></section>`;
@@ -56,7 +56,7 @@ export function mount(root) {
     if (!url || !name) {
       showError(root, !url
         ? 'Paste a valid YouTube video or playlist link.'
-        : 'Give the saved sound a name.');
+        : 'Give the saved track a name.');
       return;
     }
 
@@ -87,9 +87,9 @@ export function mount(root) {
   });
 
   renderSaved(root);
-  campaign()
-    .then(data => renderCampaign(root, data?.soundtrack || []))
-    .catch(() => renderCampaign(root, []));
+  soundtrack()
+    .then(tracks => renderBuiltIns(root, tracks))
+    .catch(() => renderBuiltIns(root, []));
 }
 
 function showError(root, message) {
@@ -117,8 +117,8 @@ function renderSaved(root) {
     </div>`).join('');
 }
 
-function renderCampaign(root, tracks) {
-  const host = qs('#sound-campaign', root);
+function renderBuiltIns(root, tracks) {
+  const host = qs('#sound-builtin', root);
   const rows = tracks.map(track => {
     const url = youtubeExternalUrl(track.url);
     if (!url) return '';
@@ -128,7 +128,7 @@ function renderCampaign(root, tracks) {
         rel="noopener">Open in YouTube</a>
     </div>`;
   }).join('');
-  host.innerHTML = rows || '<p class="empty">No campaign tracks found.</p>';
+  host.innerHTML = rows || '<p class="empty">No built-in tracks found.</p>';
 }
 
 function showPlayer(root, source) {
@@ -136,7 +136,7 @@ function showPlayer(root, source) {
   host.innerHTML = `
     <iframe
       src="${esc(source)}"
-      title="YouTube sound player"
+      title="YouTube BGM player"
       allow="autoplay; encrypted-media; picture-in-picture"
       allowfullscreen></iframe>`;
 }

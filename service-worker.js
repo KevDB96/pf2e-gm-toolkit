@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pf2e-gm-v29';
+const CACHE_NAME = 'pf2e-gm-v30';
 
 // Where this worker is served from: '/' locally, '/pf2e-gm-toolkit/' on GitHub Pages.
 // Every path test below is relative to it. An absolute '/src/' test passed locally and
@@ -29,6 +29,7 @@ const OFFLINE_URLS = [
   './src/views/notes.js',
   './src/views/party.js',
   './src/views/sound.js',
+  './data/soundtrack.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-192.png',
