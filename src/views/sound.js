@@ -72,7 +72,7 @@ function showError(root, message) {
 function renderSaved(root) {
   const host = qs('#sound-saved', root);
   if (!state.sound.saved.length) {
-    host.innerHTML = '<p class="empty">No other saved tracks.</p>';
+    host.innerHTML = '';
     return;
   }
   host.innerHTML = state.sound.saved.map(item => `
