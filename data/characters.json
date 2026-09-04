@@ -15,6 +15,11 @@
       "id": "the-alliance",
       "label": "The Alliance",
       "kind": "campaign"
+    },
+    {
+      "id": "the-royal-guard",
+      "label": "The Royal Guard",
+      "kind": "campaign"
     }
   ],
   "characters": [
@@ -4120,6 +4125,1923 @@
       "familiars": [],
       "pets": [],
       "focusPoints": 0,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 15,
+        "pp": 0
+      },
+      "equipment": []
+    },
+    {
+      "id": "ba-vala",
+      "group": "the-royal-guard",
+      "name": "Ba'vala",
+      "player": null,
+      "level": 7,
+      "class": "Witch",
+      "dualClass": null,
+      "ancestry": "Orc",
+      "heritage": "Aiuvarin",
+      "background": "Cultist",
+      "deity": null,
+      "size": "Medium",
+      "gender": null,
+      "age": null,
+      "keyAbility": "int",
+      "languages": [],
+      "abilities": {
+        "str": 10,
+        "dex": 14,
+        "con": 18,
+        "int": 19,
+        "wis": 14,
+        "cha": 10
+      },
+      "mods": {
+        "str": 0,
+        "dex": 2,
+        "con": 4,
+        "int": 4,
+        "wis": 2,
+        "cha": 0
+      },
+      "ac": 21,
+      "shieldBonus": null,
+      "hp": 80,
+      "speed": 25,
+      "perception": 11,
+      "perceptionRank": "trained",
+      "saves": {
+        "fort": 15,
+        "ref": 11,
+        "will": 13
+      },
+      "saveRanks": {
+        "fort": "expert",
+        "ref": "trained",
+        "will": "expert"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "arcana",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "athletics",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "crafting",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "deception",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "diplomacy",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "intimidation",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "medicine",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "nature",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "occultism",
+          "rank": "master",
+          "bonus": 17
+        },
+        {
+          "name": "performance",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "religion",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "society",
+          "rank": "expert",
+          "bonus": 15
+        },
+        {
+          "name": "stealth",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "survival",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "thievery",
+          "rank": "untrained",
+          "bonus": 2
+        }
+      ],
+      "lores": [
+        {
+          "name": "Cult",
+          "rank": "trained",
+          "bonus": 13
+        }
+      ],
+      "feats": [
+        {
+          "name": "Schooled in Secrets",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Aiuvarin",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Share Thoughts",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Natural Medicine",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Cackle",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Crystal Healing",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Root Magic",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Basic Lesson",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Ancestral Suspicion",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Automatic Writing",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Witch's Charge",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Disturbing Knowledge",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Familiar",
+        "Patron's Puppet",
+        "Mosquito Witch Patron",
+        "Witch Spellcasting",
+        "Darkvision",
+        "Low-Light Vision",
+        "Lesson of Calamity",
+        "Magical Fortitude",
+        "Expert Spellcaster",
+        "Aiuvarin"
+      ],
+      "weapons": [],
+      "armor": [],
+      "spellcasting": [
+        {
+          "name": "Witch",
+          "tradition": "primal",
+          "type": "prepared",
+          "ability": "int",
+          "innate": false,
+          "rank": "expert",
+          "dc": 25,
+          "attack": 15,
+          "slots": [
+            {
+              "rank": 0,
+              "count": 5
+            },
+            {
+              "rank": 1,
+              "count": 3
+            },
+            {
+              "rank": 2,
+              "count": 3
+            },
+            {
+              "rank": 3,
+              "count": 3
+            },
+            {
+              "rank": 4,
+              "count": 2
+            }
+          ],
+          "spells": [
+            {
+              "rank": 0,
+              "list": [
+                "Eat Fire",
+                "Guidance",
+                "Healing Plaster",
+                "Protect Companion",
+                "Frostbite"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Share Thoughts",
+          "tradition": "occult",
+          "type": "prepared",
+          "ability": "cha",
+          "innate": true,
+          "rank": "trained",
+          "dc": 19,
+          "attack": 9,
+          "slots": [
+            {
+              "rank": 1,
+              "count": 1
+            }
+          ],
+          "spells": [
+            {
+              "rank": 1,
+              "list": [
+                "Mindlink"
+              ]
+            }
+          ]
+        }
+      ],
+      "focusSpells": [
+        "Buzzing Bites",
+        "Patron's Puppet",
+        "Cackle",
+        "Stumbling Curse"
+      ],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [
+        {
+          "name": "Familiar",
+          "type": "Familiar",
+          "abilities": [
+            "Amphibious",
+            "Independent"
+          ]
+        }
+      ],
+      "pets": [],
+      "focusPoints": 3,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 15,
+        "pp": 0
+      },
+      "equipment": []
+    },
+    {
+      "id": "henza",
+      "group": "the-royal-guard",
+      "name": "Henza",
+      "player": null,
+      "level": 7,
+      "class": "Kineticist",
+      "dualClass": null,
+      "ancestry": "Orc",
+      "heritage": "Aiuvarin",
+      "background": "Plant Whisperer",
+      "deity": null,
+      "size": "Medium",
+      "gender": null,
+      "age": null,
+      "keyAbility": "con",
+      "languages": [],
+      "abilities": {
+        "str": 12,
+        "dex": 12,
+        "con": 19,
+        "int": 12,
+        "wis": 18,
+        "cha": 12
+      },
+      "mods": {
+        "str": 1,
+        "dex": 1,
+        "con": 4,
+        "int": 1,
+        "wis": 4,
+        "cha": 1
+      },
+      "ac": 23,
+      "shieldBonus": null,
+      "hp": 101,
+      "speed": 25,
+      "perception": 13,
+      "perceptionRank": "trained",
+      "saves": {
+        "fort": 17,
+        "ref": 12,
+        "will": 15
+      },
+      "saveRanks": {
+        "fort": "master",
+        "ref": "expert",
+        "will": "expert"
+      },
+      "classDC": 25,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "arcana",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "athletics",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "crafting",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "deception",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "diplomacy",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "intimidation",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "medicine",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "nature",
+          "rank": "expert",
+          "bonus": 15
+        },
+        {
+          "name": "occultism",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "performance",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "religion",
+          "rank": "untrained",
+          "bonus": 4
+        },
+        {
+          "name": "society",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "stealth",
+          "rank": "expert",
+          "bonus": 12
+        },
+        {
+          "name": "survival",
+          "rank": "expert",
+          "bonus": 15
+        },
+        {
+          "name": "thievery",
+          "rank": "untrained",
+          "bonus": 1
+        }
+      ],
+      "lores": [
+        {
+          "name": "Plant",
+          "rank": "trained",
+          "bonus": 10
+        }
+      ],
+      "feats": [
+        {
+          "name": "Natural Medicine",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Aiuvarin",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Hardwood Armor",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Woodcraft",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Timber Sentinel",
+          "choice": null,
+          "type": "Kineticist Feat",
+          "level": 1
+        },
+        {
+          "name": "Tremor",
+          "choice": null,
+          "type": "Kineticist Feat",
+          "level": 1
+        },
+        {
+          "name": "Terrain Expertise",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Voice of Elements",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Spirit Speaker",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Efficient Explorer",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Tumbling Lumber",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Stepping Stones",
+          "choice": null,
+          "type": "Kineticist Feat",
+          "level": 5
+        },
+        {
+          "name": "Ageless Patience",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Wilderness Spotter",
+          "choice": "Wilderness Spotter",
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Wooden Palisade",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Toughness",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Dual Gate",
+        "Wood Element",
+        "Earth Element",
+        "Kinetic Aura",
+        "Channel Elements",
+        "Impulses",
+        "Elemental Blast",
+        "Base Kinesis",
+        "Darkvision",
+        "Low-Light Vision",
+        "Forest",
+        "Extract Element",
+        "Will Expertise",
+        "Expand the Portal",
+        "Wood Impulse Junction",
+        "Kinetic Durability",
+        "Kinetic Expertise",
+        "Aiuvarin"
+      ],
+      "weapons": [],
+      "armor": [
+        {
+          "name": "Hardwood Armor",
+          "base": "Hardwood Armor",
+          "proficiency": "light",
+          "worn": true,
+          "potency": 0,
+          "resilient": null,
+          "runes": []
+        }
+      ],
+      "spellcasting": [],
+      "focusSpells": [],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 0,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 15,
+        "pp": 0
+      },
+      "equipment": []
+    },
+    {
+      "id": "musta",
+      "group": "the-royal-guard",
+      "name": "Musta",
+      "player": null,
+      "level": 7,
+      "class": "Druid",
+      "dualClass": null,
+      "ancestry": "Lizardfolk",
+      "heritage": "Wetlander Lizardfolk",
+      "background": "Emissary",
+      "deity": null,
+      "size": "Medium",
+      "gender": null,
+      "age": null,
+      "keyAbility": "wis",
+      "languages": [],
+      "abilities": {
+        "str": 14,
+        "dex": 10,
+        "con": 14,
+        "int": 10,
+        "wis": 19,
+        "cha": 16
+      },
+      "mods": {
+        "str": 2,
+        "dex": 0,
+        "con": 2,
+        "int": 0,
+        "wis": 4,
+        "cha": 3
+      },
+      "ac": 22,
+      "shieldBonus": null,
+      "hp": 78,
+      "speed": 25,
+      "perception": 15,
+      "perceptionRank": "expert",
+      "saves": {
+        "fort": 13,
+        "ref": 11,
+        "will": 15
+      },
+      "saveRanks": {
+        "fort": "expert",
+        "ref": "expert",
+        "will": "expert"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "arcana",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "athletics",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "crafting",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "deception",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "diplomacy",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "intimidation",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "medicine",
+          "rank": "expert",
+          "bonus": 15
+        },
+        {
+          "name": "nature",
+          "rank": "master",
+          "bonus": 17
+        },
+        {
+          "name": "occultism",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "performance",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "religion",
+          "rank": "untrained",
+          "bonus": 4
+        },
+        {
+          "name": "society",
+          "rank": "trained",
+          "bonus": 9
+        },
+        {
+          "name": "stealth",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "survival",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "thievery",
+          "rank": "untrained",
+          "bonus": 0
+        }
+      ],
+      "lores": [
+        {
+          "name": "A City",
+          "rank": "trained",
+          "bonus": 9
+        }
+      ],
+      "feats": [
+        {
+          "name": "Shore Step",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Shield Block",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Breath Control",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Multilingual",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Untamed Form",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 2
+        },
+        {
+          "name": "Wetlander Lizardfolk",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Animal Empathy",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Consult the Stars",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Natural Medicine",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Order Explorer",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Prescient Planner",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Dubious Knowledge",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Natural Swimmer",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Swift Swimmer",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Battle Medicine",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Toppling Transformation",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Prescient Consumable",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Anathema",
+        "Wave Order",
+        "Wildsong",
+        "Voice of Nature",
+        "Claws",
+        "Aquatic Adaptation",
+        "Untamed Order",
+        "Perception Expertise",
+        "Fortitude Expertise",
+        "Reflex Expertise",
+        "Expert Spellcaster",
+        "Wetlander Lizardfolk"
+      ],
+      "weapons": [],
+      "armor": [
+        {
+          "name": "+1 Studded Leather",
+          "base": "Studded Leather Armor",
+          "proficiency": "light",
+          "worn": true,
+          "potency": 1,
+          "resilient": null,
+          "runes": []
+        }
+      ],
+      "spellcasting": [
+        {
+          "name": "Druid",
+          "tradition": "primal",
+          "type": "prepared",
+          "ability": "wis",
+          "innate": false,
+          "rank": "expert",
+          "dc": 25,
+          "attack": 15,
+          "slots": [
+            {
+              "rank": 0,
+              "count": 5
+            },
+            {
+              "rank": 1,
+              "count": 3
+            },
+            {
+              "rank": 2,
+              "count": 3
+            },
+            {
+              "rank": 3,
+              "count": 3
+            },
+            {
+              "rank": 4,
+              "count": 2
+            }
+          ],
+          "spells": [
+            {
+              "rank": 0,
+              "list": [
+                "Frostbite",
+                "Bramble Bush",
+                "Tangle Vine",
+                "Know the Way",
+                "Draw Moisture"
+              ]
+            },
+            {
+              "rank": 1,
+              "list": [
+                "Briny Bolt",
+                "Swampcall",
+                "Heal"
+              ]
+            },
+            {
+              "rank": 2,
+              "list": [
+                "Entangling Flora",
+                "Speak with Animals",
+                "Mist"
+              ]
+            },
+            {
+              "rank": 3,
+              "list": [
+                "Pillar of Water",
+                "Crashing Wave",
+                "Wall of Water"
+              ]
+            },
+            {
+              "rank": 4,
+              "list": [
+                "Unfettered Movement",
+                "Dinosaur Form"
+              ]
+            }
+          ]
+        }
+      ],
+      "focusSpells": [
+        "Rising Surf",
+        "Untamed Form"
+      ],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 2,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 15,
+        "pp": 0
+      },
+      "equipment": []
+    },
+    {
+      "id": "ti-shan",
+      "group": "the-royal-guard",
+      "name": "Ti'shan",
+      "player": null,
+      "level": 7,
+      "class": "Monk",
+      "dualClass": null,
+      "ancestry": "Orc",
+      "heritage": "Aiuvarin",
+      "background": "Hunter",
+      "deity": null,
+      "size": "Medium",
+      "gender": null,
+      "age": null,
+      "keyAbility": "str",
+      "languages": [],
+      "abilities": {
+        "str": 19,
+        "dex": 16,
+        "con": 16,
+        "int": 10,
+        "wis": 14,
+        "cha": 10
+      },
+      "mods": {
+        "str": 4,
+        "dex": 3,
+        "con": 3,
+        "int": 0,
+        "wis": 2,
+        "cha": 0
+      },
+      "ac": 24,
+      "shieldBonus": null,
+      "hp": 101,
+      "speed": 50,
+      "perception": 13,
+      "perceptionRank": "expert",
+      "saves": {
+        "fort": 14,
+        "ref": 14,
+        "will": 15
+      },
+      "saveRanks": {
+        "fort": "expert",
+        "ref": "expert",
+        "will": "master"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "arcana",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "athletics",
+          "rank": "master",
+          "bonus": 17
+        },
+        {
+          "name": "crafting",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "deception",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "diplomacy",
+          "rank": "trained",
+          "bonus": 9
+        },
+        {
+          "name": "intimidation",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "medicine",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "nature",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "occultism",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "performance",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "religion",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "society",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "stealth",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "survival",
+          "rank": "trained",
+          "bonus": 11
+        },
+        {
+          "name": "thievery",
+          "rank": "untrained",
+          "bonus": 3
+        }
+      ],
+      "lores": [
+        {
+          "name": "Tanning",
+          "rank": "expert",
+          "bonus": 11
+        }
+      ],
+      "feats": [
+        {
+          "name": "Survey Wildlife",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Aiuvarin",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Dragon Stance",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Nimble Elf",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Cat Fall",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Stunning Blows",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Fleet",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Ambush Tactics",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Deflect Projectile",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Athletic Might",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Natural Medicine",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Flying Kick",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Water Sprint",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Flurry of Blows",
+        "Powerful Fist",
+        "Darkvision",
+        "Low-Light Vision",
+        "Incredible Movement",
+        "Mystic Strikes",
+        "Expert Strikes",
+        "Perception Expertise",
+        "Will",
+        "Weapon Specialization",
+        "Aiuvarin"
+      ],
+      "weapons": [
+        {
+          "name": "+1 Striking Flurrying Special Unarmed (1d10)",
+          "base": "Special Unarmed (1d10)",
+          "proficiency": "unarmed",
+          "damage": "d10 B, P or S",
+          "striking": "striking",
+          "extraDamage": [],
+          "potency": 1,
+          "runes": [
+            "Flurrying"
+          ]
+        }
+      ],
+      "armor": [
+        {
+          "name": "+1 Dread (Lesser) Explorer's Clothing",
+          "base": "Unarmored",
+          "proficiency": "unarmored",
+          "worn": false,
+          "potency": 1,
+          "resilient": null,
+          "runes": [
+            "Dread (Lesser)"
+          ]
+        }
+      ],
+      "spellcasting": [],
+      "focusSpells": [],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 0,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 15,
+        "pp": 0
+      },
+      "equipment": [
+        {
+          "name": "Handwraps of Mighty Blows (+1 Striking)",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "to-reno",
+      "group": "the-royal-guard",
+      "name": "To'reno",
+      "player": null,
+      "level": 7,
+      "class": "Ranger",
+      "dualClass": null,
+      "ancestry": "Orc",
+      "heritage": "Aiuvarin",
+      "background": "Farmsteader",
+      "deity": null,
+      "size": "Medium",
+      "gender": null,
+      "age": null,
+      "keyAbility": "dex",
+      "languages": [],
+      "abilities": {
+        "str": 12,
+        "dex": 19,
+        "con": 16,
+        "int": 12,
+        "wis": 16,
+        "cha": 10
+      },
+      "mods": {
+        "str": 1,
+        "dex": 4,
+        "con": 3,
+        "int": 1,
+        "wis": 3,
+        "cha": 0
+      },
+      "ac": 25,
+      "shieldBonus": null,
+      "hp": 101,
+      "speed": 35,
+      "perception": 16,
+      "perceptionRank": "master",
+      "saves": {
+        "fort": 14,
+        "ref": 17,
+        "will": 14
+      },
+      "saveRanks": {
+        "fort": "expert",
+        "ref": "master",
+        "will": "expert"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "arcana",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "athletics",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "crafting",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "deception",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "diplomacy",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "intimidation",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "medicine",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "nature",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "occultism",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "performance",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "religion",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "society",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "stealth",
+          "rank": "expert",
+          "bonus": 16
+        },
+        {
+          "name": "survival",
+          "rank": "master",
+          "bonus": 16
+        },
+        {
+          "name": "thievery",
+          "rank": "untrained",
+          "bonus": 4
+        }
+      ],
+      "lores": [
+        {
+          "name": "Farming",
+          "rank": "trained",
+          "bonus": 10
+        }
+      ],
+      "feats": [
+        {
+          "name": "Forager",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Aiuvarin",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Initiate Warden",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Nimble Elf",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Cat Fall",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Quick Draw",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Fleet",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Steady Balance",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Scout's Warning",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Forest Stealth",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Masterful Warden",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Ambush Tactics",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Hunt Prey",
+        "Hunter's Edge: Outwit",
+        "Darkvision",
+        "Low-Light Vision",
+        "Keen Smell",
+        "Will Expertise",
+        "Ranger Weapon Expertise",
+        "Trackless Journey",
+        "Ephemeral Tracking",
+        "Natural Reflexes",
+        "Perception Mastery",
+        "Weapon Specialization",
+        "Aiuvarin"
+      ],
+      "weapons": [
+        {
+          "name": "+1 Striking Fearsome Longbow",
+          "base": "Longbow",
+          "proficiency": "martial",
+          "damage": "d8 P",
+          "striking": "striking",
+          "extraDamage": [],
+          "potency": 1,
+          "runes": [
+            "Fearsome"
+          ]
+        }
+      ],
+      "armor": [
+        {
+          "name": "+1 Shadow Leaf Weave",
+          "base": "Leaf Weave",
+          "proficiency": "light",
+          "worn": true,
+          "potency": 1,
+          "resilient": null,
+          "runes": [
+            "Shadow"
+          ]
+        }
+      ],
+      "spellcasting": [],
+      "focusSpells": [
+        "Keen Smell",
+        "Ephemeral Tracking"
+      ],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 2,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 15,
+        "pp": 0
+      },
+      "equipment": []
+    },
+    {
+      "id": "zalazi",
+      "group": "the-royal-guard",
+      "name": "Zalazi",
+      "player": null,
+      "level": 8,
+      "class": "Cleric",
+      "dualClass": null,
+      "ancestry": "Orc",
+      "heritage": "Aiuvarin",
+      "background": "Royalty",
+      "deity": null,
+      "size": "Medium",
+      "gender": null,
+      "age": null,
+      "keyAbility": "wis",
+      "languages": [],
+      "abilities": {
+        "str": 10,
+        "dex": 14,
+        "con": 16,
+        "int": 10,
+        "wis": 19,
+        "cha": 16
+      },
+      "mods": {
+        "str": 0,
+        "dex": 2,
+        "con": 3,
+        "int": 0,
+        "wis": 4,
+        "cha": 3
+      },
+      "ac": 23,
+      "shieldBonus": 2,
+      "hp": 98,
+      "speed": 25,
+      "perception": 16,
+      "perceptionRank": "expert",
+      "saves": {
+        "fort": 16,
+        "ref": 13,
+        "will": 17
+      },
+      "saveRanks": {
+        "fort": "expert",
+        "ref": "trained",
+        "will": "expert"
+      },
+      "classDC": 24,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "arcana",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "athletics",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "crafting",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "deception",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "diplomacy",
+          "rank": "trained",
+          "bonus": 13
+        },
+        {
+          "name": "intimidation",
+          "rank": "expert",
+          "bonus": 15
+        },
+        {
+          "name": "medicine",
+          "rank": "trained",
+          "bonus": 14
+        },
+        {
+          "name": "nature",
+          "rank": "untrained",
+          "bonus": 4
+        },
+        {
+          "name": "occultism",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "performance",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "religion",
+          "rank": "master",
+          "bonus": 18
+        },
+        {
+          "name": "society",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "stealth",
+          "rank": "untrained",
+          "bonus": 2
+        },
+        {
+          "name": "survival",
+          "rank": "untrained",
+          "bonus": 4
+        },
+        {
+          "name": "thievery",
+          "rank": "untrained",
+          "bonus": 2
+        }
+      ],
+      "lores": [],
+      "feats": [
+        {
+          "name": "Domain Initiate",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Courtly Graces",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Aiuvarin",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Traditional Ways",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Intimidating Glare",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Harming Hands",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Student of the Canon",
+          "choice": null,
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Exhort the Faithful",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Directed Channel",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Ancestral Suspicion",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Read Lips",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Selective Energy",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Sacred Defense",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        },
+        {
+          "name": "Break Curse",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 8
+        },
+        {
+          "name": "Advanced Domain",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 8
+        }
+      ],
+      "specials": [
+        "Deity",
+        "Harmful Font",
+        "Cleric Spellcasting",
+        "Cloistered Cleric",
+        "Domain: Sun",
+        "Anathema",
+        "Holy",
+        "Darkvision",
+        "Low-Light Vision",
+        "Second Doctrine",
+        "Perception Expertise",
+        "Third Doctrine",
+        "Sun",
+        "Aiuvarin"
+      ],
+      "weapons": [],
+      "armor": [
+        {
+          "name": "+1 Armor Resilient Invisibility Explorer's Clothing",
+          "base": "Explorer's Clothing",
+          "proficiency": "unarmored",
+          "worn": true,
+          "potency": 1,
+          "resilient": "resilient",
+          "runes": [
+            "Invisibility"
+          ]
+        },
+        {
+          "name": "Adamantine Shield (Standard-Grade)",
+          "base": "Adamantine Shield (Standard-Grade)",
+          "proficiency": "shield",
+          "worn": true,
+          "potency": 0,
+          "resilient": null,
+          "runes": []
+        }
+      ],
+      "spellcasting": [
+        {
+          "name": "Cleric",
+          "tradition": "divine",
+          "type": "prepared",
+          "ability": "wis",
+          "innate": false,
+          "rank": "expert",
+          "dc": 26,
+          "attack": 16,
+          "slots": [
+            {
+              "rank": 0,
+              "count": 5
+            },
+            {
+              "rank": 1,
+              "count": 3
+            },
+            {
+              "rank": 2,
+              "count": 3
+            },
+            {
+              "rank": 3,
+              "count": 3
+            },
+            {
+              "rank": 4,
+              "count": 3
+            }
+          ],
+          "spells": [
+            {
+              "rank": 0,
+              "list": [
+                "Light",
+                "Guidance",
+                "Vitality Lash",
+                "Divine Lance",
+                "Illuminate"
+              ]
+            },
+            {
+              "rank": 1,
+              "list": [
+                "Forced Mercy",
+                "Bane",
+                "Enfeeble"
+              ]
+            },
+            {
+              "rank": 2,
+              "list": [
+                "Dancing Shield",
+                "Everlight",
+                "Inner Radiance Torrent"
+              ]
+            },
+            {
+              "rank": 3,
+              "list": [
+                "Holy Light",
+                "Radiant Globe",
+                "Bind Undead"
+              ]
+            },
+            {
+              "rank": 4,
+              "list": [
+                "Cloak of Light",
+                "Divine Wrath",
+                "Radiant Beam"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Cleric Font",
+          "tradition": "divine",
+          "type": "prepared",
+          "ability": "wis",
+          "innate": false,
+          "rank": "expert",
+          "dc": 26,
+          "attack": 16,
+          "slots": [
+            {
+              "rank": 4,
+              "count": 5
+            }
+          ],
+          "spells": [
+            {
+              "rank": 4,
+              "list": [
+                "Harm",
+                "Harm",
+                "Harm",
+                "Harm",
+                "Harm"
+              ]
+            }
+          ]
+        }
+      ],
+      "focusSpells": [
+        "Dazzling Flash",
+        "Vital Luminance"
+      ],
+      "specificProficiencies": [],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 2,
       "money": {
         "cp": 0,
         "sp": 0,
