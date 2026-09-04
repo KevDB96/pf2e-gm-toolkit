@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pf2e-gm-v26';
+const CACHE_NAME = 'pf2e-gm-v27';
 
 // Where this worker is served from: '/' locally, '/pf2e-gm-toolkit/' on GitHub Pages.
 // Every path test below is relative to it. An absolute '/src/' test passed locally and

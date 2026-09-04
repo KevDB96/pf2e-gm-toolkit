@@ -2,6 +2,7 @@
 
 import { state, save, uid } from '../store.js';
 import { esc, on, qs } from '../dom.js';
+import { campaign } from '../data.js';
 import { youtubeExternalUrl, youtubeSource } from '../youtube.js';
 
 export function mount(root) {
@@ -26,6 +27,7 @@ export function mount(root) {
     </section>
     <section class="card sound-library">
       <h2>Saved sounds</h2>
+      <div id="sound-campaign"><p class="empty">Loading campaign sounds&hellip;</p></div>
       <div id="sound-saved"></div>
     </section>
     <section class="sound-player" id="sound-player"></section>`;
@@ -85,6 +87,9 @@ export function mount(root) {
   });
 
   renderSaved(root);
+  campaign()
+    .then(data => renderCampaign(root, data?.soundtrack || []))
+    .catch(() => renderCampaign(root, []));
 }
 
 function showError(root, message) {
@@ -110,6 +115,24 @@ function renderSaved(root) {
           aria-label="Delete ${esc(item.name)}">✕</button>
       </div>
     </div>`).join('');
+}
+
+function renderCampaign(root, tracks) {
+  const host = qs('#sound-campaign', root);
+  const rows = tracks.map(track => {
+    const url = youtubeExternalUrl(track.url);
+    if (!url) return '';
+    return `<div class="sound-saved-item">
+      <div class="grow">
+        <strong>${esc(track.label)}</strong>
+        <div class="sub">${esc(track.use || '')}</div>
+      </div>
+      <span class="tag">Campaign</span>
+      <a class="button-link primary" href="${esc(url)}" target="_blank"
+        rel="noopener">Open in YouTube</a>
+    </div>`;
+  }).join('');
+  host.innerHTML = rows || '<p class="empty">No campaign sounds found.</p>';
 }
 
 function showPlayer(root, source) {
