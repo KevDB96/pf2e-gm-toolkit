@@ -9,6 +9,7 @@ import * as library from './views/library.js';
 import * as loot from './views/loot.js';
 import * as notes from './views/notes.js';
 import * as party from './views/party.js';
+import * as sound from './views/sound.js';
 
 const VIEWS = {
   home:       { title: 'PF2e GM',    mod: home },
@@ -17,7 +18,8 @@ const VIEWS = {
   library:    { title: 'Library',    mod: library },
   loot:       { title: 'Loot',       mod: loot },
   notes:      { title: 'Campaign',   mod: notes },
-  party:      { title: 'Party',      mod: party }
+  party:      { title: 'Party',      mod: party },
+  sound:      { title: 'Sound',      mod: sound }
 };
 
 let root = qs('#view');

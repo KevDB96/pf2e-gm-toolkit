@@ -12,7 +12,8 @@ const TILES = [
   { view: 'library', glyph: '\u{1F4D6}', title: 'Library' },
   { view: 'loot', glyph: '\u{1F4B0}', title: 'Loot' },
   { view: 'notes', glyph: '\u{1F4DC}', title: 'Campaign' },
-  { view: 'party', glyph: '\u{1F465}', title: 'Party' }
+  { view: 'party', glyph: '\u{1F465}', title: 'Party' },
+  { view: 'sound', glyph: '\u266B', title: 'Sound' }
 ];
 
 // Filled in once the manifest and campaign file resolve; null means "still loading".
@@ -26,6 +27,10 @@ function plural(n, word, many = word + 's') {
 
 function status(view) {
   const { level, size } = state.party;
+
+  if (view === 'sound') {
+    return state.sound.url ? 'YouTube link ready' : 'No track selected';
+  }
 
   if (view === 'encounters') {
     const entries = state.encounter.entries;

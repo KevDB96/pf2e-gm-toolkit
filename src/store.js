@@ -10,6 +10,7 @@ const DEFAULTS = {
   combat: { round: 0, active: 0, combatants: [] },
   loot: { pool: [], claimed: {} },
   notes: { entries: [] },         // { id, title, body, at } — your own session notes
+  sound: { url: '' },             // Last YouTube URL entered on this device
   characters: { extra: [] },      // PCs pasted in on this device; the repo roster is
                                   // data/characters.json
 };

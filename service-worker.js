@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pf2e-gm-v22';
+const CACHE_NAME = 'pf2e-gm-v23';
 
 // Where this worker is served from: '/' locally, '/pf2e-gm-toolkit/' on GitHub Pages.
 // Every path test below is relative to it. An absolute '/src/' test passed locally and
@@ -20,6 +20,7 @@ const OFFLINE_URLS = [
   './src/pathbuilder.js',
   './src/facets.js',
   './src/records.js',
+  './src/youtube.js',
   './src/views/home.js',
   './src/views/encounters.js',
   './src/views/combat.js',
@@ -27,6 +28,7 @@ const OFFLINE_URLS = [
   './src/views/loot.js',
   './src/views/notes.js',
   './src/views/party.js',
+  './src/views/sound.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-192.png',
