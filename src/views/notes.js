@@ -8,7 +8,6 @@
 import { state, save, uid } from '../store.js';
 import { esc, on, sheet, qs, qsa } from '../dom.js';
 import { campaign } from '../data.js';
-import { youtubeExternalUrl } from '../youtube.js';
 
 const TABS = [
   { id: 'session', label: 'Session' },
@@ -112,8 +111,6 @@ function session() {
         '<button data-apply-party style="margin-top:10px">Set header to campaign party</button>'}
     </div>
 
-    ${soundtrack()}
-
     <div class="row spread">
       <h2 style="font-size:0.82rem;text-transform:uppercase;color:var(--muted)">Session notes</h2>
       <button data-add-note>+ Note</button>
@@ -123,24 +120,6 @@ function session() {
         ? [...state.notes.entries].reverse().map(noteRow).join('')
         : '<div class="empty">No notes yet.<br>Anything you add here stays on this device.</div>'
     }</div>`;
-}
-
-function soundtrack() {
-  const tracks = (data.soundtrack || []).map(track => {
-    const url = youtubeExternalUrl(track.url);
-    if (!url) return '';
-    return `<div class="sound-saved-item">
-      <div class="grow">
-        <div class="name">${esc(track.label)}</div>
-        <div class="sub">${esc(track.use || '')}</div>
-      </div>
-      <a class="button-link primary" href="${esc(url)}" target="_blank"
-        rel="noopener">Open in YouTube</a>
-    </div>`;
-  }).join('');
-  return tracks ? `<div class="card sound-library">
-    <h2>Campaign soundtrack</h2>${tracks}
-  </div>` : '';
 }
 
 function noteRow(n) {

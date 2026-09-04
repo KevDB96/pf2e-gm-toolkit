@@ -13,7 +13,7 @@ const TILES = [
   { view: 'loot', glyph: '\u{1F4B0}', title: 'Loot' },
   { view: 'notes', glyph: '\u{1F4DC}', title: 'Campaign' },
   { view: 'party', glyph: '\u{1F465}', title: 'Party' },
-  { view: 'sound', glyph: '\u266B', title: 'Sound' }
+  { view: 'sound', glyph: '\u266B', title: 'BGM' }
 ];
 
 // Filled in once the manifest and campaign file resolve; null means "still loading".

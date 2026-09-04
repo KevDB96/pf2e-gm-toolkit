@@ -7,12 +7,12 @@
     "note": "The Undermine is finished. Four PCs emerge from the mine directly into the waiting Circus; afterward the new PC arrives with the missive that begins Pre-Wargames."
   },
   "soundtrack": [
-    { "label": "The Inbetween", "use": "Travel and transitions", "url": "https://www.youtube.com/watch?v=pk5IwDX2p-o&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB" },
-    { "label": "The Pyramid", "use": "The Pyramid and the return after the Circus", "url": "https://www.youtube.com/watch?v=Ybk0RJ3OoVU&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=2" },
-    { "label": "Zalazar Forever", "use": "Zalazar theme", "url": "https://www.youtube.com/watch?v=2aouWFI-Xso&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=3" },
-    { "label": "Bitania", "use": "Bitania", "url": "https://www.youtube.com/watch?v=bFIee-C1KoA&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=4" },
-    { "label": "Circus 1", "use": "Arrival, games, food and legitimate performances", "url": "https://www.youtube.com/watch?v=4S3VseNyKfs&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=6" },
-    { "label": "Circus 2", "use": "Mounting wrongness, main hall, shrine and combat", "url": "https://www.youtube.com/watch?v=2PNX8arJLoU&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=5" }
+    { "label": "The Inbetween", "url": "https://www.youtube.com/watch?v=pk5IwDX2p-o&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB" },
+    { "label": "The Pyramid", "url": "https://www.youtube.com/watch?v=Ybk0RJ3OoVU&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=2" },
+    { "label": "Zalazar Forever", "url": "https://www.youtube.com/watch?v=2aouWFI-Xso&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=3" },
+    { "label": "Bitania", "url": "https://www.youtube.com/watch?v=bFIee-C1KoA&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=4" },
+    { "label": "Circus 1", "url": "https://www.youtube.com/watch?v=4S3VseNyKfs&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=6" },
+    { "label": "Circus 2", "url": "https://www.youtube.com/watch?v=2PNX8arJLoU&list=PLMEBoK2tLoIZr64pL_uCvS3Yi6YxAlsuB&index=5" }
   ],
   "arcs": [
     {

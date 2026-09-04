@@ -1,4 +1,4 @@
-// Sound: play a YouTube video from a pasted link using YouTube's supported embed.
+// BGM: play a YouTube video from a pasted link using YouTube's supported embed.
 
 import { state, save, uid } from '../store.js';
 import { esc, on, qs } from '../dom.js';
@@ -8,7 +8,7 @@ import { youtubeExternalUrl, youtubeSource } from '../youtube.js';
 export function mount(root) {
   root.innerHTML = `
     <section class="card sound-card">
-      <h2>YouTube sound</h2>
+      <h2>YouTube BGM</h2>
       <form class="sound-form" id="sound-form">
         <label for="sound-url">Video or playlist link</label>
         <input id="sound-url" type="text" inputmode="url"
@@ -123,11 +123,7 @@ function renderCampaign(root, tracks) {
     const url = youtubeExternalUrl(track.url);
     if (!url) return '';
     return `<div class="sound-saved-item">
-      <div class="grow">
-        <strong>${esc(track.label)}</strong>
-        <div class="sub">${esc(track.use || '')}</div>
-      </div>
-      <span class="tag">Campaign</span>
+      <strong class="grow">${esc(track.label)}</strong>
       <a class="button-link primary" href="${esc(url)}" target="_blank"
         rel="noopener">Open in YouTube</a>
     </div>`;

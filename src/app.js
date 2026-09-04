@@ -19,7 +19,7 @@ const VIEWS = {
   loot:       { title: 'Loot',       mod: loot },
   notes:      { title: 'Campaign',   mod: notes },
   party:      { title: 'Party',      mod: party },
-  sound:      { title: 'Sound',      mod: sound }
+  sound:      { title: 'BGM',        mod: sound }
 };
 
 let root = qs('#view');
