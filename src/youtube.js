@@ -3,7 +3,7 @@
 const ID = /^[A-Za-z0-9_-]{11}$/;
 const LIST = /^[A-Za-z0-9_-]{10,80}$/;
 
-export function youtubeSource(value) {
+function youtubeParts(value) {
   const raw = String(value || '').trim();
   if (!raw) return null;
 
@@ -39,6 +39,23 @@ export function youtubeSource(value) {
     if (!video) params.set('listType', 'playlist');
   }
 
-  const path = video ? video : 'videoseries';
-  return `https://www.youtube-nocookie.com/embed/${path}?${params}`;
+  return { video, list, params };
+}
+
+export function youtubeSource(value) {
+  const parts = youtubeParts(value);
+  if (!parts) return null;
+  const path = parts.video || 'videoseries';
+  return `https://www.youtube-nocookie.com/embed/${path}?${parts.params}`;
+}
+
+/** Canonical HTTPS link that Android can hand to the official YouTube app. */
+export function youtubeExternalUrl(value) {
+  const parts = youtubeParts(value);
+  if (!parts) return null;
+  const params = new URLSearchParams();
+  if (parts.video) params.set('v', parts.video);
+  if (parts.list) params.set('list', parts.list);
+  const page = parts.video ? 'watch' : 'playlist';
+  return `https://www.youtube.com/${page}?${params}`;
 }

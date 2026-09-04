@@ -73,7 +73,7 @@ skill lists, and dice parsing — plus the Pathbuilder conversion, the filter fa
 | **Loot** | The level's expected treasure budget in coins, a running hoard, per-character claims, and a rolled selection of usable items at the party's level or one above it — with the leftover handed out as gold, split evenly and already claimed. Every suggestion opens on the Archives of Nethys from the row, so an item can be read before it goes in the hoard. |
 | **Campaign** (Notes) | Where the campaign is now, every arc with its beats, the NPC roster, reference tables — and your own session notes. |
 | **Party** | The player characters, grouped by campaign or one-shot. Each opens a GM-facing sheet: AC, HP, saves, Perception, every skill trained or not, class DC, spellcasting, and feats grouped by category with their action costs. |
-| **Sound** | Paste a YouTube video or playlist link and play it in a privacy-enhanced embedded player. The last link is remembered on the device. Playback requires a connection and the Sound tab must stay open. |
+| **Sound** | Paste a YouTube video or playlist link and play it in a privacy-enhanced embedded player, or save named links for later. **Play here** needs the Sound tab to remain open; **Open in YouTube** hands the link to the official app, where a Premium account can keep it playing in the background. Saved links live on this device. |
 
 Hovering anything with a description shows what it mechanically does, in a line: a creature's AC, HP and saves, a spell's cost, range and save, what a condition does to you and what it applies alongside itself.
 

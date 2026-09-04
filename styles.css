@@ -81,8 +81,20 @@ a{color:var(--accent);text-decoration-color:var(--accent-edge)}
    phone meets that floor; wider screens use the familiar 16:9 frame. */
 .sound-form{display:grid;gap:8px}
 .sound-form label{font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase}
+.sound-actions,.sound-saved-actions{display:flex;gap:8px;align-items:center}
+.sound-actions > *{flex:1}
 .sound-help{margin:12px 0 0;color:var(--muted);font-size:0.8rem;line-height:1.45}
 .form-error{margin:10px 0 0;color:var(--blood-ink);font-size:0.82rem}
+.sound-saved-item{display:grid;gap:9px;padding:12px 0;border-bottom:1px solid var(--line)}
+.sound-saved-item:first-child{padding-top:0}
+.sound-saved-item:last-child{padding-bottom:0;border-bottom:0}
+.sound-saved-actions{min-width:0}
+.sound-saved-actions > :not(.icon){flex:1;min-width:0}
+.button-link{min-height:44px;border:1px solid var(--line);border-radius:10px;padding:0 10px;
+  display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;
+  font-size:0.78rem}
+.button-link.primary{background:linear-gradient(180deg,var(--accent),var(--accent-2));
+  border-color:transparent;color:var(--accent-ink);font-weight:600}
 .sound-player{width:100%;min-height:200px;aspect-ratio:1;background:var(--panel);
   border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
 .sound-player:empty{display:none}

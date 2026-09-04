@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { youtubeSource } from '../src/youtube.js';
+import { youtubeExternalUrl, youtubeSource } from '../src/youtube.js';
 
 test('ordinary YouTube links become privacy-enhanced embeds', () => {
   assert.equal(
@@ -21,6 +21,17 @@ test('playlist links retain their list id', () => {
   assert.equal(
     youtubeSource('https://www.youtube.com/playlist?list=PL1234567890'),
     'https://www.youtube-nocookie.com/embed/videoseries?playsinline=1&list=PL1234567890&listType=playlist'
+  );
+});
+
+test('external links are canonical links Android can open in YouTube', () => {
+  assert.equal(
+    youtubeExternalUrl('https://youtu.be/dQw4w9WgXcQ?list=PL1234567890'),
+    'https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=PL1234567890'
+  );
+  assert.equal(
+    youtubeExternalUrl('https://youtube.com/playlist?list=PL1234567890'),
+    'https://www.youtube.com/playlist?list=PL1234567890'
   );
 });
 
