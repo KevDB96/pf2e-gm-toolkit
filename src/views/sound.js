@@ -26,8 +26,8 @@ export function mount(root) {
       <p class="form-error" id="sound-error" role="alert" hidden></p>
     </section>
     <section class="card sound-library">
-      <h2>Saved sounds</h2>
-      <div id="sound-campaign"><p class="empty">Loading campaign sounds&hellip;</p></div>
+      <h2>Saved tracks</h2>
+      <div id="sound-campaign"><p class="empty">Loading campaign tracks&hellip;</p></div>
       <div id="sound-saved"></div>
     </section>
     <section class="sound-player" id="sound-player"></section>`;
@@ -101,7 +101,7 @@ function showError(root, message) {
 function renderSaved(root) {
   const host = qs('#sound-saved', root);
   if (!state.sound.saved.length) {
-    host.innerHTML = '<p class="empty">No saved sounds yet.</p>';
+    host.innerHTML = '<p class="empty">No other saved tracks.</p>';
     return;
   }
   host.innerHTML = state.sound.saved.map(item => `
@@ -132,7 +132,7 @@ function renderCampaign(root, tracks) {
         rel="noopener">Open in YouTube</a>
     </div>`;
   }).join('');
-  host.innerHTML = rows || '<p class="empty">No campaign sounds found.</p>';
+  host.innerHTML = rows || '<p class="empty">No campaign tracks found.</p>';
 }
 
 function showPlayer(root, source) {
