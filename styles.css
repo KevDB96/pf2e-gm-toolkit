@@ -219,6 +219,9 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 /* ---------- tags and badges ---------- */
 .tag{display:inline-block;font-size:0.68rem;letter-spacing:0.02em;padding:3px 8px;border-radius:6px;
   background:rgba(255,255,255,0.06);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+/* Tags are ordinarily read-only labels. In character sheets they also open a spell or
+   rule entry, so give just the button form the same reliable hit area as other controls. */
+button.tag{display:inline-flex;align-items:center;min-height:44px}
 .badge{flex:0 0 auto;font-size:0.62rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
   padding:4px 8px;border-radius:6px;border:1px solid var(--line);color:var(--muted);align-self:flex-start}
 .badge.now{color:var(--accent);background:var(--accent-soft);border-color:var(--accent-edge)}
@@ -245,7 +248,7 @@ textarea:focus{outline:none;border-color:var(--accent)}
 
 /* ---------- codex: tappable rows that open a rules description ---------- */
 button.share{width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--line);
-  border-radius:0;min-height:0;padding:9px 0;color:var(--ink);font-size:0.9rem;align-items:center}
+  border-radius:0;min-height:44px;padding:9px 0;color:var(--ink);font-size:0.9rem;align-items:center}
 button.share:last-child{border-bottom:none}
 button.share:active{background:var(--panel-2)}
 button.share .go{flex:0 0 auto;margin-left:8px;color:var(--accent);font-size:1rem}
@@ -362,8 +365,10 @@ h2 + .card-group{margin-top:4px}
    rather than push the card wider than its side of the board. */
 .combatant .name{font-size:0.86rem;line-height:1.25;overflow-wrap:anywhere}
 .combatant .sub{font-size:0.66rem;padding:0 1px}
-.combatant .init{width:2.7em;min-height:32px;padding:0;font-size:1rem}
-.combatant button.icon{min-width:28px;min-height:28px;font-size:0.72rem}
+.combatant .init{width:2.7em;min-height:44px;padding:0;font-size:1rem}
+/* The name wraps before the two-column board overflows, leaving real thumb targets for
+   initiative and removal instead of shrinking those controls below the app's 44px floor. */
+.combatant button.icon{min-width:44px;min-height:44px;font-size:0.72rem}
 .init{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--accent);min-width:1.8em;text-align:center}
 /* HP is one line: the typed number, then the bar taking whatever width is left. No
    flex-basis here — the card is a flex *column*, where a basis of 100% would be read as a
@@ -372,13 +377,9 @@ h2 + .card-group{margin-top:4px}
 .hp{flex:0 0 auto;display:flex;align-items:center;gap:3px;font-variant-numeric:tabular-nums;
   font-size:0.8rem}
 /* Sized for the worst case, a three-digit current over a three-digit max ("142/200") in
-   the tracker's two-column board: at 390px a column is ~163px, so a combatant card (8px×2
-   padding) has ~147px inside. At font-size 0.8rem (12.8px) tabular-nums digits run close to
-   0.6em each, so "142" is ~23px of glyph — 3.2em (~41px) box leaves it comfortably centred
-   with room either side now the native spinner (above) is gone. That still leaves .hpwrap,
-   the actual slider control, plenty of room: input 41px + .hp's 3px gap + the "/200" span
-   (~27px) + .hprow's 6px gap ≈ 77px used out of ~147px, nowhere near collapsing the bar. */
-.hp input{width:3.2em;text-align:center;padding:0;min-height:30px;font-size:0.8rem}
+   the tracker's two-column board. The number box keeps its compact width, while its 44px
+   height makes it usable without pinching the slider's remaining horizontal room. */
+.hp input{width:3.2em;text-align:center;padding:0;min-height:44px;font-size:0.8rem}
 .hpbar{height:8px;border-radius:999px;background:rgba(0,0,0,0.35);overflow:hidden}
 .hpbar > div{height:100%;background:var(--green);transition:width 200ms ease}
 .hpbar.warn > div{background:var(--violet)}
@@ -388,7 +389,7 @@ h2 + .card-group{margin-top:4px}
    track is the bar showing through from underneath.
    touch-action:pan-y, not none: a horizontal drag belongs to the slider, but a vertical
    swipe that happens to start here still scrolls the page. */
-.hpwrap{position:relative;flex:1 1 auto;min-width:0;padding:10px 0}
+.hpwrap{position:relative;display:flex;align-items:center;flex:1 1 auto;min-width:0;min-height:44px}
 .hpslide{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;
   background:none;border:none;-webkit-appearance:none;appearance:none;cursor:pointer;
   touch-action:pan-y}
@@ -408,8 +409,9 @@ h2 + .card-group{margin-top:4px}
 .hpwrap:has(.hpslide:active) .hpbar > div{transition:none}
 
 .chips{display:flex;flex-wrap:wrap;gap:4px}
-.chip{font-size:0.66rem;padding:3px 7px;border-radius:999px;background:var(--blood-soft);
-  border:1px solid var(--blood-edge);cursor:pointer}
+.chip{display:inline-flex;align-items:center;min-height:44px;font-size:0.66rem;padding:3px 9px;
+  border-radius:999px;background:var(--blood-soft);border:1px solid var(--blood-edge);
+  cursor:pointer;white-space:normal;text-align:left}
 .chip.add{background:var(--panel-2);border-color:var(--line);color:var(--muted)}
 
 /* What the last "Next turn" tap did to conditions — combat.js's turnReport. Sits under
@@ -428,8 +430,8 @@ h2 + .card-group{margin-top:4px}
 .share:last-child{border-bottom:none}
 /* The value hugs the right edge. Without this a row with a chevron as well spaces its
    three children evenly, which parks the damage die in the middle of the row. */
-.share > span:first-child{min-width:0}
-.share > b{margin-left:auto;text-align:right}
+.share > span:first-child{min-width:0;overflow-wrap:anywhere}
+.share > b{min-width:0;margin-left:auto;text-align:right;overflow-wrap:anywhere}
 .share.faint{color:var(--muted)}
 .share.faint > b{font-weight:400}
 
@@ -461,6 +463,7 @@ h2 + .card-group{margin-top:4px}
 .modal .sheet{width:100%;max-width:640px;max-height:82vh;overflow-y:auto;background:var(--bg-2);
   border:1px solid var(--line);border-radius:18px 18px 0 0;padding:18px 14px calc(18px + env(safe-area-inset-bottom));
   display:flex;flex-direction:column;gap:12px}
+.modal .sheet [data-close]{min-width:44px;min-height:44px}
 
 /* A sheet that browses a long, filtered list (the bestiary picker, and any future
    picker built the same way) cannot use .sheet's plain height-by-content sizing: the

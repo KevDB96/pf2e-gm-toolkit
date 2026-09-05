@@ -87,7 +87,9 @@ export function mount(root) {
   qs('#clear', root).addEventListener('click', () => {
     chosen = {};
     query = '';
+    bandOnly = false;
     qs('#search', root).value = '';
+    qs('#band', root).checked = false;
     draw(root);
   });
   on(root, 'click', '[data-cat]', (e, el) => select(root, el.dataset.cat));
@@ -207,6 +209,17 @@ function draw(root) {
   drawRecent(root);
   if (global) { drawGlobal(root, results, count); return; }
 
+  // Traits and the category manifest are loaded independently. On a warm cache the
+  // smaller traits file can win the race, which used to reach this renderer before
+  // select() had established an active category.
+  if (!active) {
+    count.textContent = '';
+    qs('#facets', root).innerHTML = '';
+    qs('#clear', root).hidden = true;
+    results.innerHTML = '<div class="empty">Loading library&hellip;</div>';
+    return;
+  }
+
   if (loading) {
     count.textContent = '';
     qs('#facets', root).innerHTML = '';
@@ -220,7 +233,19 @@ function draw(root) {
   if (!axes.length) axes = buildFacets(rows, { creatureTypes });
   qs('#facets', root).innerHTML =
     facetSelects(axes, chosen, axis => facetOptions(filtered(axis), axis));
-  qs('#clear', root).hidden = !query && !Object.values(chosen).some(Boolean);
+  qs('#clear', root).hidden = !query && !bandOnly && !Object.values(chosen).some(Boolean);
+
+  // The Library is a lookup tool at the table, not a catalogue to scroll through.
+  // Loading a category should expose its useful filters but should not immediately paint
+  // the first 200 records just because that category happens to be selected.
+  const filtering = Boolean(query.trim()) || bandOnly || Object.values(chosen).some(Boolean);
+  if (!filtering) {
+    count.textContent = rows.length
+      ? `${rows.length.toLocaleString()} ${active.label.toLowerCase()} · search or filter to narrow`
+      : '';
+    results.innerHTML = '<div class="empty">Search or choose a filter to see entries.</div>';
+    return;
+  }
 
   const hits = filtered();
   count.textContent = rows.length

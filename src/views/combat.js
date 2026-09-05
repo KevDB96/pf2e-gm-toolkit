@@ -229,9 +229,10 @@ function card(c, isTurn) {
       <div class="hprow">${hpBlock}</div>
       <div class="chips">
         ${c.conditions.map(cond => `
-          <span class="chip" data-owner="${c.id}" data-drop-cond="${esc(cond)}"${tip(describe(cond))}>${esc(cond)} &#10005;</span>
+          <button class="chip" data-owner="${c.id}" data-drop-cond="${esc(cond)}"${tip(describe(cond))}
+                  aria-label="Remove ${esc(cond)} from ${esc(name)}">${esc(cond)} &#10005;</button>
         `).join('')}
-        <span class="chip add" data-cond="${c.id}">+ condition</span>
+        <button class="chip add" data-cond="${c.id}">+ condition</button>
       </div>
     </div>`;
 }
