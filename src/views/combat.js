@@ -38,8 +38,11 @@ const SIDES = [['pc', 'Party'], ['npc', 'Enemies']];
  */
 const sideOf = c => c.side || (c.isPC ? 'pc' : 'npc');
 
-/** Keep full PC names in state for roster matching, but use their table name on the board. */
-const trackerName = c => c.isPC
+/**
+ * Keep full PC names in state for roster matching, but use their table name on the board.
+ * Some saved rows predate `isPC`; their Party-side placement is the safe legacy signal.
+ */
+const trackerName = c => (c.isPC || sideOf(c) === 'pc')
   ? String(c.name || '').trim().split(/\s+/)[0] || c.name
   : c.name;
 
