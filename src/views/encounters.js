@@ -210,14 +210,20 @@ async function addFromBestiary() {
 
   const body = `
     <input type="search" id="b-search" placeholder="Search creatures&hellip;" autocomplete="off">
-    <label class="row" style="margin-top:10px;font-size:0.82rem;color:var(--muted)">
-      <input type="checkbox" id="b-band" style="width:auto;min-height:auto">
-      Only creatures inside this party&rsquo;s XP band
-    </label>
-    <div class="row wrap" id="b-facets" style="margin-top:10px;gap:8px"></div>
     <div class="row spread" style="margin-top:8px">
+      <button class="ghost" id="b-filters" aria-expanded="false"
+        style="min-height:32px;font-size:0.74rem">Filters</button>
       <span class="muted" id="b-count" style="font-size:0.72rem"></span>
+    </div>
+    <div id="b-filter-panel" hidden>
+      <label class="row" style="font-size:0.82rem;color:var(--muted)">
+        <input type="checkbox" id="b-band" style="width:auto;min-height:auto">
+        Only creatures inside this party&rsquo;s XP band
+      </label>
+      <div class="row wrap" id="b-facets" style="margin-top:10px;gap:8px"></div>
+      <div class="row" style="margin-top:8px">
       <button class="ghost" id="b-clear" style="min-height:32px;font-size:0.74rem">Clear</button>
+      </div>
     </div>
     <div class="list" id="b-list"></div>`;
   const { node, close } = sheet('Bestiary', body);
@@ -226,6 +232,7 @@ async function addFromBestiary() {
   const chosen = {};
   let query = '';
   let bandOnly = false;
+  let filtersOpen = false;
 
   /**
    * Everything matching the search, the XP band and every chosen value — optionally
@@ -248,6 +255,11 @@ async function addFromBestiary() {
     qs('#b-facets', node).innerHTML =
       facetSelects(axes, chosen, axis => facetOptions(matches(axis), axis));
     const hits = matches();
+    const activeFilters = (bandOnly ? 1 : 0) + axes.filter(axis => Boolean(chosen[axis.id])).length;
+    const filterButton = qs('#b-filters', node);
+    filterButton.textContent = activeFilters ? `Filters · ${activeFilters}` : 'Filters';
+    filterButton.setAttribute('aria-expanded', String(filtersOpen));
+    qs('#b-filter-panel', node).hidden = !filtersOpen;
     qs('#b-count', node).textContent = `${hits.length} creature${hits.length === 1 ? '' : 's'}`
       + (hits.length > 60 ? ' · showing the first 60' : '');
 
@@ -270,6 +282,7 @@ async function addFromBestiary() {
   draw();
   qs('#b-search', node).addEventListener('input', e => { query = e.target.value; draw(); });
   qs('#b-band', node).addEventListener('change', e => { bandOnly = e.target.checked; draw(); });
+  qs('#b-filters', node).addEventListener('click', () => { filtersOpen = !filtersOpen; draw(); });
   on(node, 'change', '[data-facet]', (e, el) => {
     facetChange(chosen, el, axes);
     draw();
@@ -277,7 +290,9 @@ async function addFromBestiary() {
   qs('#b-clear', node).addEventListener('click', () => {
     for (const axis of axes) chosen[axis.id] = '';
     query = '';
+    bandOnly = false;
     qs('#b-search', node).value = '';
+    qs('#b-band', node).checked = false;
     draw();
   });
   on(node, 'click', '[data-pick]', (e, el) => {

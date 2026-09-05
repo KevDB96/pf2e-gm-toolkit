@@ -466,7 +466,7 @@ h2 + .card-group{margin-top:4px}
    picker built the same way) cannot use .sheet's plain height-by-content sizing: the
    match count swings from 0 to 60 on every keystroke, and .modal pins the sheet to the
    bottom edge, so it visibly grows and shrinks upward as the count changes. .sheet-browse
-   fixes the frame at the same 82vh instead and turns the results list into the only
+   fixes the frame at a taller 90vh instead and turns the results list into the only
    flexible, scrolling child. As with .picker below, a flex item will not shrink below its
    content without min-height:0, so the list needs both flex:1 1 auto and min-height:0 or
    it overflows the sheet rather than scrolling inside it; the rows above the list get
@@ -475,6 +475,6 @@ h2 + .card-group{margin-top:4px}
    sheet itself scroll in ordinary use, but so a viewport too short for the rows above
    the list degrades into a scroll instead of clipping them once min-height:0 has
    squeezed the list to nothing. */
-.modal .sheet.sheet-browse{height:82vh;overflow-y:auto}
+.modal .sheet.sheet-browse{height:90vh;overflow-y:auto}
 .sheet-browse > *{flex:0 0 auto}
 .sheet-browse .list{flex:1 1 auto;min-height:0;overflow-y:auto}
