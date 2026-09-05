@@ -38,6 +38,11 @@ const SIDES = [['pc', 'Party'], ['npc', 'Enemies']];
  */
 const sideOf = c => c.side || (c.isPC ? 'pc' : 'npc');
 
+/** Keep full PC names in state for roster matching, but use their table name on the board. */
+const trackerName = c => c.isPC
+  ? String(c.name || '').trim().split(/\s+/)[0] || c.name
+  : c.name;
+
 /** A Party/Enemies toggle for an add sheet, already showing `side`. */
 function sidePicker(side) {
   return `<div class="field" style="flex:0 0 auto">Side
@@ -134,7 +139,7 @@ export function update(root) {
   qs('#round', root).textContent = state.combat.round || '—';
   qs('#turn-of', root).textContent = list.length === 0
     ? 'No combatants yet. Add PCs, or send an encounter over from the planner.'
-    : (state.combat.round === 0 ? 'Press Next turn to begin.' : `Turn: ${active ? active.name : '—'}`);
+    : (state.combat.round === 0 ? 'Press Next turn to begin.' : `Turn: ${active ? trackerName(active) : '—'}`);
 
   // What the last "Next turn" tap did — cleared once the turn moves on again or combat
   // ends, so it never survives past the moment it is still useful for.
@@ -181,6 +186,7 @@ function column(side, label, list, turnOf) {
 }
 
 function card(c, isTurn) {
+  const name = trackerName(c);
   const pct = hpPct(c);
   const dead = c.maxHp !== null && c.hp <= 0;
   const cls = ['item', 'combatant', isTurn ? 'is-turn' : '',
@@ -195,12 +201,12 @@ function card(c, isTurn) {
   const hpBlock = c.maxHp === null
     ? '<span class="muted">no HP tracked</span>'
     : `<span class="hp"><input data-hp="${c.id}" type="number" inputmode="numeric" min="0"
-              max="${c.maxHp}" value="${c.hp}" aria-label="Current HP of ${esc(c.name)}"
+              max="${c.maxHp}" value="${c.hp}" aria-label="Current HP of ${esc(name)}"
               ><span class="muted">/${c.maxHp}</span></span>
        <div class="hpwrap">
          <div class="hpbar ${toneFor(pct)}"><div style="width:${pct}%"></div></div>
          <input class="hpslide" type="range" min="0" max="${c.maxHp}" step="1"
-                value="${c.hp}" data-hp-slide="${c.id}" aria-label="Set HP of ${esc(c.name)}">
+                value="${c.hp}" data-hp-slide="${c.id}" aria-label="Set HP of ${esc(name)}">
        </div>`;
 
   // A card in a 163px column, so it stacks rather than spreads, and the name wraps instead
@@ -212,9 +218,9 @@ function card(c, isTurn) {
         <input class="init" data-init="${c.id}" type="number" inputmode="numeric"
                value="${c.init ?? ''}" placeholder="?"
                aria-label="Initiative for ${esc(c.name)}">
-        <div class="name grow">${esc(c.name)}</div>
+        <div class="name grow">${esc(name)}</div>
         <button class="icon ghost danger" data-remove="${c.id}"
-                aria-label="Remove ${esc(c.name)}">&#10005;</button>
+                aria-label="Remove ${esc(name)}">&#10005;</button>
       </div>
       ${sub ? `<div class="sub">${esc(sub)}</div>` : ''}
       <div class="hprow">${hpBlock}</div>
@@ -293,7 +299,7 @@ function endTurnFor(c) {
     ticked.unshift(`persistent damage ${persistent} (HP ${before} → ${c.hp})`);
   }
   const parts = [...ticked, ...reminders];
-  return parts.length ? `${c.name} · ${parts.join(' · ')}` : null;
+  return parts.length ? `${trackerName(c)} · ${parts.join(' · ')}` : null;
 }
 
 function nextTurn() {
@@ -550,7 +556,7 @@ function addCondition(c, name) {
 function openConditions(id) {
   const c = find(id);
   if (!c) return;
-  const { node, close } = sheet(`Conditions · ${c.name}`, '<div class="chips" id="cond-pick"></div>');
+  const { node, close } = sheet(`Conditions · ${trackerName(c)}`, '<div class="chips" id="cond-pick"></div>');
   const title = qs('h2', node);
   const pick = qs('#cond-pick', node);
 
@@ -563,7 +569,7 @@ function openConditions(id) {
       >&larr; Conditions</span>`;
 
   const listConditions = () => {
-    title.textContent = `Conditions · ${c.name}`;
+    title.textContent = `Conditions · ${trackerName(c)}`;
     pick.innerHTML = CONDITIONS.map(cond => chip(cond, cond, describe(cond))).join('');
   };
 
