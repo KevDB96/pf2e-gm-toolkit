@@ -112,7 +112,9 @@ export function mount(root) {
       return;
     }
     drawChips(root);
-    select(root, global ? ALL : (active?.name || categories[0].name));
+    // The Library opens as one name lookup across the whole rules set. A category is a
+    // deliberate refinement, not an arbitrary first page of records.
+    select(root, ALL);
     maybeOpenPending();
   });
 }
@@ -164,7 +166,7 @@ function selectGlobal(root) {
   chosen = {};
   bandOnly = false;
   const search = qs('#search', root);
-  if (search) { search.value = ''; search.placeholder = 'Search everything…'; }
+  if (search) { search.value = ''; search.placeholder = 'Search all entries by name…'; }
   const band = qs('#band', root);
   if (band) band.checked = false;
   qs('#band-wrap', root).hidden = true;
@@ -286,7 +288,7 @@ function drawGlobal(root, results, count) {
     return;
   }
   if (!query.trim()) {
-    results.innerHTML = '';
+    results.innerHTML = '<div class="empty">Search by name to see entries.</div>';
     return;
   }
   const groups = searchAll(searchIndexData, query, { perCategory: 6 });
