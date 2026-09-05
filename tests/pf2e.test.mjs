@@ -200,6 +200,17 @@ test('a loot selection fills the level\'s treasure budget without blowing it', (
   assert.equal(capped.length, 3);
 });
 
+test('personal loot suggestions only use broadly usable equipment categories', () => {
+  const items = [
+    { id: 'potion', name: 'Potion', level: 5, category: 'Consumables', price: 5000 },
+    { id: 'cloak', name: 'Cloak', level: 5, category: 'Worn Items', price: 5000 },
+    { id: 'sword', name: 'Sword', level: 5, category: 'Weapons', price: 5000 }
+  ];
+  const picked = pf2e.personalLootSelection(items, { name: 'Amiri' }, { level: 5, random: () => 0 });
+  assert.equal(picked.length, 2);
+  assert.ok(picked.every(i => pf2e.PERSONAL_LOOT_CATEGORIES.has(i.category)));
+});
+
 test('XP award divides by real party size and multiplies by four', () => {
   assert.equal(pf2e.xpAward(80, 4), 80);
   assert.equal(pf2e.xpAward(100, 5), 80);
@@ -399,6 +410,14 @@ test('feats group by category, actions before passives', () => {
 
   assert.deepEqual(pf2e.featGroups(), []);
   assert.deepEqual(pf2e.featGroups([{ name: 'Lone Feat' }]).map(g => g.type), ['Other']);
+});
+
+test('feats sort by acquired level, with unknown levels last', () => {
+  assert.deepEqual(pf2e.featsByLevel([
+    { name: 'Later', level: 6 }, { name: 'Unknown' }, { name: 'First B', level: 1 },
+    { name: 'First A', level: 1 }, { name: 'Middle', level: 2 }
+  ]).map(f => f.name), ['First A', 'First B', 'Middle', 'Later', 'Unknown']);
+  assert.deepEqual(pf2e.featsByLevel(), []);
 });
 
 test('untrained skills are reconstructed for characters imported without them', () => {
@@ -742,10 +761,19 @@ test('conditionName and conditionValue round-trip through withConditionValue', (
   assert.equal(pf2e.withConditionValue('Prone', null), 'Prone');
   assert.equal(pf2e.withConditionValue('Prone', 0), 'Prone');
   assert.equal(pf2e.conditionValue(pf2e.withConditionValue('Prone', null)), null);
-  // A persistent-damage chip's parenthetical is not a value — the name still resolves
-  // past it, and asking for its value gives null rather than misreading the note.
+  // A legacy persistent-damage chip's parenthetical is not a value — the name still
+  // resolves past it, and asking for its value gives null rather than misreading the note.
   assert.equal(pf2e.conditionName('Persistent Damage (fire)'), 'Persistent Damage');
   assert.equal(pf2e.conditionValue('Persistent Damage (fire)'), null);
+  assert.equal(pf2e.conditionName('Persistent Damage 5 (fire)'), 'Persistent Damage');
+  assert.equal(pf2e.conditionValue('Persistent Damage 5 (fire)'), 5);
+});
+
+test('persistent damage totals its stored amounts and ignores legacy chips without one', () => {
+  assert.equal(pf2e.persistentDamageTotal([
+    'Persistent Damage 5 (fire)', 'Persistent Damage 2 (bleed)', 'Frightened 3'
+  ]), 7);
+  assert.equal(pf2e.persistentDamageTotal(['Persistent Damage (acid)']), 0);
 });
 
 test('takesValue names exactly the conditions whose chip carries a number', () => {

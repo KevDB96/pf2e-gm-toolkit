@@ -9,7 +9,7 @@ import { state, save } from '../store.js';
 import { caps, esc, on, rich, sheet, tip, qs, qsa } from '../dom.js';
 import { characters as loadCharacters, codex as loadCodex } from '../data.js';
 import { fromPathbuilder } from '../pathbuilder.js';
-import { actionIcons, ATTRIBUTES, featGroups, skillList } from '../pf2e.js';
+import { actionIcons, ATTRIBUTES, featsByLevel, skillList } from '../pf2e.js';
 
 const ALL = '__all__';
 
@@ -322,13 +322,13 @@ function openSheet(id) {
 
     ${(c.feats || []).length ? `<div class="card">
       <h2>Feats</h2>
-      ${featGroups((c.feats || []).map(f => {
+      ${featsByLevel((c.feats || []).map(f => {
         const e = codexByName.get(f.name);
         return { ...f, actions: e?.actions || null, traits: e?.traits || [] };
-      })).map(g => `
-        <div class="card-group">${esc(g.type.endsWith('Feat') ? g.type + 's' : g.type)}</div>
-        ${g.feats.map(f => entryRow(f.name, actionIcons(f.actions) || '',
-          f.name + (f.choice ? ` (${f.choice})` : ''))).join('')}`).join('')}
+      })).map(f => entryRow(f.name, [
+        Number.isFinite(f.level) ? `Lv ${f.level}` : null,
+        actionIcons(f.actions)
+      ].filter(Boolean).join(' · '), f.name + (f.choice ? ` (${f.choice})` : ''))).join('')}
     </div>` : ''}
 
     ${(c.languages || []).length ? `<div class="card">

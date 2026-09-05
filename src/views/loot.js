@@ -2,7 +2,7 @@
 
 import { state, save, uid } from '../store.js';
 import { esc, on, sheet, tip, qs } from '../dom.js';
-import { treasureFor, toCoins, lootSelection, splitEvenly } from '../pf2e.js';
+import { treasureFor, toCoins, personalLootSelection } from '../pf2e.js';
 import { equipment, characters as loadCharacters } from '../data.js';
 import { recordTip } from '../records.js';
 
@@ -17,10 +17,11 @@ function shell() {
     <div class="card">
       <h2>Treasure budget &mdash; level <span id="lvl"></span></h2>
       <div class="row spread">
-        <div><div class="muted">Expected for the level</div><div class="threat" id="budget-gp"></div></div>
-        <div style="text-align:right"><div class="muted">Awarded so far</div><div class="threat" id="given-gp" style="color:var(--ink)"></div></div>
+        <div><div class="muted">Total for the level</div><div class="threat" id="budget-gp"></div></div>
+        <div style="text-align:right"><div class="muted">Still to award</div><div class="threat" id="given-gp" style="color:var(--accent)"></div></div>
       </div>
       <div class="budget-bar" style="margin-top:10px"><div id="loot-bar" style="width:0;background:var(--accent)"></div></div>
+      <div class="sub" id="awarded" style="margin-top:6px"></div>
       <div class="coins" id="coins" style="margin-top:12px"></div>
     </div>
 
@@ -31,7 +32,7 @@ function shell() {
     </div>
 
     <div class="row wrap">
-      <button class="primary grow" data-suggest>Suggest loot</button>
+      <button class="primary grow" data-suggest>Choose a character</button>
       <button data-add-item>+ Add loot</button>
     </div>
 
@@ -60,14 +61,16 @@ function wire(root) {
 export function update(root) {
   const { level, size } = state.party;
   const budget = treasureFor(level, size);
-  const given = state.loot.pool.reduce((sum, i) => sum + (Number(i.value) || 0), 0);
+  const awarded = awardedValue();
+  const remaining = Math.max(0, budget - awarded);
 
   qs('#lvl', root).textContent = level;
   qs('#budget-gp', root).textContent = fmtGp(budget);
-  qs('#given-gp', root).textContent = fmtGp(given);
-  qs('#loot-bar', root).style.width = Math.min(100, budget ? (given / budget) * 100 : 0) + '%';
+  qs('#given-gp', root).textContent = fmtGp(remaining);
+  qs('#awarded', root).textContent = `Awarded: ${fmtGp(awarded)}`;
+  qs('#loot-bar', root).style.width = Math.min(100, budget ? (awarded / budget) * 100 : 0) + '%';
 
-  const c = toCoins(budget);
+  const c = toCoins(remaining);
   qs('#coins', root).innerHTML = ['pp', 'gp', 'sp', 'cp']
     .map(k => `<div><b>${c[k].toLocaleString()}</b><small>${k}</small></div>`).join('');
 
@@ -81,6 +84,11 @@ export function update(root) {
     ? pool.map(itemRow).join('')
     : '<div class="empty">The hoard is empty.<br>Add coins, gear, or consumables as the party finds them.</div>';
   qs('#pool-actions', root).hidden = pool.length === 0;
+}
+
+/** Everything placed in the hoard has been awarded from this level's budget. */
+function awardedValue() {
+  return state.loot.pool.reduce((sum, i) => sum + (Number(i.value) || 0), 0);
 }
 
 function memberRow(m) {
@@ -156,122 +164,95 @@ async function adoptRoster() {
 }
 
 /**
- * A rolled selection of usable treasure at the party's level, or one level above it —
- * the band the treasure tables hand out, so nothing here is out of reach or already
- * obsolete — totalling roughly the treasure that level is owed. Tap an item to drop it in
- * the hoard at its list price, or reroll for a fresh spread.
- *
- * Whatever the items leave short is listed as gold, already divided evenly between the
- * party and claimed for each of them, so "Add all to hoard" hands out exactly what the
- * level is owed with nobody doing the division.
+ * Choose one party member, then draw two level-appropriate pieces of broadly usable gear
+ * for them. Giving an item assigns it directly to that member and spends its listed value
+ * out of the level's remaining budget.
  */
 async function suggestLoot() {
+  await adoptRoster();
   const { level, size } = state.party;
   const budget = treasureFor(level, size);
+  const members = state.party.members;
+  if (!members.length) { addMember(); return; }
   const body = `
-    <div class="codex-meta" id="s-meta">Loading the item list&hellip;</div>
+    <div class="codex-meta" id="s-meta">Choose who this treasure is for.</div>
+    <div class="picker" id="s-members"></div>
     <div class="list" id="s-list"></div>
     <div class="row wrap" style="margin-top:10px">
       <button class="grow" id="s-reroll" disabled>Reroll</button>
-      <button class="primary grow" id="s-all" disabled>Add all to hoard</button>
     </div>`;
   const { node } = sheet(`Loot for level ${level}`, body);
 
-  const [items] = await Promise.all([equipment(), adoptRoster()]);
+  const items = await equipment();
   const meta = qs('#s-meta', node);
   const list = qs('#s-list', node);
+  const picker = qs('#s-members', node);
+  let recipient = null;
   let picked = [];
-  let total = 0;
 
-  const shares = () => {
-    const short = budget - total;
-    if (short <= 0.5) return [];
-    const members = state.party.members;
-    // With nobody to split between — no roster and no imported characters — the gold
-    // still goes in, as one unclaimed pile.
-    return members.length
-      ? splitEvenly(short, members.length).map((value, i) => ({ value, member: members[i] }))
-      : [{ value: short, member: null }];
-  };
+  const remaining = () => Math.max(0, budget - awardedValue());
+  const available = () => items.filter(i => !state.loot.pool.some(x => x.sourceId === i.id));
 
   const draw = () => {
-    picked = lootSelection(items, { level, budget });
-    total = picked.reduce((sum, i) => sum + i.price / 100, 0);
-    const gold = shares();
+    picker.innerHTML = members.map(m => `<button class="pick${m.id === recipient?.id ? ' on' : ''}"
+      data-recipient="${esc(m.id)}">${esc(m.name)}</button>`).join('');
+    if (!recipient) {
+      list.innerHTML = '';
+      return;
+    }
+    picked = remaining() > 0
+      ? personalLootSelection(available(), recipient, { level, count: 2, budget: remaining() })
+      : [];
     meta.textContent = picked.length
-      ? `${picked.length} items of level ${level}–${level + 1} · ${fmtGp(total)} of the ` +
-        `${fmtGp(budget)} for level ${level}`
-      : `No priced items at level ${level}–${level + 1}.`;
-    // Two controls per row: the row itself takes the item, and the arrow opens it on the
-    // Archives first. Deciding whether a wand of that spell is worth handing over means
-    // reading the item, and the summary on a suggestion is a line of stats at most.
-    list.innerHTML = (picked.length
+      ? `${recipient.name} · ${picked.length} usable item${picked.length === 1 ? '' : 's'} · ` +
+        `${fmtGp(remaining())} remains for level ${level}`
+      : remaining() <= 0
+        ? `The ${fmtGp(budget)} level ${level} budget has been awarded.`
+        : `No priced personal items at level ${level}–${level + 1}.`;
+    list.innerHTML = picked.length
       ? picked.map(i => `
         <div class="item pickrow">
-          <button class="take" data-take="${esc(i.id)}"${tip(recordTip(i))}>
+          <button class="take" data-give="${esc(i.id)}"${tip(recordTip(i))}>
             <span class="lvl">${i.level}</span>
             <div class="grow">
               <div class="name">${esc(i.name)}</div>
               <div class="sub">${esc(i.category)}${
                 i.rarity && i.rarity !== 'common' ? ' · ' + esc(i.rarity) : ''}</div>
             </div>
-            <span class="muted">${esc(fmtGp(i.price / 100))}</span>
+            <span class="muted">Give to ${esc(recipient.name)} · ${esc(fmtGp(i.price / 100))}</span>
           </button>
           ${i.url ? `<a class="aon" href="${esc(i.url)}" target="_blank" rel="noopener"
              aria-label="Read ${esc(i.name)} on Archives of Nethys"
              ${tip('Read it on the Archives of Nethys first. Opens in a new tab.')}
              >&#8599;</a>` : ''}
         </div>`).join('')
-      : '<div class="empty">Nothing to suggest at that level.</div>')
-      // The rest of the level's treasure arrives as gold, already split — so the total
-      // handed out matches what the level is owed without anyone doing the division.
-      + gold.map(g => `
-        <div class="item">
-          <span class="lvl">gp</span>
-          <div class="grow">
-            <div class="name">Gold${g.member ? ` &mdash; ${esc(g.member.name)}` : ''}</div>
-            <div class="sub">the rest of the level ${level} treasure, split
-              ${gold.length === 1 ? 'once' : gold.length + ' ways'}</div>
-          </div>
-          <span class="muted">${esc(fmtGp(g.value))}</span>
-        </div>`).join('');
+      : '<div class="empty">Nothing to suggest at that level.</div>';
   };
 
-  const take = item => {
+  const give = item => {
     state.loot.pool.push({
       id: uid('loot'),
       name: item.name,
       value: item.price / 100,
       note: `level ${item.level} ${String(item.category).toLowerCase()}`,
-      owner: null
+      owner: recipient.id,
+      sourceId: item.id
     });
   };
 
   draw();
-  for (const id of ['#s-reroll', '#s-all']) qs(id, node).disabled = false;
+  qs('#s-reroll', node).disabled = false;
   qs('#s-reroll', node).addEventListener('click', draw);
-  qs('#s-all', node).addEventListener('click', () => {
-    picked.forEach(take);
-    for (const g of shares()) {
-      state.loot.pool.push({
-        id: uid('loot'),
-        name: g.member ? `Gold — ${g.member.name}` : 'Gold',
-        value: g.value,
-        note: `the rest of the level ${level} treasure`,
-        owner: g.member ? g.member.id : null
-      });
-    }
-    save();
+  on(node, 'click', '[data-recipient]', (e, el) => {
+    recipient = members.find(m => m.id === el.dataset.recipient) || null;
     draw();
   });
-  on(node, 'click', '[data-take]', (e, el) => {
-    const item = picked.find(i => i.id === el.dataset.take);
-    if (!item) return;
-    take(item);
+  on(node, 'click', '[data-give]', (e, el) => {
+    const item = picked.find(i => i.id === el.dataset.give);
+    if (!item || !recipient) return;
+    give(item);
     save();
-    // The whole row goes, not just the button that was tapped — the Archives link beside
-    // it belongs to an item that is now in the hoard.
-    (el.closest('.item') || el).remove();
+    draw();
   });
 }
 

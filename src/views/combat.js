@@ -4,7 +4,7 @@ import { state, save, uid } from '../store.js';
 import { brief, esc, on, sheet, tip, qs, qsa } from '../dom.js';
 import {
   CONDITIONS, PERSISTENT_DAMAGE_TYPES, impliedConditions, takesValue, conditionName,
-  withConditionValue, endOfTurnConditions
+  parseCondition, withConditionValue, persistentDamageTotal, endOfTurnConditions
 } from '../pf2e.js';
 import { conditions as loadConditions, characters as loadCharacters } from '../data.js';
 import { plannedCount, sendToCombat } from './encounters.js';
@@ -282,8 +282,16 @@ function dragHP(el) {
  * returns null when there is nothing worth printing (nothing ticked, nothing to remind).
  */
 function endTurnFor(c) {
+  const persistent = persistentDamageTotal(c.conditions);
+  const before = c.hp;
   const { conditions, ticked, reminders } = endOfTurnConditions(c.conditions);
   c.conditions = conditions;
+  // A combatant without tracked HP still needs the flat-check reminder, but there is no
+  // health value for the tracker to change. Persistent damage cannot reduce HP below 0.
+  if (persistent && c.maxHp !== null && Number.isFinite(c.hp)) {
+    c.hp = Math.max(0, c.hp - persistent);
+    ticked.unshift(`persistent damage ${persistent} (HP ${before} → ${c.hp})`);
+  }
   const parts = [...ticked, ...reminders];
   return parts.length ? `${c.name} · ${parts.join(' · ')}` : null;
 }
@@ -513,6 +521,15 @@ function addCondition(c, name) {
     if (takesValue(cname)) {
       c.conditions = c.conditions.filter(x => conditionName(x) !== cname);
       c.conditions.push(cond);
+    } else if (cname === PERSISTENT) {
+      // A second application of the same damage type replaces the amount already shown;
+      // it must not create two fire ticks. Different types remain separate conditions.
+      const note = parseCondition(cond).note;
+      c.conditions = c.conditions.filter(x => {
+        const old = parseCondition(x);
+        return old.name !== PERSISTENT || old.note !== note;
+      });
+      c.conditions.push(cond);
     } else if (!c.conditions.includes(cond)) {
       c.conditions.push(cond);
     }
@@ -524,7 +541,7 @@ function addCondition(c, name) {
  * the first: persistent damage, because "persistent damage" alone does not say what it
  * is doing, and every valued condition, because "Frightened" alone has no value on it
  * yet. Both swap the sheet's contents over to their own row of choices — a damage type
- * for persistent damage, values 1-4 for a valued condition — the same shape either way.
+ * for persistent damage followed by its amount, and values 1-4 for a valued condition.
  *
  * The second step replaces the contents of the sheet already open rather than stacking
  * another one over it — two sheets deep, closing the top one looks like a sheet that
@@ -565,12 +582,34 @@ function openConditions(id) {
       [1, 2, 3, 4].map(n => chip(withConditionValue(name, n), String(n), text)).join('');
   };
 
+  const persistentValue = type => {
+    title.textContent = `Persistent ${type.toLowerCase()} damage`;
+    pick.innerHTML = backChip + `
+      <label class="field" style="margin-top:8px">Damage each turn
+        <input id="persistent-value" type="number" inputmode="numeric" min="1" step="1"
+               value="1" aria-label="Persistent ${esc(type)} damage each turn">
+      </label>
+      <button class="primary" data-set-persistent="${esc(type)}">Set damage</button>`;
+  };
+
   listConditions();
   on(node, 'click', '[data-back]', listConditions);
+  on(node, 'click', '[data-set-persistent]', (e, el) => {
+    const amount = Number(qs('#persistent-value', node).value);
+    if (!Number.isFinite(amount) || amount < 1) return;
+    const type = el.dataset.setPersistent.toLowerCase();
+    addCondition(c, `Persistent Damage ${Math.round(amount)} (${type})`);
+    save();
+    close();
+  });
   on(node, 'click', '[data-pick]', (e, el) => {
     const picked = el.dataset.pick;
     if (picked === PERSISTENT) {
       listTypes();
+      return;
+    }
+    if (conditionName(picked) === PERSISTENT) {
+      persistentValue(parseCondition(picked).note || 'damage');
       return;
     }
     if (takesValue(picked)) {

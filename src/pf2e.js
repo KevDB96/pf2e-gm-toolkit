@@ -272,6 +272,42 @@ export function lootSelection(items,
 }
 
 /**
+ * Item categories that do not presume a particular weapon, armour proficiency, casting
+ * tradition, or class feature. They make safe individual treasure suggestions from the
+ * character data we have, rather than offering a fighter a random staff or a wizard a
+ * weapon they cannot use well.
+ */
+export const PERSONAL_LOOT_CATEGORIES = new Set([
+  'Adventuring Gear', 'Alchemical Items', 'Consumables', 'Held Items', 'Spellhearts',
+  'Talismans', 'Tattoos', 'Worn Items'
+]);
+
+/**
+ * A short selection of broadly usable items for one character. The character argument is
+ * intentionally accepted even though the current reference data can only establish broad
+ * compatibility; it keeps the recommendation boundary ready for richer equipment data.
+ */
+export function personalLootSelection(items, character,
+  { level = 1, count = 2, budget = null, random = Math.random } = {}) {
+  void character;
+  const selected = lootSelection((items || []).filter(i =>
+    PERSONAL_LOOT_CATEGORIES.has(i.category)
+    && (budget === null || i.price <= Math.max(0, budget) * 100)),
+  { level, count, budget, random });
+  if (budget === null) return selected;
+
+  // Party-wide suggestions may use the table's small rounding headroom, but an individual
+  // award must never spend more than the amount the level still has available.
+  let spent = 0;
+  const limit = Math.max(0, budget) * 100;
+  return selected.filter(item => {
+    if (spent + item.price > limit) return false;
+    spent += item.price;
+    return true;
+  });
+}
+
+/**
  * Split a gp amount into `ways` even shares. Divided in copper so nothing is lost to
  * rounding: the shares differ by at most a copper piece, and they always add back up to
  * the amount handed in.
@@ -397,6 +433,19 @@ export function featGroups(feats = []) {
       (rank.get(a) ?? FEAT_TYPES.length) - (rank.get(b) ?? FEAT_TYPES.length)
       || a.localeCompare(b))
     .map(([type, list]) => ({ type, feats: [...list].sort(compare) }));
+}
+
+/**
+ * Feats in the order a character gained them: lowest level first, then alphabetically
+ * within a level. Missing levels belong last so older and homebrew records remain visible
+ * without being mistaken for first-level choices.
+ */
+export function featsByLevel(feats = []) {
+  return [...feats].sort((a, b) => {
+    const aLevel = Number.isFinite(a.level) ? a.level : Infinity;
+    const bLevel = Number.isFinite(b.level) ? b.level : Infinity;
+    return aLevel - bLevel || (a.name || '').localeCompare(b.name || '');
+  });
 }
 
 /** The six attributes in sheet order, keyed as characters store them. */
@@ -648,7 +697,7 @@ export const CONDITION_EFFECTS = {
 
 /**
  * Split a tracker chip into its parts. The tracker stores conditions as free strings, so
- * "Frightened 2" and "Persistent Damage (fire)" both arrive as one.
+ * "Frightened 2" and "Persistent Damage 5 (fire)" both arrive as one.
  */
 export function parseCondition(chip) {
   const raw = String(chip ?? '').trim();
@@ -667,7 +716,7 @@ export function parseCondition(chip) {
  * call site that only wants to look the condition up (a description, the implied-
  * condition chain) and would otherwise have to destructure the whole thing. Strips both
  * a trailing value and a trailing parenthetical, so "Frightened 2", "Persistent Damage
- * (fire)" and "Prone" all resolve to their entry in CONDITIONS.
+ * 5 (fire)" and "Prone" all resolve to their entry in CONDITIONS.
  */
 export function conditionName(text) {
   return parseCondition(text).name;
@@ -681,6 +730,22 @@ export function conditionValue(text) {
 /** Build a chip string. A null or zero value is the same as none: the bare name. */
 export function withConditionValue(name, n) {
   return n ? `${name} ${n}` : name;
+}
+
+/**
+ * The total HP damage a persistent-damage condition deals at the end of a turn.
+ *
+ * Older saved chips only carry a type ("Persistent Damage (fire)") and deliberately
+ * contribute zero: the app cannot invent the amount they represent. Each newly created
+ * chip stores its amount before its type, which parseCondition() reads as `value`.
+ */
+export function persistentDamageTotal(list = []) {
+  return list.reduce((total, chip) => {
+    const { name, value } = parseCondition(chip);
+    return name === 'Persistent Damage' && Number.isFinite(value) && value > 0
+      ? total + value
+      : total;
+  }, 0);
 }
 
 /**
@@ -731,9 +796,9 @@ export function conditionModifiers(conditions = []) {
  * way a Frightened 1 does.
  *
  * Everything else here is a reminder for the GM, never a change the app makes on its own:
- * - Persistent damage is rolled and saved against at the table, not by the app (see the
- *   "Rules accuracy" note in CLAUDE.md), so its chip is left exactly as it is and a
- *   reminder names the damage type and the DC 15 flat check.
+ * - Persistent damage is rolled and saved against at the table, not by this helper, so
+ *   its chip is left exactly as it is and a reminder names the damage type and the DC 15
+ *   flat check. The tracker applies the amount stored on its chip separately.
  * - Stunned and Slowed are deliberately not decremented here even though they carry a
  *   value: they reduce actions at the *start* of a turn, not the end, and Stunned's
  *   decrease is by however many actions were actually lost, which only the GM at the
@@ -763,7 +828,7 @@ export function endOfTurnConditions(list) {
 
     if (name === 'Persistent Damage') {
       reminders.push(
-        `persistent${note ? ' ' + note : ''}: take the damage, then DC ${PERSISTENT_FLAT_DC} flat check to end it`);
+        `persistent${note ? ' ' + note : ''}${value ? ' ' + value : ''}: take the damage, then DC ${PERSISTENT_FLAT_DC} flat check to end it`);
       conditions.push(chip);
       continue;
     }
