@@ -195,6 +195,35 @@ export function on(root, event, sel, handler) {
 
 const sheets = [];
 let sheetSequence = 0;
+const SHEET_HISTORY_KEY = '__pf2eSheet';
+const dismissedSheetTokens = new Set();
+let pendingSheetBack = null;
+const historySettled = [];
+
+// History traversal is asynchronous. Serialize removals, and defer replacement
+// sheets' pushes until Back has finished so it cannot dismiss the new sheet.
+function syncSheetHistory() {
+  if (pendingSheetBack) return;
+  if (typeof history !== 'undefined' && typeof location !== 'undefined') {
+    const token = history.state?.[SHEET_HISTORY_KEY];
+    if (dismissedSheetTokens.has(token)) {
+      pendingSheetBack = token;
+      history.back();
+      return;
+    }
+    for (const entry of sheets) {
+      if (entry.pushed) continue;
+      const base = history.state;
+      history.pushState({ ...(base && typeof base === 'object' ? base : {}), [SHEET_HISTORY_KEY]: entry.token }, '', location.href);
+      entry.pushed = true;
+    }
+  }
+  historySettled.splice(0).forEach(resolve => resolve());
+}
+
+function whenSheetHistorySettles() {
+  return pendingSheetBack ? new Promise(resolve => historySettled.push(resolve)) : Promise.resolve();
+}
 
 const focusable = root => qsa(
   'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])', root
@@ -216,7 +245,22 @@ function updateSheetLock() {
   });
 }
 
-/** Show a bottom-sheet modal. `build` returns the inner HTML; resolves on close. */
+if (typeof window !== 'undefined') {
+  window.addEventListener('popstate', () => {
+    if (pendingSheetBack) {
+      dismissedSheetTokens.delete(pendingSheetBack);
+      pendingSheetBack = null;
+    } else {
+      const token = history.state?.[SHEET_HISTORY_KEY];
+      while (sheets.length && sheets.at(-1).token !== token) {
+        sheets.at(-1).close({ fromHistory: true });
+      }
+    }
+    syncSheetHistory();
+  });
+}
+
+/** Show a bottom-sheet modal. close() removes it immediately and resolves after history settles. */
 export function sheet(title, innerHTML, wire, onClose) {
   const opener = document.activeElement;
   const id = `sheet-title-${++sheetSequence}`;
@@ -228,17 +272,21 @@ export function sheet(title, innerHTML, wire, onClose) {
       ${innerHTML}
     </div>`;
   let closed = false;
-  const close = () => {
-    if (closed) return;
+  let entry;
+  const close = ({ fromHistory = false } = {}) => {
+    if (closed) return whenSheetHistorySettles();
     closed = true;
     const wasTop = sheets.at(-1)?.node === node;
     const index = sheets.findIndex(entry => entry.node === node);
     if (index >= 0) sheets.splice(index, 1);
+    if (!fromHistory && entry.pushed) dismissedSheetTokens.add(entry.token);
     node.remove();
     updateSheetLock();
+    if (!fromHistory) syncSheetHistory();
     onClose?.();
     if (wasTop && sheets.length === 0) restoreFocus(opener);
     else if (wasTop) sheets.at(-1).focus();
+    return whenSheetHistorySettles();
   };
   const focus = () => {
     if (closed || sheets.at(-1)?.node !== node) return;
@@ -261,7 +309,10 @@ export function sheet(title, innerHTML, wire, onClose) {
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
   document.body.appendChild(node);
-  sheets.push({ node, close, focus });
+  const token = `sheet-${sheetSequence}`;
+  entry = { node, close, focus, token, pushed: false };
+  sheets.push(entry);
+  syncSheetHistory();
   updateSheetLock();
   if (wire) wire(node, close);
   requestAnimationFrame(focus);
@@ -271,4 +322,10 @@ export function sheet(title, innerHTML, wire, onClose) {
 /** Remove every transient sheet after an operation replaces the whole live session. */
 export function closeSheets() {
   [...sheets].reverse().forEach(entry => entry.close());
+  return whenSheetHistorySettles();
+}
+
+/** True when a document or test fixture has content wider than its viewport. */
+export function hasHorizontalOverflow(root = document.documentElement) {
+  return root.scrollWidth > root.clientWidth;
 }

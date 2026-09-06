@@ -461,10 +461,10 @@ function openDetailFor(record, categoryEntry) {
     <button class="ghost" data-pin-reference>${pinned ? 'Unpin from session' : 'Pin to session'}</button>`;
 
   const { node, close } = sheet(record.name, body);
-  on(node, 'click', '[data-to-encounter]', () => {
+  on(node, 'click', '[data-to-encounter]', async () => {
     if (isCreature) addEntry(record.name, record.level, 'creature', record);
     else addHazard(record);
-    close();
+    await close();
     location.hash = '#/encounters';
   });
   on(node, 'click', '[data-pin-reference]', (event, button) => {
