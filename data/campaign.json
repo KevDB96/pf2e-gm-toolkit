@@ -3,8 +3,8 @@
   "title": "Mists of Zalazar",
   "party": { "level": 7, "size": 5 },
   "current": {
-    "arc": "circus",
-    "note": "The Undermine is finished. Four PCs emerge from the mine directly into the waiting Circus; afterward the new PC arrives with the missive that begins Pre-Wargames."
+    "arc": "wargame",
+    "note": "The Circus and return to the Pyramid are resolved. The party is now at the jungle training outpost for the week-long three-team Wargames."
   },
   "arcs": [
     {
@@ -111,7 +111,7 @@
     {
       "id": "circus",
       "title": "The Circus",
-      "status": "current",
+      "status": "done",
       "summary": "A genuine one-day festival waiting outside the mine, its cheerful attractions quietly conditioning visitors for transformation. The investigation leads through Lo'paal's music box to a Blood God shrine.",
       "beats": [
         "Exit the mine: the fully erected Circus waits directly outside, almost inviting them in.",
@@ -186,7 +186,7 @@
     {
       "id": "pre-wargames",
       "title": "Pre-Wargames — Return to the Pyramid",
-      "status": "next",
+      "status": "done",
       "summary": "The new player character delivers a missive after the Circus, bringing the party back to the Pyramid where the Eye of Zalazar is first mentioned.",
       "beats": [
         "The new PC arrives only after the Circus and shrine have been resolved, carrying the missive that calls the party back to the Pyramid.",
@@ -198,12 +198,12 @@
     {
       "id": "wargame",
       "title": "The Wargame Arc — Wilderness Capture the Flag",
-      "status": "later",
+      "status": "current",
       "summary": "A week-long three-team wargame at the jungle training outpost. The last calm before the Vanguard marches — and the moment Zuni has been waiting for.",
       "beats": [
         "Every important faction gathers at the jungle training outpost, ostensibly to coordinate against the undead threat from the west.",
         "Three teams, three flags, one wilderness, one week.",
-        "Zuni stays behind. While the princess, the military leadership, the foreign dignitaries and the party are all days from the capital, he assassinates King Zalazar the Thirty-First alone in the throne room."
+        "Zuni remains hidden until the party reaches the Pyramid. Moments before they arrive at the throne room, he assassinates King Zalazar the Thirty-First alone at the summit."
       ],
       "detail": {
         "Rules": [

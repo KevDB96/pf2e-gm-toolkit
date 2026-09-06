@@ -354,6 +354,36 @@ function openSheet(id) {
       : ''}`;
 
   const { node, close } = sheet(c.name, body);
+  const characterSheet = qs('.sheet', node);
+  characterSheet.classList.add('character-sheet');
+
+  // A character can carry hundreds of lines of rules text. Keep the four values needed
+  // during initiative visible immediately, and turn each remaining category into one
+  // thumb-sized disclosure rather than making a GM scroll past every category.
+  const quick = document.createElement('div');
+  quick.className = 'character-quick';
+  quick.setAttribute('aria-label', 'Combat reference');
+  quick.innerHTML = [
+    stat('AC', c.ac),
+    stat('HP', c.hp),
+    stat('Perception', c.perception === undefined ? null : mod(c.perception)),
+    stat('Speed', c.speed ? c.speed + ' ft' : null)
+  ].join('');
+  characterSheet.insertBefore(quick, qs('.card', characterSheet));
+
+  qsa('.card', characterSheet).forEach(card => {
+    const heading = qs('h2', card);
+    if (!heading) return;
+    const title = heading.textContent;
+    heading.remove();
+    const section = document.createElement('details');
+    section.className = 'sheet-section';
+    section.open = title === 'Defences';
+    const summary = document.createElement('summary');
+    summary.textContent = title;
+    card.before(section);
+    section.append(summary, card);
+  });
   on(node, 'click', '[data-remove]', () => close());
   on(node, 'click', '[data-codex]', (e, el) => openEntry(el.dataset.codex));
   on(node, 'click', '[data-pool]', (e, el) => openPool(el.dataset.pool));

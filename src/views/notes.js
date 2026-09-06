@@ -27,6 +27,7 @@ let data = null;
 let tab = 'session';
 let npcQuery = '';
 let openArc = null;
+let completedOpen = false;
 
 export function mount(root) {
   root.innerHTML = `
@@ -38,8 +39,10 @@ export function mount(root) {
   on(root, 'click', '[data-tab]', (e, el) => { tab = el.dataset.tab; draw(root); });
   on(root, 'click', '[data-arc]', (e, el) => {
     openArc = openArc === el.dataset.arc ? null : el.dataset.arc;
+    if (data?.arcs?.find(a => a.id === el.dataset.arc)?.status === 'done') completedOpen = true;
     draw(root);
   });
+  on(root, 'click', '[data-completed]', () => { completedOpen = !completedOpen; draw(root); });
   on(root, 'click', '[data-add-note]', () => editNote(null));
   on(root, 'click', '[data-edit-note]', (e, el) => editNote(el.dataset.editNote));
   on(root, 'click', '[data-del-note]', (e, el) => {
@@ -139,7 +142,7 @@ function editNote(id) {
   const existing = state.notes.entries.find(n => n.id === id);
   const body = `
     <label class="field">Title<input type="text" id="n-title"
-      value="${esc(existing?.title || '')}" placeholder="Session 24 — the Circus"></label>
+      value="${esc(existing?.title || '')}" placeholder="Session 24 — Wargames"></label>
     <label class="field">Note<textarea id="n-body" rows="7"
       placeholder="What happened, what to remember">${esc(existing?.body || '')}</textarea></label>
     <button class="primary" id="n-save">${existing ? 'Save' : 'Add'}</button>`;
@@ -169,7 +172,21 @@ function editNote(id) {
 // --- arcs -----------------------------------------------------------------
 
 function arcs() {
-  return `<div class="list">${(data.arcs || []).map(arcRow).join('')}</div>`;
+  const all = data.arcs || [];
+  const completed = all.filter(a => a.status === 'done');
+  const upcoming = all.filter(a => a.status !== 'done');
+  return `<div class="list">
+    ${upcoming.map(arcRow).join('')}
+    ${completed.length ? `<div class="card" style="padding:0">
+      <button data-completed class="arc-head">
+        <span class="badge done">Done</span>
+        <span class="grow"><span class="name">Completed arcs</span>
+          <span class="sub">${completed.length} arc${completed.length === 1 ? '' : 's'}</span></span>
+        <span class="chev">${completedOpen ? '&minus;' : '+'}</span>
+      </button>
+      ${completedOpen ? `<div class="completed-arcs">${completed.map(arcRow).join('')}</div>` : ''}
+    </div>` : ''}
+  </div>`;
 }
 
 function arcRow(a) {

@@ -239,6 +239,10 @@ button.tag{display:inline-flex;align-items:center;min-height:44px}
 .arc-body h3{font-size:0.74rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--accent);margin:14px 0 0}
 .arc-body ul,.notes-list{margin:8px 0 0;padding-left:18px}
 .arc-body li,.notes-list li{font-size:0.8rem;color:var(--muted);line-height:1.55;margin-bottom:7px}
+/* Completed arcs stay available without displacing the live campaign from the top of a
+   phone screen. Their inner cards share the folder's edge rather than looking detached. */
+.completed-arcs{display:flex;flex-direction:column;gap:8px;padding:0 8px 8px;border-top:1px solid var(--line)}
+.completed-arcs .card{margin-top:8px}
 
 /* ---------- notes editor ---------- */
 textarea{width:100%;min-height:120px;background:rgba(0,0,0,0.28);border:1px solid var(--line);
@@ -252,6 +256,33 @@ button.share{width:100%;text-align:left;background:none;border:none;border-botto
 button.share:last-child{border-bottom:none}
 button.share:active{background:var(--panel-2)}
 button.share .go{flex:0 0 auto;margin-left:8px;color:var(--accent);font-size:1rem}
+
+/* ---------- character sheets ---------- */
+/* A complete character sheet can be hundreds of rows long. The opening view keeps the
+   numbers a GM needs in initiative visible, while native disclosures put every category
+   one tap away without a second screen or nested modal. */
+.character-sheet .character-quick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:0;border:1px solid var(--accent-edge);border-radius:var(--radius);overflow:hidden;
+  background:var(--accent-soft)}
+.character-sheet .character-quick .share{display:flex;flex-direction:column;justify-content:center;
+  align-items:center;gap:2px;min-height:62px;padding:8px 4px;border:0;border-right:1px solid var(--accent-edge)}
+.character-sheet .character-quick .share:last-child{border-right:0}
+.character-sheet .character-quick .muted{font-size:0.63rem;text-transform:uppercase;letter-spacing:0.04em}
+.character-sheet .character-quick b{margin:0;font-size:1rem;text-align:center;white-space:nowrap}
+.sheet-section{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.sheet-section > summary{display:flex;align-items:center;min-height:52px;padding:0 14px;cursor:pointer;
+  list-style:none;font-family:'Cinzel',Georgia,serif;font-size:0.82rem;text-transform:uppercase;
+  letter-spacing:0.02em;color:var(--ink)}
+.sheet-section > summary::-webkit-details-marker{display:none}
+.sheet-section > summary::after{content:'+';margin-left:auto;color:var(--accent);font-family:'Inter',system-ui,sans-serif;
+  font-size:1.2rem;line-height:1}
+.sheet-section[open] > summary{border-bottom:1px solid var(--line);color:var(--accent)}
+.sheet-section[open] > summary::after{content:'−'}
+.sheet-section .card{padding:4px 14px 12px;background:none;border:0;border-radius:0}
+.sheet-section .card .share:last-child{border-bottom:none}
+@media (max-width:359px){.character-sheet .character-quick{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .character-sheet .character-quick .share:nth-child(2){border-right:0}
+  .character-sheet .character-quick .share:nth-child(-n+2){border-bottom:1px solid var(--accent-edge)}}
 /* Rules text is rendered from the light markdown in data/codex.json — see rich() in
    src/dom.js — so it is real paragraphs, headings and lists rather than one pre-wrapped
    block. Descendant selectors only: p/h4/ul are far too general to claim as classes. */
