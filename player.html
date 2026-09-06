@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0c0c10">
+  <title>PF2e Player Display</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="player-page">
+  <main id="player" class="player-display" aria-live="polite">
+    <p class="player-status" data-player-status>Waiting for the GM window…</p>
+    <div data-player-actors></div>
+    <p class="player-boundary">This display shows only names and turn order. It syncs with a GM window on this device; it does not sync across devices.</p>
+    <button class="ghost player-fullscreen" data-fullscreen>Full screen</button>
+  </main>
+  <script type="module" src="./src/player.js"></script>
+</body>
+</html>

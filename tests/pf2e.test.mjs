@@ -23,6 +23,13 @@ test('simple hazards are worth a fifth of a creature, complex ones the full amou
   assert.equal(pf2e.hazardXP(1, 1, true), 40);
 });
 
+test('complex hazard initiative reads the recorded Stealth modifier without inventing one', () => {
+  assert.equal(pf2e.hazardInitiative('+22 (expert)'), 22);
+  assert.equal(pf2e.hazardInitiative('-1'), -1);
+  assert.equal(pf2e.hazardInitiative('DC 28 (trained)'), 28);
+  assert.equal(pf2e.hazardInitiative(null), null);
+});
+
 test('budgets adjust per character above or below a party of four', () => {
   assert.deepEqual(pf2e.budgets(4), pf2e.THREAT_BUDGET);
   assert.deepEqual(pf2e.budgets(5),
@@ -131,6 +138,30 @@ test('elite/weak AC is a flat ±2, and both HP and AC pass a missing value strai
   assert.equal(pf2e.adjustedAC(18, null), 18);
   assert.equal(pf2e.adjustedAC(18, 'sturdy'), 18);
   assert.equal(pf2e.adjustedHP(30, 5, undefined), 30);
+});
+
+test('adjusted creature projection changes display statistics once without mutating its source', () => {
+  const source = {
+    level: 1, ac: 18, hp: 20, perception: 7, saves: { fort: 8, ref: 5 }, skills: { stealth: 6 },
+    spellDC: 17, strikes: [{ name: 'claw', bonus: 9, damage: '1d6+3 slashing' }],
+    specials: [{ name: 'breath', dc: 18, damage: '2d6 fire' }]
+  };
+  const before = JSON.parse(JSON.stringify(source));
+  const elite = pf2e.adjustedCreatureProjection(source, 'elite');
+  assert.equal(elite.level, 2);          // Level 1 follows the normal elite +1 rule.
+  assert.equal(elite.ac, 20);
+  assert.equal(elite.hp, 30);            // HP uses the starting-level table once.
+  assert.equal(elite.perception, 9);
+  assert.deepEqual(elite.saves, { fort: 10, ref: 7 });
+  assert.equal(elite.strikes[0].bonus, 11);
+  assert.equal(elite.strikes[0].damage, '1d6+3 slashing');
+  assert.equal(elite.strikes[0].damageAdjustment, 2);
+  assert.deepEqual(source, before);
+
+  const weak = pf2e.adjustedCreatureProjection(source, 'weak');
+  assert.equal(weak.level, -1);          // Level 1 is Weak's explicit -2 exception.
+  assert.equal(weak.hp, 10);
+  assert.equal(weak.specials[0].dc, 16);
 });
 
 test('loot suggestions keep to the level band and spread across categories', () => {
@@ -776,6 +807,20 @@ test('persistent damage totals its stored amounts and ignores legacy chips witho
   assert.equal(pf2e.persistentDamageTotal(['Persistent Damage (acid)']), 0);
 });
 
+test('persistent damage accepts safe dice, preserves legacy fixed values, and keeps types separate', () => {
+  assert.equal(pf2e.safePersistentExpression('1d6+2'), '1d6+2');
+  assert.equal(pf2e.safePersistentExpression('d8-1'), 'd8-1');
+  assert.equal(pf2e.safePersistentExpression('1d6 fire plus 2'), null);
+  const legacy = pf2e.normalizeConditionEffects({ conditions: ['Persistent Damage 5 (fire)'] })[0];
+  assert.deepEqual(legacy.persistent, { type: 'fire', amount: 5, expression: null, recoveryDC: 15 });
+  const resolved = pf2e.effectivePersistentEffects([
+    { id: 'two-fire', name: 'Persistent Damage', persistent: { type: 'fire', amount: 2 } },
+    { id: 'five-fire', name: 'Persistent Damage', persistent: { type: 'fire', amount: 5 } },
+    { id: 'bleed', name: 'Persistent Damage', persistent: { type: 'bleed', amount: 3 } }
+  ]);
+  assert.deepEqual(resolved.map(entry => [entry.persistent.type, entry.persistent.amount]), [['fire', 5], ['bleed', 3]]);
+});
+
 test('takesValue names exactly the conditions whose chip carries a number', () => {
   assert.equal(pf2e.takesValue('Frightened'), true);
   assert.equal(pf2e.takesValue('Clumsy'), true);
@@ -829,6 +874,49 @@ test('persistent damage produces a reminder and is never rolled or altered by th
 test('a combatant with no conditions comes back unchanged with nothing to report', () => {
   assert.deepEqual(pf2e.endOfTurnConditions([]), { conditions: [], ticked: [], reminders: [] });
   assert.deepEqual(pf2e.endOfTurnConditions(undefined), { conditions: [], ticked: [], reminders: [] });
+});
+
+test('condition effects preserve manual legacy chips and remove only dependent effects', () => {
+  const legacy = pf2e.normalizeConditionEffects({ conditions: ['Off-Guard', 'Custom omen'] });
+  assert.deepEqual(legacy.map(effect => [effect.origin, effect.raw, effect.dependsOn]), [
+    ['Manual', 'Off-Guard', []], ['Manual', 'Custom omen', []]
+  ]);
+  const effects = [
+    { id: 'grab-a', name: 'Grabbed', raw: 'Grabbed' },
+    { id: 'off-a', name: 'Off-Guard', raw: 'Off-Guard', dependsOn: ['grab-a'], sourceId: 'grab-a' },
+    { id: 'grab-b', name: 'Grabbed', raw: 'Grabbed' },
+    { id: 'off-b', name: 'Off-Guard', raw: 'Off-Guard', dependsOn: ['grab-b'], sourceId: 'grab-b' },
+    { id: 'manual-off', name: 'Off-Guard', raw: 'Off-Guard', dependsOn: [] }
+  ];
+  const remaining = pf2e.removeConditionEffect(effects, 'grab-a');
+  assert.deepEqual(remaining.map(effect => effect.id), ['grab-b', 'off-b', 'manual-off']);
+  assert.equal(pf2e.effectiveConditionEffects(remaining).find(effect => effect.name === 'Off-Guard').id, 'off-b');
+});
+
+test('same condition sources use the strongest value and expiry prompts once per occurrence', () => {
+  const effects = [
+    { id: 'fear-1', name: 'Frightened', value: 1, raw: 'Frightened 1' },
+    { id: 'fear-3', name: 'Frightened', value: 3, raw: 'Frightened 3', duration: {
+      targetId: 'target', phase: 'end', remaining: 1, lastEvent: null
+    } }
+  ];
+  assert.equal(pf2e.effectiveConditionEffects(effects).find(effect => effect.name === 'Frightened').value, 3);
+  const first = pf2e.durationReminders(effects, {
+    targetId: 'target', phase: 'end', event: 7, combatantIds: ['target']
+  });
+  assert.equal(first.reminders.length, 1);
+  assert.equal(first.reminders[0].unresolved, false);
+  assert.equal(pf2e.durationReminders(first.effects, {
+    targetId: 'target', phase: 'end', event: 7, combatantIds: ['target']
+  }).reminders.length, 0);
+});
+
+test('a missing source leaves an explicit manual expiry prompt', () => {
+  const result = pf2e.durationReminders([{ id: 'held', name: 'Grabbed', raw: 'Grabbed', sourceCombatantId: 'gone', duration: {
+    targetId: 'target', phase: 'start', remaining: 1
+  } }], { targetId: 'target', phase: 'start', event: 9, combatantIds: ['target'] });
+  assert.equal(result.reminders[0].unresolved, true);
+  assert.match(result.reminders[0].message, /no longer in combat/);
 });
 
 // --- damage ------------------------------------------------------------------
@@ -885,6 +973,15 @@ test('average damage is the mean of the dice plus the bonus', () => {
   assert.equal(pf2e.averageDamage(pf2e.parseDamage('2d6+4')), 11);
   assert.equal(pf2e.averageDamage(pf2e.parseDamage('1d8')), 4.5);
   assert.equal(pf2e.averageDamage(pf2e.parseDamage('attach')), 0);
+});
+
+test('manual HP adjustment clamps damage and healing and rejects malformed amounts', () => {
+  assert.deepEqual(pf2e.adjustHP(80, 100, 23, 'damage'), { before: 80, after: 57, amount: 23, mode: 'damage' });
+  assert.equal(pf2e.adjustHP(5, 80, 12, 'healing').after, 17);
+  assert.equal(pf2e.adjustHP(78, 80, 12, 'healing').after, 80);
+  assert.equal(pf2e.adjustHP(3, 80, 99, 'damage').after, 0);
+  for (const amount of [-1, 1.5, NaN, Infinity, '12', null]) assert.equal(pf2e.adjustHP(80, 100, amount, 'damage'), null);
+  assert.equal(pf2e.adjustHP(80, null, 12, 'damage'), null);
 });
 
 test('a critical hit doubles the whole roll, modifier included', () => {

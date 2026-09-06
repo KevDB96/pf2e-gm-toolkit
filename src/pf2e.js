@@ -26,8 +26,25 @@ export const LEVEL_DC = {
   21: 42, 22: 44, 23: 46, 24: 48, 25: 50
 };
 
+/** General GM reference difficulty adjustments from the Remaster GM Core. */
+export const DC_DIFFICULTIES = [
+  { id: 'incredibly-easy', label: 'Incredibly easy', adjustment: -10 },
+  { id: 'very-easy', label: 'Very easy', adjustment: -5 },
+  { id: 'easy', label: 'Easy', adjustment: -2 },
+  { id: 'standard', label: 'Standard', adjustment: 0 },
+  { id: 'hard', label: 'Hard', adjustment: 2 },
+  { id: 'very-hard', label: 'Very hard', adjustment: 5 },
+  { id: 'incredibly-hard', label: 'Incredibly hard', adjustment: 10 }
+];
+
+export function adjustedDC(level, difficulty = 'standard') {
+  const base = LEVEL_DC[Math.max(0, Math.min(25, Math.floor(Number(level) || 0)))];
+  const adjustment = DC_DIFFICULTIES.find(item => item.id === difficulty)?.adjustment || 0;
+  return base === undefined ? null : base + adjustment;
+}
+
 export const CONDITIONS = [
-  'Blinded', 'Clumsy', 'Confused', 'Dazzled', 'Deafened', 'Drained', 'Enfeebled', 'Fatigued',
+  'Blinded', 'Clumsy', 'Confused', 'Dazzled', 'Deafened', 'Doomed', 'Drained', 'Dying', 'Enfeebled', 'Fatigued',
   'Fleeing', 'Frightened', 'Grabbed', 'Immobilized', 'Off-Guard', 'Paralyzed', 'Persistent Damage',
   'Prone', 'Restrained', 'Sickened', 'Slowed', 'Stunned', 'Stupefied', 'Unconscious', 'Wounded'
 ];
@@ -39,7 +56,7 @@ export const CONDITIONS = [
  * but are not in CONDITIONS at all, so they stay out of this list as well.
  */
 export const VALUED_CONDITIONS = [
-  'Clumsy', 'Drained', 'Enfeebled', 'Frightened', 'Sickened', 'Slowed', 'Stunned',
+  'Clumsy', 'Doomed', 'Drained', 'Dying', 'Enfeebled', 'Frightened', 'Sickened', 'Slowed', 'Stunned',
   'Stupefied', 'Wounded'
 ];
 
@@ -116,6 +133,12 @@ export function hazardXP(hazardLevel, partyLevel, complex = false) {
   const base = creatureXP(hazardLevel, partyLevel);
   if (base === null) return null;
   return complex ? base : Math.max(1, Math.round(base / 5));
+}
+
+/** Complex hazards roll initiative with the signed Stealth modifier in their stat block. */
+export function hazardInitiative(stealth) {
+  const match = String(stealth ?? '').match(/[+-]?\d+/);
+  return match ? Number(match[0]) : null;
 }
 
 /** The five threat budgets adjusted for a party that is not exactly four characters. */
@@ -627,6 +650,42 @@ export function adjustedAC(ac, adjust) {
   return ac;
 }
 
+/** The ±2 shared by Elite and Weak non-HP statistics (Monster Core, pp. 6–7). */
+export function adjustmentDelta(adjust) {
+  return adjust === 'elite' ? 2 : adjust === 'weak' ? -2 : 0;
+}
+
+export function adjustedModifier(value, adjust) {
+  return Number.isFinite(value) ? value + adjustmentDelta(adjust) : value ?? null;
+}
+
+export function adjustedModifiers(values, adjust) {
+  if (!values || typeof values !== 'object' || Array.isArray(values)) return values;
+  return Object.fromEntries(Object.entries(values).map(([key, value]) => [key, adjustedModifier(value, adjust)]));
+}
+
+/**
+ * A display-only creature projection. Source records and live combat HP stay untouched.
+ * Damage text is retained; callers show its ±2 adjustment separately because the data
+ * does not reliably mark every limited-use ability for the ±4 exception.
+ */
+export function adjustedCreatureProjection(record, adjust, baseLevel = record.level) {
+  return {
+    ...record,
+    level: adjustedLevel(baseLevel, adjust),
+    ac: adjustedAC(record.ac, adjust),
+    hp: adjustedHP(record.hp, baseLevel, adjust),
+    perception: adjustedModifier(record.perception, adjust),
+    saves: adjustedModifiers(record.saves, adjust),
+    skills: adjustedModifiers(record.skills, adjust),
+    spellDC: adjustedModifier(record.spellDC, adjust),
+    strikes: (record.strikes || []).map(strike => ({ ...strike,
+      bonus: adjustedModifier(strike.bonus, adjust), damageAdjustment: adjustmentDelta(adjust) })),
+    specials: (record.specials || []).map(special => ({ ...special,
+      dc: adjustedModifier(special.dc, adjust), damageAdjustment: adjustmentDelta(adjust) }))
+  };
+}
+
 // --- checks ------------------------------------------------------------------
 
 /** The four degrees of success, worst first, so a degree is an index 0..3. */
@@ -701,6 +760,14 @@ export const CONDITION_EFFECTS = {
  */
 export function parseCondition(chip) {
   const raw = String(chip ?? '').trim();
+  // Persistent damage uses an amount that can be dice rather than an integer. Recognize
+  // it before the generic trailing-number parser mistakes "1d6" for a condition name.
+  const persistent = raw.match(/^Persistent Damage(?:\s+(.+?))?\s*\(([^)]*)\)\s*$/i);
+  if (persistent) {
+    const amount = persistent[1]?.trim() || '';
+    return { name: 'Persistent Damage', value: /^\d+$/.test(amount) ? Number(amount) : null,
+      note: persistent[2].trim() || null };
+  }
   const note = raw.match(/\(([^)]*)\)\s*$/);
   const body = raw.replace(/\s*\([^)]*\)\s*$/, '').trim();
   const value = body.match(/\s(\d+)$/);
@@ -725,6 +792,192 @@ export function conditionName(text) {
 /** The trailing number on a chip, or null when it does not carry one. */
 export function conditionValue(text) {
   return parseCondition(text).value;
+}
+
+/**
+ * Convert the tracker's condition representation into source-aware effect instances.
+ * A condition chip saved by older versions has no reliable origin, so each chip becomes
+ * an independent manual effect.  Unknown text is preserved verbatim in `raw`.
+ */
+export function normalizeConditionEffects(combatant) {
+  const existing = Array.isArray(combatant?.effects) ? combatant.effects : null;
+  if (existing) return existing.map((effect, index) => ({
+    id: effect.id || `effect-${index + 1}`,
+    name: effect.name || conditionName(effect.raw || effect.condition || ''),
+    value: effect.value ?? conditionValue(effect.raw || effect.condition || ''),
+    note: effect.note ?? parseCondition(effect.raw || effect.condition || '').note,
+    sourceId: effect.sourceId ?? null,
+    sourceCombatantId: effect.sourceCombatantId ?? null,
+    // A readable origin is intentionally preserved rather than inferred. Legacy chips
+    // cannot reliably be connected back to an old Grabbed/Prone source.
+    origin: effect.origin || 'Manual',
+    dependsOn: Array.isArray(effect.dependsOn) ? effect.dependsOn.slice() : [],
+    duration: normalizeDuration(effect.duration),
+    persistent: normalizePersistentDamage(effect.persistent, effect),
+    raw: effect.raw ?? effect.condition ?? withConditionValue(effect.name || '', effect.value)
+  }));
+  return (combatant?.conditions || []).map((raw, index) => {
+    const parsed = parseCondition(raw);
+    return {
+      id: `effect-${index + 1}`,
+      name: parsed.name,
+      value: parsed.value,
+      note: parsed.note,
+      sourceId: null,
+      sourceCombatantId: null,
+      origin: 'Manual',
+      dependsOn: [],
+      duration: null,
+      persistent: normalizePersistentDamage(null, { name: parsed.name, value: parsed.value, note: parsed.note }),
+      raw: String(raw)
+    };
+  });
+}
+
+/**
+ * Persistent damage is deliberately a small, safe grammar: a positive fixed integer or
+ * one ordinary dice expression ("d6", "2d6+3", "1d8-1"). The type lives separately so
+ * the parser never guesses which resistance applies. Old chips become fixed damage when
+ * they included an amount; a type with no amount stays visible but needs GM input.
+ */
+export function normalizePersistentDamage(persistent, effect = {}) {
+  const legacy = effect.name === 'Persistent Damage' ? { type: effect.note, amount: effect.value } : null;
+  const value = persistent && typeof persistent === 'object' ? persistent : legacy;
+  if (!value || typeof value.type !== 'string' || !value.type.trim()) return null;
+  const type = value.type.trim().toLowerCase();
+  const amount = Number.isInteger(value.amount) && value.amount > 0 ? value.amount : null;
+  const expression = safePersistentExpression(value.expression);
+  return {
+    type,
+    amount,
+    expression,
+    recoveryDC: Number.isInteger(value.recoveryDC) && value.recoveryDC > 0 ? value.recoveryDC : PERSISTENT_FLAT_DC
+  };
+}
+
+export function safePersistentExpression(value) {
+  const text = hyphen(value).replace(/\s+/g, '').toLowerCase();
+  if (!/^(?:\d+)?d\d+(?:[+-]\d+)?$/.test(text)) return null;
+  const parsed = parseDamage(text);
+  return parsed.clauses.length === 1 && !parsed.rider ? text : null;
+}
+
+export function persistentLabel(persistent) {
+  if (!persistent) return 'persistent damage';
+  const amount = persistent.expression || persistent.amount || '?';
+  return `Persistent Damage ${amount} (${persistent.type})`;
+}
+
+/** Active persistent effects, retaining different types while selecting the higher fixed
+ * amount for a repeated type. Dice cannot be compared without rolling, so both are left
+ * visible for the caller to ask the GM which source to use. */
+export function effectivePersistentEffects(effects = []) {
+  const out = [];
+  for (const effect of effects) {
+    const persistent = normalizePersistentDamage(effect.persistent, effect);
+    if (!persistent) continue;
+    const same = out.find(entry => entry.persistent.type === persistent.type);
+    if (!same) { out.push({ effect, persistent }); continue; }
+    if (persistent.amount !== null && same.persistent.amount !== null && persistent.amount > same.persistent.amount) {
+      Object.assign(same, { effect, persistent });
+    } else if (persistent.expression || same.persistent.expression) {
+      out.push({ effect, persistent, ambiguous: true });
+    }
+  }
+  return out;
+}
+
+/**
+ * An expiry is anchored to a particular combatant's start or end phase, rather than an
+ * ambiguous "next turn". `remaining` permits a future caller to express "after two of
+ * those turns" without inventing a round count. The event stamp prevents the same
+ * occurrence from producing two prompts when a board re-renders.
+ */
+export function normalizeDuration(duration) {
+  if (!duration || typeof duration !== 'object') return null;
+  if (typeof duration.targetId !== 'string' || !duration.targetId) return null;
+  if (duration.phase !== 'start' && duration.phase !== 'end') return null;
+  return {
+    targetId: duration.targetId,
+    phase: duration.phase,
+    remaining: Number.isInteger(duration.remaining) && duration.remaining > 0 ? duration.remaining : 1,
+    lastEvent: Number.isInteger(duration.lastEvent) && duration.lastEvent >= 0 ? duration.lastEvent : null,
+    unresolved: Boolean(duration.unresolved)
+  };
+}
+
+/** Display strings are derived from the authoritative effect list. */
+export function conditionEffects(effects = []) {
+  return effects.map(effect => effect.raw || withConditionValue(effect.name, effect.value)
+    + (effect.note ? ` (${effect.note})` : ''));
+}
+
+/** Resolve same-name values from all active sources using the strongest value. */
+export function effectiveConditionEffects(effects = []) {
+  const chosen = new Map();
+  for (const effect of effects) {
+    const persistent = normalizePersistentDamage(effect.persistent, effect);
+    const key = persistent ? `Persistent Damage:${persistent.type}` : (effect.name || conditionName(effect.raw));
+    const prior = chosen.get(key);
+    if (!prior || (Number.isFinite(effect.value) && (!Number.isFinite(prior.value) || effect.value > prior.value))) {
+      chosen.set(key, effect);
+    }
+  }
+  return [...chosen.values()];
+}
+
+/** Remove an effect and every effect explicitly dependent on it. */
+export function removeConditionEffect(effects = [], id) {
+  const removed = new Set([id]);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const effect of effects) {
+      if (!removed.has(effect.id) && (effect.sourceId && removed.has(effect.sourceId)
+        || (effect.dependsOn || []).some(source => removed.has(source)))) {
+        removed.add(effect.id); changed = true;
+      }
+    }
+  }
+  return effects.filter(effect => !removed.has(effect.id));
+}
+
+/**
+ * Produce expiry prompts for one turn occurrence. Effects never disappear here: the GM
+ * explicitly chooses Keep or End. `event` is the persisted monotonic turn occurrence
+ * counter, so one occurrence cannot prompt twice. A missing source combatant is called
+ * out instead of guessing whether its effect ended.
+ */
+export function durationReminders(effects = [], { targetId, phase, event, combatantIds = [] }) {
+  const ids = new Set(combatantIds);
+  const next = [];
+  const reminders = [];
+  for (const effect of effects) {
+    const duration = normalizeDuration(effect.duration);
+    if (!duration || duration.targetId !== targetId || duration.phase !== phase || duration.lastEvent === event) {
+      next.push(effect);
+      continue;
+    }
+    const sourceMissing = Boolean(effect.sourceCombatantId) && !ids.has(effect.sourceCombatantId);
+    const remaining = duration.remaining - 1;
+    const updated = {
+      ...effect,
+      duration: { ...duration, remaining: Math.max(0, remaining), lastEvent: event,
+        unresolved: duration.unresolved || sourceMissing }
+    };
+    next.push(updated);
+    if (remaining <= 0) {
+      reminders.push({
+        id: effect.id,
+        name: effect.raw || withConditionValue(effect.name, effect.value),
+        unresolved: updated.duration.unresolved,
+        message: updated.duration.unresolved
+          ? 'Source is no longer in combat; decide this expiry manually.'
+          : `Expiry at ${phase} of this turn.`
+      });
+    }
+  }
+  return { effects: next, reminders };
 }
 
 /** Build a chip string. A null or zero value is the same as none: the bare name. */
@@ -965,6 +1218,15 @@ export function applyDamage(byType, { immunities = [], resistances = {}, weaknes
   return { total, byType: out, blocked };
 }
 
+/** Apply a final, already-resolved damage or healing amount within an HP range. */
+export function adjustHP(current, maximum, amount, mode = 'damage') {
+  if (!Number.isSafeInteger(current) || !Number.isSafeInteger(maximum) || maximum < 0 ||
+      !Number.isSafeInteger(amount) || amount < 0 || !['damage', 'healing'].includes(mode)) return null;
+  const before = Math.max(0, Math.min(maximum, current));
+  const after = mode === 'damage' ? Math.max(0, before - amount) : Math.min(maximum, before + amount);
+  return { before, after, amount, mode };
+}
+
 /**
  * Is this target simply not a legal subject for an effect with these traits?
  *
@@ -1019,6 +1281,17 @@ export function recoveryCheck({ dying = 1, wounded = 0, random = Math.random } =
     conscious: false,
     dead: next >= DYING_MAX
   };
+}
+
+/** Resolve a manually entered recovery-check d20; unlike recoveryCheck this never rolls. */
+export function recoveryResult({ dying = 1, wounded = 0, roll } = {}) {
+  const natural = Number(roll);
+  if (!Number.isInteger(natural) || natural < 1 || natural > 20) return null;
+  const degree = degreeOfSuccess(natural, 10 + dying, natural);
+  const next = dying + [2, 1, -1, -2][degree];
+  if (next <= 0) return { roll: natural, degree, dying: 0, wounded: wounded + 1, conscious: true, dead: false };
+  return { roll: natural, degree, dying: Math.min(DYING_MAX, next), wounded,
+    conscious: false, dead: next >= DYING_MAX };
 }
 
 // --- randomness ---------------------------------------------------------------

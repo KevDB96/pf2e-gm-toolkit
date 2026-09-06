@@ -15,8 +15,9 @@
 import { writeFile, mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { creatureOffence } from './aon-text.mjs';
+import { creatureOffence, hazardFields } from './aon-text.mjs';
 import { buildSearchIndex } from './search-index.mjs';
+import { writeReferenceMetadata } from './cache-metadata.mjs';
 
 const ES = 'https://elasticsearch.aonprd.com/aon/_search';
 const AON = 'https://2e.aonprd.com';
@@ -137,7 +138,8 @@ const RENAME = {
   item_category: 'category',
   trait_group: 'groups',
   archetype_category: 'archetypeCategory',
-  hazard_type: 'hazardType'
+  hazard_type: 'hazardType',
+  broken_threshold: 'brokenThreshold'
 };
 
 const camel = k => RENAME[k] || k.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
@@ -173,6 +175,20 @@ const mapper = (extras = []) => d => {
     out[camel(f)] = v;
   }
   return compact(out);
+};
+
+// The Elasticsearch fields have routine/trigger for some hazards but not all. Markdown
+// fills those omissions from AoN's labelled stat block without retaining the full prose.
+const hazard = d => {
+  const parsed = hazardFields(d.markdown);
+  return mapper(['ac', 'hp', 'hardness', 'complexity', 'hazard_type', 'immunity',
+    'stealth', 'disable', 'reset', 'trigger', 'routine', 'broken_threshold', 'resistance', 'weakness'])({
+    ...d,
+    trigger: d.trigger || parsed.trigger,
+    routine: d.routine || parsed.routine,
+    disable: d.disable || parsed.disable,
+    reset: d.reset || parsed.reset
+  });
 };
 
 // --- bespoke shapes --------------------------------------------------------
@@ -354,15 +370,17 @@ const TARGETS = {
     file: 'hazards.json', key: 'hazards', label: 'Hazards', glyph: '\u{1F573}',
     blurb: 'Traps and environmental dangers.',
     build: async () => (await fetchCategory('hazard', [...SHARED, 'ac', 'hp', 'hardness',
-      'complexity', 'hazard_type', 'immunity', 'stealth', 'disable', 'reset',
+      'complexity', 'hazard_type', 'immunity', 'resistance', 'weakness', 'stealth', 'disable', 'reset',
+      'trigger', 'routine', 'broken_threshold', 'markdown',
       'fortitude_save', 'reflex_save', 'will_save']))
-      .map(mapper(['ac', 'hp', 'hardness', 'complexity', 'hazard_type', 'immunity',
-        'stealth', 'disable', 'reset']))
+      .map(hazard)
   },
   conditions: {
     file: 'conditions.json', key: 'conditions', label: 'Conditions', glyph: '\u{1F300}',
     blurb: 'What each condition actually does.',
-    build: async () => (await fetchCategory('condition', SHARED)).map(mapper())
+    // Condition sheets need the complete rule, not only the search-summary excerpt.
+    // Other categories remain compact; this is a deliberate, narrowly-scoped exception.
+    build: async () => (await fetchCategory('condition', [...SHARED, 'text'])).map(mapper(['text']))
   },
   classes: {
     file: 'classes.json', key: 'classes', label: 'Classes', glyph: '\u{1F6E1}',
@@ -520,4 +538,10 @@ if (wanted.length === Object.keys(TARGETS).length) {
   console.log('\nPartial run: data/index.json and data/search.json left alone.');
 }
 
-console.log('Done. Remember to bump CACHE_NAME in service-worker.js.');
+const cacheMetadata = await writeReferenceMetadata({
+  files: wanted.map(name => TARGETS[name].file)
+});
+console.log('wrote data/cache-metadata.json — ' + Object.keys(cacheMetadata.files).length +
+  ' reference files');
+
+console.log('Done. Bump the shell cache name in service-worker.js when shell assets change.');

@@ -1,0 +1,70 @@
+{
+  "_schema": 1,
+  "_generated": "2026-09-06T13:24:48.151Z",
+  "files": {
+    "actions.json": {
+      "sha256": "7612dbf36b03559be952568833014c972a1be80d5801042420de46c2d784bc9b",
+      "bytes": 204151
+    },
+    "ancestries.json": {
+      "sha256": "9dc30ae9982b380825718bc41f2acc71fe3542c4c8f5522d3fffb5c46aace2e9",
+      "bytes": 29163
+    },
+    "archetypes.json": {
+      "sha256": "c886b4e2d37aecec76fb47127d6cc2a7e7776cb2b47061ffe65a891f2391c921",
+      "bytes": 105676
+    },
+    "backgrounds.json": {
+      "sha256": "d835acb984957ec933202ebd2a9a022eaaca3e9bc963a27c4e68906c863b3066",
+      "bytes": 236559
+    },
+    "classes.json": {
+      "sha256": "8657375b72612efb7898382acbf2d018d0520124c40a05f749f4897e082df98f",
+      "bytes": 21265
+    },
+    "conditions.json": {
+      "sha256": "ea9073af2400e2010731035f6ced7a952f32162ee5dbe559ff598352a0866e7d",
+      "bytes": 48786
+    },
+    "creatures.json": {
+      "sha256": "0d516d8c72eace28b37e230663e9f4df570924991167d444dcc7e5ce8fd0aeea",
+      "bytes": 4427627
+    },
+    "deities.json": {
+      "sha256": "b19616639b722ff48b49d5ebf34d02c4d2e6f41999e4003c527952e6aa5fb955",
+      "bytes": 436479
+    },
+    "equipment.json": {
+      "sha256": "324166d245b80f1633ab8ed0445db71e3125f1101d8e7e0df07275c5d5fbd2ae",
+      "bytes": 3000725
+    },
+    "feats.json": {
+      "sha256": "d1523acad16909c4e1ca531075cfe315a4769a7c3aac1ae2dc17045fb4d4e935",
+      "bytes": 2213175
+    },
+    "hazards.json": {
+      "sha256": "a60c062d7e12dc058176aa82a2774bbca4d76637794bf33ff028d11a4e5b75bd",
+      "bytes": 705381
+    },
+    "heritages.json": {
+      "sha256": "f1517b6b08e8106379ee67e0c8966aabecaf176fea3c074e82f37d3effdec05a",
+      "bytes": 94983
+    },
+    "rituals.json": {
+      "sha256": "e66e6a3630009d7d54af364560729a7efc55679a4bb42ca0ff9eb8b62ae465ac",
+      "bytes": 93059
+    },
+    "skills.json": {
+      "sha256": "becdcee5958eef2bdf6547ab7e4dcb3481bd0b3158a616e27c1adb182e363b6a",
+      "bytes": 10250
+    },
+    "spells.json": {
+      "sha256": "9b5a9dca4c8f7f99e023fe057436407013f64a774a5123e9d4e5ed6abaff8cf1",
+      "bytes": 763932
+    },
+    "traits.json": {
+      "sha256": "f6ae8f687db3a81258de329f831b454b67ff02e662252c4aaba9c1c2e28851de",
+      "bytes": 173086
+    }
+  }
+}

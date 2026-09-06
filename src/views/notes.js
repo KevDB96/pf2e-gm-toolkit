@@ -5,9 +5,11 @@
 // type here lives in `state.notes` and persists to localStorage, so a regenerated
 // campaign.json never clobbers your notes.
 
-import { state, save, uid } from '../store.js';
+import { state, save, uid, registerResetHook } from '../store.js';
 import { esc, on, sheet, qs, qsa } from '../dom.js';
-import { campaign } from '../data.js';
+import { campaign, characters as loadCharacters } from '../data.js';
+import { addPin, hasPin, removePin } from '../pins.js';
+import { advanceExploration, formatElapsed } from '../exploration.js';
 
 const TABS = [
   { id: 'session', label: 'Session' },
@@ -28,6 +30,9 @@ let tab = 'session';
 let npcQuery = '';
 let openArc = null;
 let completedOpen = false;
+let roster = [];
+let explorationUndo = [];
+registerResetHook(() => { explorationUndo = []; });
 
 export function mount(root) {
   root.innerHTML = `
@@ -57,12 +62,42 @@ export function mount(root) {
     qs('#party-size').value = data.party.size;
     save();
   });
+  on(root, 'click', '[data-advance]', (e, el) => advanceTime(Number(el.dataset.advance), root));
+  on(root, 'click', '[data-advance-custom]', () => advanceTime(Number(qs('[data-custom-minutes]', root).value), root));
+  on(root, 'click', '[data-undo-exploration]', () => {
+    const previous = explorationUndo.pop();
+    if (!previous) return;
+    state.exploration = previous;
+    save();
+  });
+  on(root, 'click', '[data-start-timer]', () => startTimer(root));
+  on(root, 'click', '[data-ack-timer]', (e, el) => {
+    const timer = state.exploration.timers.find(t => t.id === el.dataset.ackTimer);
+    if (!timer) return;
+    timer.status = 'acknowledged';
+    save();
+  });
+  on(root, 'click', '[data-set-activity]', () => setActivity(root));
+  on(root, 'click', '[data-clear-activity]', (e, el) => {
+    delete state.exploration.activities[el.dataset.clearActivity];
+    save();
+  });
+  root.addEventListener('change', e => {
+    if (e.target.matches('[data-timer-preset]')) {
+      const preset = e.target.selectedOptions[0];
+      if (preset?.dataset.minutes) {
+        qs('[data-timer-label]', root).value = preset.dataset.label || '';
+        qs('[data-timer-minutes]', root).value = preset.dataset.minutes;
+      }
+    }
+  });
   root.addEventListener('input', e => {
     if (e.target.id === 'npc-search') { npcQuery = e.target.value; drawNpcs(root); }
   });
 
-  campaign().then(c => {
+  Promise.all([campaign(), loadCharacters()]).then(([c, file]) => {
     data = c;
+    roster = [...(file?.characters || []), ...state.characters.extra];
     if (!openArc) openArc = c?.current?.arc || null;
     draw(root);
   });
@@ -114,6 +149,8 @@ function session() {
         '<button data-apply-party style="margin-top:10px">Set header to campaign party</button>'}
     </div>
 
+    ${exploration()}
+
     <div class="row spread">
       <h2 style="font-size:0.82rem;text-transform:uppercase;color:var(--muted)">Session notes</h2>
       <button data-add-note>+ Note</button>
@@ -123,6 +160,69 @@ function session() {
         ? [...state.notes.entries].reverse().map(noteRow).join('')
         : '<div class="empty">No notes yet.<br>Anything you add here stays on this device.</div>'
     }</div>`;
+}
+
+function characterName(id) {
+  if (!id) return 'Party / no specific character';
+  return roster.find(c => c.id === id)?.name || `Missing character (${id})`;
+}
+
+function exploration() {
+  const clock = state.exploration;
+  const timers = clock.timers || [];
+  const due = timers.filter(t => t.status === 'due');
+  const options = roster.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+  return `<div class="card exploration-clock">
+    <div class="row spread"><h2>Exploration clock</h2><b>${esc(formatElapsed(clock.elapsedMinutes))}</b></div>
+    <div class="muted">Fictional time only. It advances when you choose an amount.</div>
+    <div class="exploration-actions">
+      <button data-advance="10">+10 min</button>
+      <label class="compact-field">Minutes<input type="number" min="1" step="1" value="20" data-custom-minutes></label>
+      <button data-advance-custom>Advance</button>
+      <button class="ghost" data-undo-exploration ${explorationUndo.length ? '' : 'disabled'}>Undo last</button>
+    </div>
+    <div class="exploration-section"><b>Current activities</b>
+      ${Object.keys(clock.activities).length ? Object.entries(clock.activities).map(([id, a]) =>
+        `<div class="exploration-row"><span>${esc(characterName(id))}: ${esc(a.label)}</span><button class="ghost" data-clear-activity="${esc(id)}">Clear</button></div>`).join('') : '<div class="muted">None recorded.</div>'}
+      <div class="exploration-form"><select data-activity-character><option value="">Party / no specific character</option>${options}</select><input type="text" data-activity-label placeholder="Activity (e.g. Search)"><button data-set-activity>Set</button></div>
+    </div>
+    <div class="exploration-section"><b>Timers</b>
+      ${timers.length ? timers.map(timerRow).join('') : '<div class="muted">No timers.</div>'}
+      <div class="exploration-form"><select data-timer-preset><option>Custom reminder</option><option data-label="Refocus" data-minutes="10">Refocus · 10 min</option><option data-label="Treat Wounds" data-minutes="10">Treat Wounds · 10 min</option><option data-label="Treat Wounds immunity" data-minutes="60">Treat Wounds immunity · 1 hour</option></select><input type="text" data-timer-label placeholder="Reminder label"><input type="number" min="1" step="1" value="10" data-timer-minutes placeholder="Minutes"><select data-timer-target><option value="">No specific character</option>${options}</select><button data-start-timer>Start</button></div>
+      ${due.length ? `<div class="timer-notice">${due.length} reminder${due.length === 1 ? '' : 's'} due</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function timerRow(timer) {
+  const stateLabel = timer.status === 'due' ? 'Due' : timer.status === 'acknowledged' ? 'Acknowledged' : `due in ${Math.max(0, timer.dueAtMinute - state.exploration.elapsedMinutes)}m`;
+  return `<div class="exploration-row"><span>${esc(timer.label)} <small>(${esc(characterName(timer.targetId))}) · ${esc(stateLabel)}</small></span>${timer.status === 'due' ? `<button data-ack-timer="${esc(timer.id)}">Acknowledge</button>` : ''}</div>`;
+}
+
+function advanceTime(minutes, root) {
+  if (!Number.isFinite(minutes) || minutes <= 0) return;
+  explorationUndo.push(JSON.parse(JSON.stringify(state.exploration)));
+  state.exploration = advanceExploration(state.exploration, minutes).exploration;
+  save();
+}
+
+function startTimer(root) {
+  const label = qs('[data-timer-label]', root).value.trim();
+  const minutes = Math.floor(Number(qs('[data-timer-minutes]', root).value));
+  if (!label || !Number.isFinite(minutes) || minutes <= 0) return;
+  const preset = qs('[data-timer-preset]', root).selectedOptions[0];
+  state.exploration.timers.push({ id: uid('timer'), label, startedAtMinute: state.exploration.elapsedMinutes,
+    dueAtMinute: state.exploration.elapsedMinutes + minutes, targetId: qs('[data-timer-target]', root).value || null,
+    source: preset?.dataset.minutes ? `aon:${preset.dataset.label.toLowerCase().replaceAll(' ', '-')}` : null, status: 'active' });
+  save();
+}
+
+function setActivity(root) {
+  const label = qs('[data-activity-label]', root).value.trim();
+  if (!label) return;
+  const id = qs('[data-activity-character]', root).value || '_party';
+  state.exploration.activities[id] = { label, startedAtMinute: state.exploration.elapsedMinutes };
+  save();
 }
 
 function noteRow(n) {
@@ -140,12 +240,15 @@ function noteRow(n) {
 
 function editNote(id) {
   const existing = state.notes.entries.find(n => n.id === id);
+  const target = existing ? { type: 'note', id: existing.id } : null;
+  const pinned = target && hasPin(state.ui.pins, target);
   const body = `
     <label class="field">Title<input type="text" id="n-title"
       value="${esc(existing?.title || '')}" placeholder="Session 24 — Wargames"></label>
     <label class="field">Note<textarea id="n-body" rows="7"
       placeholder="What happened, what to remember">${esc(existing?.body || '')}</textarea></label>
-    <button class="primary" id="n-save">${existing ? 'Save' : 'Add'}</button>`;
+    <button class="primary" id="n-save">${existing ? 'Save' : 'Add'}</button>
+    ${existing ? `<button class="ghost" data-pin-note>${pinned ? 'Unpin from session' : 'Pin to session'}</button>` : ''}`;
 
   sheet(existing ? 'Edit note' : 'New note', body, (node, close) => {
     qs('#n-save', node).addEventListener('click', () => {
@@ -166,7 +269,22 @@ function editNote(id) {
       save();
       close();
     });
+    on(node, 'click', '[data-pin-note]', (event, button) => {
+      const existingPin = state.ui.pins.find(pin => hasPin([pin], target));
+      state.ui.pins = existingPin
+        ? removePin(state.ui.pins, existingPin.id)
+        : addPin(state.ui.pins, { id: uid('pin'), target, label: existing.title || 'Untitled note' });
+      save();
+      button.textContent = existingPin ? 'Pin to session' : 'Unpin from session';
+    });
   });
+}
+
+/** Open a device note by its stable ID; a deleted note never falls back to its title. */
+export function openById(id) {
+  if (!state.notes.entries.some(note => note.id === id)) return false;
+  editNote(id);
+  return true;
 }
 
 // --- arcs -----------------------------------------------------------------

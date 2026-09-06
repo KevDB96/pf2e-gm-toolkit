@@ -193,20 +193,82 @@ export function on(root, event, sel, handler) {
   });
 }
 
+const sheets = [];
+let sheetSequence = 0;
+
+const focusable = root => qsa(
+  'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])', root
+).filter(el => !el.hidden && el.getClientRects().length);
+
+function restoreFocus(opener) {
+  const fallback = qs('#view button, #view input, #view select, #view textarea');
+  const target = opener?.isConnected ? opener : fallback;
+  target?.focus?.({ preventScroll: true });
+}
+
+function updateSheetLock() {
+  document.documentElement.classList.toggle('sheet-open', sheets.length > 0);
+  const top = sheets.at(-1)?.node;
+  sheets.forEach(entry => {
+    const covered = entry.node !== top;
+    entry.node.toggleAttribute('aria-hidden', covered);
+    entry.node.inert = covered;
+  });
+}
+
 /** Show a bottom-sheet modal. `build` returns the inner HTML; resolves on close. */
-export function sheet(title, innerHTML, wire) {
+export function sheet(title, innerHTML, wire, onClose) {
+  const opener = document.activeElement;
+  const id = `sheet-title-${++sheetSequence}`;
   const node = document.createElement('div');
   node.className = 'modal';
   node.innerHTML = `
-    <div class="sheet">
-      <div class="row spread"><h2>${esc(title)}</h2><button class="icon ghost" data-close>✕</button></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="${id}" tabindex="-1">
+      <div class="row spread"><h2 id="${id}">${esc(title)}</h2><button class="icon ghost" data-close aria-label="Close">✕</button></div>
       ${innerHTML}
     </div>`;
-  const close = () => node.remove();
+  let closed = false;
+  const close = () => {
+    if (closed) return;
+    closed = true;
+    const wasTop = sheets.at(-1)?.node === node;
+    const index = sheets.findIndex(entry => entry.node === node);
+    if (index >= 0) sheets.splice(index, 1);
+    node.remove();
+    updateSheetLock();
+    onClose?.();
+    if (wasTop && sheets.length === 0) restoreFocus(opener);
+    else if (wasTop) sheets.at(-1).focus();
+  };
+  const focus = () => {
+    if (closed || sheets.at(-1)?.node !== node) return;
+    const target = qs('[autofocus]', node)
+      || focusable(node).find(el => !el.matches('[data-close]')) || qs('[data-close]', node);
+    target?.focus?.({ preventScroll: true });
+  };
   node.addEventListener('click', (e) => {
     if (e.target === node || e.target.closest('[data-close]')) close();
   });
+  node.addEventListener('keydown', (e) => {
+    if (sheets.at(-1)?.node !== node) return;
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key !== 'Tab') return;
+    const items = focusable(node);
+    if (!items.length) { e.preventDefault(); node.focus(); return; }
+    const first = items[0];
+    const last = items.at(-1);
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
   document.body.appendChild(node);
+  sheets.push({ node, close, focus });
+  updateSheetLock();
   if (wire) wire(node, close);
+  requestAnimationFrame(focus);
   return { node, close };
+}
+
+/** Remove every transient sheet after an operation replaces the whole live session. */
+export function closeSheets() {
+  [...sheets].reverse().forEach(entry => entry.close());
 }

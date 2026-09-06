@@ -1,13 +1,15 @@
 // Encounter planner: build a roster, watch the XP budget, hand it to the tracker.
 
 import { state, save, uid } from '../store.js';
+import { combatTransaction } from '../combat-history.js';
 import { esc, on, sheet, tip, qs } from '../dom.js';
 import { creatureXP, hazardXP, budgets, threatFor, threatScale, threatPosition, xpAward,
-  adjustedLevel, adjustedHP, adjustedAC } from '../pf2e.js';
-import { creatures, traits } from '../data.js';
+  adjustedLevel, adjustedHP, adjustedAC, adjustedModifier, hazardInitiative } from '../pf2e.js';
+import { creatures, traits, hazards } from '../data.js';
 import { recordTip } from '../records.js';
 import { buildFacets, creatureTypeNames, facetChange, facetOptions, facetPasses, facetSelects }
   from '../facets.js';
+import { copyEncounterEntries, savedEncounter, templateWarnings, updatedEncounter } from '../saved-encounters.js';
 
 const KIND_LABEL = { creature: 'Creature', simple: 'Simple hazard', complex: 'Complex hazard' };
 
@@ -27,6 +29,7 @@ export function totalXP(partyLevel) {
 }
 
 export function mount(root) {
+  toCombat.launching = false;
   root.innerHTML = shell();
   wire(root);
   update(root);
@@ -55,7 +58,9 @@ function shell() {
 
     <div class="row wrap">
       <button class="primary grow" data-add-bestiary>Bestiary</button>
+      <button class="grow" data-add-hazards>Hazards</button>
       <button data-add-custom>+ Custom</button>
+      <button data-templates>Saved</button>
     </div>
 
     <div class="list" id="entries"></div>
@@ -69,13 +74,14 @@ function shell() {
 function wire(root) {
   on(root, 'click', '[data-add-custom]', () => addCustom());
   on(root, 'click', '[data-add-bestiary]', () => addFromBestiary());
+  on(root, 'click', '[data-add-hazards]', () => addFromHazards());
+  on(root, 'click', '[data-templates]', () => openTemplates());
   on(root, 'click', '[data-inc]', (e, el) => bump(el.dataset.inc, +1));
   on(root, 'click', '[data-dec]', (e, el) => bump(el.dataset.dec, -1));
   on(root, 'click', '[data-del]', (e, el) => {
-    state.encounter.entries = state.encounter.entries.filter(x => x.id !== el.dataset.del);
-    save();
+    changeDraft(() => { state.encounter.entries = state.encounter.entries.filter(x => x.id !== el.dataset.del); });
   });
-  on(root, 'click', '[data-clear]', () => { state.encounter.entries = []; save(); });
+  on(root, 'click', '[data-clear]', () => changeDraft(() => { state.encounter.entries = []; }));
   on(root, 'click', '[data-to-combat]', () => toCombat());
   on(root, 'click', '[data-adjust]', (e, el) => setAdjust(el.dataset.adjust, el.dataset.kind));
 }
@@ -83,15 +89,19 @@ function wire(root) {
 function bump(id, delta) {
   const entry = state.encounter.entries.find(x => x.id === id);
   if (!entry) return;
-  entry.count = Math.max(1, entry.count + delta);
-  save();
+  changeDraft(() => { entry.count = Math.max(1, entry.count + delta); });
 }
 
 /** Elite and Weak are mutually exclusive and each toggles off when tapped again. */
 function setAdjust(id, kind) {
   const entry = state.encounter.entries.find(x => x.id === id);
   if (!entry) return;
-  entry.adjust = entry.adjust === kind ? null : kind;
+  changeDraft(() => { entry.adjust = entry.adjust === kind ? null : kind; });
+}
+
+function changeDraft(mutate) {
+  mutate();
+  state.encounter.dirty = true;
   save();
 }
 
@@ -147,7 +157,7 @@ function row(e, partyLevel) {
   // picker or the Library — see addFromBestiary() and the Library's "Add to encounter"
   // — so its url is already there; a hand-typed custom entry has no creature record and
   // renders the same block with no link, exactly as it did before this feature existed.
-  const url = e.creature?.url;
+  const url = e.creature?.url || e.hazard?.url;
   const nameHtml = url
     ? `<a class="enc-link" href="${esc(url)}" target="_blank" rel="noopener"
         ${tip('Read it on the Archives of Nethys. Opens in a new tab.')}>${nameBlock}</a>`
@@ -176,11 +186,144 @@ function row(e, partyLevel) {
 }
 
 export function addEntry(name, level, kind = 'creature', creature = null) {
-  const match = state.encounter.entries
-    .find(e => e.name === name && e.level === level && e.kind === kind);
-  if (match) match.count += 1;
-  else state.encounter.entries.push({ id: uid('enc'), name, level, count: 1, kind, creature, adjust: null });
+  changeDraft(() => {
+    const match = state.encounter.entries
+      .find(e => e.name === name && e.level === level && e.kind === kind);
+    if (match) match.count += 1;
+    else state.encounter.entries.push({ id: uid('enc'), name, level, count: 1, kind, creature, adjust: null });
+  });
+}
+
+/** Add a generated hazard without pretending it is a creature record. */
+export function addHazard(record) {
+  const kind = String(record?.complexity || '').toLowerCase() === 'complex'
+    || (record?.traits || []).some(trait => String(trait).toLowerCase() === 'complex')
+    ? 'complex' : 'simple';
+  changeDraft(() => {
+    const match = state.encounter.entries.find(e => e.name === record.name && e.level === record.level && e.kind === kind);
+    if (match) { match.count += 1; match.hazard = record; }
+    else state.encounter.entries.push({ id: uid('enc'), name: record.name, level: record.level, count: 1, kind, hazard: record, adjust: null });
+  });
+}
+
+function saveDraft(title, notes = '') {
+  const now = new Date().toISOString();
+  const template = savedEncounter({ id: uid('saved'), title, notes, entries: state.encounter.entries,
+    party: state.party, now });
+  state.encounters.saved.push(template);
+  state.encounter.selectedId = template.id;
+  state.encounter.dirty = false;
   save();
+  return template;
+}
+
+function updateSaved(id) {
+  const index = state.encounters.saved.findIndex(template => template.id === id);
+  if (index < 0) return null;
+  const next = updatedEncounter(state.encounters.saved[index], {
+    entries: state.encounter.entries, party: state.party, now: new Date().toISOString()
+  });
+  state.encounters.saved[index] = next;
+  state.encounter.selectedId = id;
+  state.encounter.dirty = false;
+  save();
+  return next;
+}
+
+function loadSaved(template, applyParty = false) {
+  state.encounter.entries = copyEncounterEntries(template.entries, uid);
+  state.encounter.selectedId = template.id;
+  state.encounter.dirty = false;
+  if (applyParty && Number.isFinite(template.party?.level) && Number.isFinite(template.party?.size)) {
+    state.party.level = Math.min(20, Math.max(1, template.party.level));
+    state.party.size = Math.min(8, Math.max(1, template.party.size));
+  }
+  save();
+}
+
+function applySavedParty(template) {
+  if (!Number.isFinite(template.party?.level) || !Number.isFinite(template.party?.size)) return;
+  state.party.level = Math.min(20, Math.max(1, template.party.level));
+  state.party.size = Math.min(8, Math.max(1, template.party.size));
+  save();
+}
+
+function saveAsSheet(onSave, initialTitle = '') {
+  const { node } = sheet('Save encounter', `
+    <label class="field">Name<input type="text" data-template-title value="${esc(initialTitle)}" autofocus></label>
+    <label class="field">Notes<textarea data-template-notes rows="3" placeholder="Optional table notes"></textarea></label>
+    <button class="primary" data-template-save>Save</button>`);
+  on(node, 'click', '[data-template-save]', (e, el) => {
+    const title = qs('[data-template-title]', node).value;
+    const notes = qs('[data-template-notes]', node).value;
+    onSave(title, notes);
+    node.querySelector('[data-close]')?.click();
+  });
+}
+
+function confirmLoad(template) {
+  if (!state.encounter.dirty || !state.encounter.entries.length) { loadSaved(template); return; }
+  const { node, close } = sheet(`Load ${template.title}`, `
+    <p class="muted">The current draft has changes. Loading replaces it, but never changes the saved template.</p>
+    <button class="primary" data-save-copy>Save current draft, then load</button>
+    <button class="danger" data-replace>Replace draft</button>`);
+  on(node, 'click', '[data-replace]', () => { loadSaved(template); close(); });
+  on(node, 'click', '[data-save-copy]', () => {
+    close();
+    saveAsSheet((title, notes) => { saveDraft(title, notes); loadSaved(template); }, 'Current draft');
+  });
+}
+
+function openTemplates() {
+  const { node } = sheet('Saved encounters', '<div data-template-list></div>');
+  const draw = () => {
+    const selected = state.encounter.selectedId;
+    const list = state.encounters.saved;
+    qs('[data-template-list]', node).innerHTML = `
+      <p class="muted">Saved encounters keep a separate template. Loading gives the planner fresh entry IDs; the party header stays as it is unless you explicitly apply the saved context.</p>
+      <div class="row wrap">
+        <button class="primary" data-save-as>Save as</button>
+        ${selected && list.some(template => template.id === selected) ? '<button data-update-saved>Update saved</button>' : ''}
+      </div>
+      <div class="saved-encounters">${list.length ? list.map(template => {
+        const warnings = templateWarnings(template);
+        return `<div class="card saved-encounter${template.id === selected ? ' selected' : ''}">
+          <b>${esc(template.title)}</b><span class="muted">${template.entries.length} entries · ${esc(template.party?.level ?? '?')}/${esc(template.party?.size ?? '?')} PCs</span>
+          ${template.notes ? `<span class="muted">${esc(template.notes)}</span>` : ''}
+          ${warnings.length ? `<span class="saved-warning">Missing reference details: ${esc(warnings.join(', '))}</span>` : ''}
+          <div class="row wrap"><button class="primary" data-load-saved="${esc(template.id)}">Load</button>
+            <button data-apply-party="${esc(template.id)}">Apply party</button><button data-duplicate="${esc(template.id)}">Duplicate</button>
+            <button class="danger" data-delete-saved="${esc(template.id)}">Delete</button></div>
+        </div>`;
+      }).join('') : '<div class="empty">No saved encounters yet.</div>'}</div>`;
+  };
+  on(node, 'click', '[data-save-as]', () => saveAsSheet((title, notes) => { saveDraft(title, notes); draw(); }, state.encounters.saved.length ? '' : 'Encounter'));
+  on(node, 'click', '[data-update-saved]', () => { updateSaved(state.encounter.selectedId); draw(); });
+  on(node, 'click', '[data-load-saved]', (e, el) => {
+    const template = state.encounters.saved.find(item => item.id === el.dataset.loadSaved);
+    if (template) confirmLoad(template);
+  });
+  on(node, 'click', '[data-apply-party]', (e, el) => {
+    const template = state.encounters.saved.find(item => item.id === el.dataset.applyParty);
+    if (template) { applySavedParty(template); draw(); }
+  });
+  on(node, 'click', '[data-duplicate]', (e, el) => {
+    const template = state.encounters.saved.find(item => item.id === el.dataset.duplicate);
+    if (!template) return;
+    saveAsSheet((title, notes) => {
+      const copy = { ...JSON.parse(JSON.stringify(template)), id: uid('saved'), title: title || `${template.title} copy`, notes,
+        createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      state.encounters.saved.push(copy); save(); draw();
+    }, `${template.title} copy`);
+  });
+  on(node, 'click', '[data-delete-saved]', (e, el) => {
+    const template = state.encounters.saved.find(item => item.id === el.dataset.deleteSaved);
+    if (!template || !window.confirm(`Delete saved encounter “${template.title}”?`)) return;
+    state.encounters.saved = state.encounters.saved.filter(item => item.id !== template.id);
+    if (state.encounter.selectedId === template.id) state.encounter.selectedId = null;
+    save(); draw();
+  });
+  draw();
 }
 
 function addCustom() {
@@ -302,16 +445,42 @@ async function addFromBestiary() {
   });
 }
 
-/** How many creatures the planned encounter would put into the tracker. */
+async function addFromHazards() {
+  const all = await hazards();
+  let query = '';
+  const { node, close } = sheet('Hazards', `
+    <input type="search" id="h-search" placeholder="Search hazards…" autocomplete="off">
+    <div class="list" id="h-list"></div>`);
+  const draw = () => {
+    const needle = query.trim().toLowerCase();
+    const hits = all.filter(h => !needle || h.name?.toLowerCase().includes(needle)
+      || (h.traits || []).some(t => t.toLowerCase().includes(needle))).slice(0, 60);
+    qs('#h-list', node).innerHTML = hits.map(h => `
+      <button class="item" data-hazard-pick="${esc(h.id)}" style="text-align:left"${tip(recordTip(h))}>
+        <span class="lvl">${h.level ?? '—'}</span><div class="grow"><div class="name">${esc(h.name)}</div>
+        <div class="sub">${esc(h.complexity || 'Simple')} · ${esc(h.hazardType || 'Hazard')}</div></div>
+      </button>`).join('') || '<div class="empty">Nothing matches that.</div>';
+  };
+  draw();
+  qs('#h-search', node).addEventListener('input', e => { query = e.target.value; draw(); });
+  on(node, 'click', '[data-hazard-pick]', (e, el) => {
+    const hazard = all.find(h => h.id === el.dataset.hazardPick);
+    if (hazard) addHazard(hazard);
+    close();
+  });
+}
+
+/** How many planned participants (creatures plus complex hazards) enter initiative. */
 export function plannedCount() {
   return state.encounter.entries
-    .filter(e => e.kind === 'creature')
+    .filter(e => e.kind === 'creature' || e.kind === 'complex')
     .reduce((n, e) => n + e.count, 0);
 }
 
 /**
- * Put the planned creatures into the initiative order and return how many were added.
- * Hazards are left behind: they have no initiative of their own.
+ * Put planned creatures and complex hazards into initiative. Simple hazards remain in
+ * the planner as accessible trigger references: unlike complex hazards, they react once
+ * and do not take encounter turns (GM Core, Hazard Format).
  *
  * Exported because the tracker pulls with this as well as the planner pushing with it —
  * the same trip, started from either end — and neither should own a second copy of the
@@ -320,38 +489,54 @@ export function plannedCount() {
  */
 export function sendToCombat() {
   let added = 0;
-  for (const e of state.encounter.entries) {
-    if (e.kind !== 'creature') continue;
-    const prefix = e.adjust === 'elite' ? 'Elite ' : e.adjust === 'weak' ? 'Weak ' : '';
-    // Adjusted, not the sheet's own numbers — an elite goblin belongs in the tracker
-    // with elite HP and AC, or the fight is not the one the planner budgeted for.
-    const hp = adjustedHP(e.creature?.hp ?? null, e.level, e.adjust);
-    const ac = adjustedAC(e.creature?.ac ?? null, e.adjust);
-    for (let i = 0; i < e.count; i++) {
-      state.combat.combatants.push({
-        id: uid('c'),
-        name: prefix + (e.count > 1 ? `${e.name} ${i + 1}` : e.name),
-        // The planner is already holding the whole record — it reads hp and ac off it two
-        // lines down — so keeping its id costs nothing and is the only reliable way back
-        // to the creature's Strikes and saves. Names repeat across the bestiary; ids do
-        // not. See the note in combat.js addPC() about rows that predate this.
-        ref: e.creature?.id ? { kind: 'creature', id: e.creature.id } : null,
-        isPC: false,
-        side: 'npc',
-        init: null,
-        hp,
-        maxHp: hp,
-        ac,
-        conditions: []
-      });
-      added += 1;
+  combatTransaction('Import encounter', combat => {
+    for (const e of state.encounter.entries) {
+      if (e.kind !== 'creature' && e.kind !== 'complex') continue;
+      if (e.kind === 'complex') {
+        const h = e.hazard || {};
+        for (let i = 0; i < e.count; i++) {
+          combat.combatants.push({
+            id: uid('h'), name: e.count > 1 ? `${e.name} ${i + 1}` : e.name,
+            ref: h.id ? { kind: 'hazard', id: h.id } : null,
+            isHazard: true, isPC: false, side: 'npc', init: null,
+            initMod: hazardInitiative(h.stealth), hp: h.hp ?? null, maxHp: h.hp ?? null,
+            ac: h.ac ?? null, hardness: h.hardness ?? null, brokenThreshold: h.brokenThreshold ?? null,
+            saves: h.saves || {}, immunities: h.immunity || [], resistances: h.resistance || {}, weaknesses: h.weakness || {},
+            hazard: { triggered: false, disabled: false, progress: 0, trigger: h.trigger || null,
+              routine: h.routine || null, disable: h.disable || null, reset: h.reset || null }, conditions: []
+          });
+          added += 1;
+        }
+        continue;
+      }
+      const prefix = e.adjust === 'elite' ? 'Elite ' : e.adjust === 'weak' ? 'Weak ' : '';
+      const hp = adjustedHP(e.creature?.hp ?? null, e.level, e.adjust);
+      const ac = adjustedAC(e.creature?.ac ?? null, e.adjust);
+      for (let i = 0; i < e.count; i++) {
+        combat.combatants.push({
+          id: uid('c'),
+          name: prefix + (e.count > 1 ? `${e.name} ${i + 1}` : e.name),
+          ref: e.creature?.id ? { kind: 'creature', id: e.creature.id } : null,
+          adjust: e.adjust === 'elite' || e.adjust === 'weak' ? e.adjust : null,
+          baseLevel: e.level,
+          isPC: false, side: 'npc', init: null,
+          initMod: adjustedModifier(e.creature?.perception, e.adjust),
+          hp, maxHp: hp, ac, conditions: []
+        });
+        added += 1;
+      }
     }
-  }
-  save();
+  });
   return added;
 }
 
+
 function toCombat() {
+  // The navigation is immediate, but a double tap can still reach this handler twice
+  // before the view swaps. One launch is one import transaction; deliberate later waves
+  // still use sendToCombat() from the tracker or planner after returning.
+  if (toCombat.launching) return;
+  toCombat.launching = true;
   sendToCombat();
   location.hash = '#/combat';
 }

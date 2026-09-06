@@ -14,21 +14,23 @@ const cache = new Map();
  * Fetch and parse `data/<file>` once. Resolves to null if the file is missing or
  * malformed — a screen with no data still renders, it just says so.
  */
-function json(file) {
+function load(file) {
   if (!cache.has(file)) {
     cache.set(file, fetch(`data/${file}`)
       .then(r => {
         if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-        return r.json();
+        return r.json().then(value => ({ value, error: null }));
       })
       .catch(err => {
         console.warn(`Could not load ${file}`, err);
         cache.delete(file);   // let a later screen retry
-        return null;
+        return { value: null, error: err };
       }));
   }
   return cache.get(file);
 }
+
+function json(file) { return load(file).then(result => result.value); }
 
 /** The Library's category list: [{ name, file, key, label, glyph, blurb, count }]. */
 export function manifest() {
@@ -38,6 +40,15 @@ export function manifest() {
 /** The records for one manifest category. */
 export function records(category) {
   return json(category.file).then(j => j?.[category.key] || []);
+}
+
+/** Like records(), but preserves an unavailable-file result separately from an empty array. */
+export function recordsStatus(category) {
+  return load(category.file).then(({ value, error }) => ({
+    records: value?.[category.key] || [],
+    unavailable: !value,
+    error: error?.message || null
+  }));
 }
 
 /** The committed player-character roster: { groups, characters }, or null. */
@@ -102,6 +113,16 @@ export function equipment() {
 /** Creatures, used by the encounter planner's quick-add sheet. */
 export function creatures() {
   return json('creatures.json').then(j => j?.creatures || []);
+}
+
+/** Actions, used by the compact GM reference sheet. */
+export function actions() {
+  return json('actions.json').then(j => j?.actions || []);
+}
+
+/** Hazards, used by the encounter planner and combat detail sheets. */
+export function hazards() {
+  return json('hazards.json').then(j => j?.hazards || []);
 }
 
 /**

@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   fromMarkdown, bodyText, headerPairs, sections, nameMatch,
-  creatureStrikes, creatureAbilities, creatureOffence
+  creatureStrikes, creatureAbilities, creatureOffence, hazardFields
 } from '../tools/aon-text.mjs';
 
 const FEAT = `<title
@@ -369,6 +369,23 @@ test('a creature with no melee or ranged line has no strikes', () => {
   assert.deepEqual(creatureStrikes('**AC** 14\n\n**Fort** +5'), []);
   assert.deepEqual(creatureOffence(null), { strikes: [], abilities: [] });
   assert.deepEqual(creatureOffence('').strikes, []);
+});
+
+test('hazard markdown retains labelled trigger, routine, and reset text', () => {
+  const fields = hazardFields(`
+<column>**Trigger** A creature steps on the plate.
+
+**Routine** (2 actions) The blades sweep the hall.
+
+**Disable** DC 24 Thievery to jam the gears.
+
+**Reset** The blades stop after 1 minute.</column>`);
+  assert.deepEqual(fields, {
+    trigger: 'A creature steps on the plate.',
+    routine: '(2 actions) The blades sweep the hall.',
+    disable: 'DC 24 Thievery to jam the gears.',
+    reset: 'The blades stop after 1 minute.'
+  });
 });
 
 test('creatureOffence returns both halves at once', () => {

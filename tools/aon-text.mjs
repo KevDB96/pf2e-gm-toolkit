@@ -344,6 +344,24 @@ export function creatureOffence(md) {
   return { strikes: creatureStrikes(md), abilities: creatureAbilities(md) };
 }
 
+/**
+ * Pull the few labelled hazard lines the encounter tracker needs from AoN markdown.
+ * This is intentionally conservative: missing labels remain absent rather than being
+ * guessed from prose. Fixtures cover the source shape without a network download.
+ */
+export function hazardFields(md) {
+  const text = unlink(String(md || '').replace(/<[^>]+>/g, '\n')).replace(/\r/g, '');
+  const labels = ['Trigger', 'Routine', 'Disable', 'Reset'];
+  const out = {};
+  for (const label of labels) {
+    const re = new RegExp(`\\*\\*${label}\\*\\*\\s*([\\s\\S]*?)(?=\\n\\s*\\*\\*[A-Z][^*]{0,40}\\*\\*|$)`, 'i');
+    const match = text.match(re);
+    if (match) out[label.toLowerCase()] = collapse(match[1]).replace(/\n+/g, ' ')
+      .replace(/\s*---\s*$/, '').trim();
+  }
+  return out;
+}
+
 // --- names -------------------------------------------------------------------
 
 // Apostrophes vanish rather than splitting a word, so a sheet that writes "Rescuers

@@ -4,33 +4,39 @@
 // search and the detail sheet are all generic. Creatures get two extras (the party XP
 // band filter and add-to-encounter) because that is what a GM actually does with them.
 
-import { state, save } from '../store.js';
+import { state, save, uid } from '../store.js';
 import { caps, esc, on, sheet, tip, qs, qsa } from '../dom.js';
 import { creatureXP, LEVEL_DC, actionIcons } from '../pf2e.js';
-import { manifest, records, searchIndex, traits as loadTraits } from '../data.js';
+import { manifest, records, recordsStatus, searchIndex, traits as loadTraits } from '../data.js';
 import { recordTip } from '../records.js';
-import { buildFacets, creatureTypeNames, facetChange, facetOptions, facetPasses, facetSelects }
+import { buildFacets, creatureTypeNames, facetChange, facetOptions, facetSelects }
   from '../facets.js';
-import { addEntry } from './encounters.js';
+import { addEntry, addHazard } from './encounters.js';
 import { searchAll } from '../search.js';
+import { librarySearchBase, librarySelectedRows, prepareLibraryRows } from '../library-filter.js';
+import { addPin, hasPin, removePin } from '../pins.js';
 
 const RENDER_CAP = 200;
 
 let categories = [];
 let active = null;      // the manifest entry currently shown
 let rows = [];          // records for `active`
+let preparedRows = [];  // normalized sidecars for rows; never mutates generated records
+let currentBase = [];   // query/XP-filtered rows, shared by every facet calculation
 let query = '';
 let bandOnly = false;
 let axes = [];          // the filter dropdowns for the loaded category
 let chosen = {};        // axis id -> chosen value
 let creatureTypes = new Set();
 let loading = false;
+let unavailable = false;
 
 const ALL = '__all__';           // the "All" chip's data-cat value
 let global = false;              // true when "All" is selected; `active` is null then
 let searchIndexData;             // undefined = not requested yet, null = missing, else the index
 let indexLoading = false;
-let pending = null;              // { cat, id } queued by openRecord() until categories load
+let pending = null;              // { cat, id, pinned?, label? } queued until categories load
+let drawTimer = null;
 
 // Fields that get bespoke treatment, or are plumbing the reader does not want to see.
 const SKIP = new Set(['id', 'name', 'url', 'notes', 'traits', 'source', 'level', 'kind',
@@ -78,7 +84,7 @@ export function mount(root) {
     </div>
     <div class="list" id="results"></div>`;
 
-  qs('#search', root).addEventListener('input', e => { query = e.target.value; draw(root); });
+  qs('#search', root).addEventListener('input', e => { query = e.target.value; scheduleDraw(root); });
   qs('#band', root).addEventListener('change', e => { bandOnly = e.target.checked; draw(root); });
   on(root, 'change', '[data-facet]', (e, el) => {
     facetChange(chosen, el, axes);
@@ -101,6 +107,7 @@ export function mount(root) {
   on(root, 'click', '[data-see]', (e, el) => seeAll(root, el.dataset.see, el.dataset.seeQuery));
   on(root, 'click', '[data-recent-cat]', (e, el) => openByRef(el.dataset.recentCat, el.dataset.recentId));
   on(root, 'click', '[data-clear-recent]', () => { state.ui.recent = []; save(); });
+  on(root, 'click', '[data-offline-data]', () => { location.hash = '#/home'; });
 
   loadTraits().then(list => { creatureTypes = creatureTypeNames(list); draw(root); });
 
@@ -146,19 +153,26 @@ function select(root, name) {
 
   qsa('#cats .pick', root).forEach(el => el.classList.toggle('on', el.dataset.cat === name));
 
+  clearScheduledDraw();
   rows = [];
+  preparedRows = [];
+  currentBase = [];
+  unavailable = false;
   loading = true;
   draw(root);
-  records(active).then(list => {
+  recordsStatus(active).then(result => {
     // A slower category can resolve after the reader has already moved on.
     if (active?.name !== name) return;
-    rows = list;
+    rows = result.records;
+    preparedRows = prepareLibraryRows(rows);
+    unavailable = result.unavailable;
     loading = false;
     draw(root);
   });
 }
 
 function selectGlobal(root) {
+  clearScheduledDraw();
   global = true;
   active = null;
   query = '';
@@ -173,6 +187,8 @@ function selectGlobal(root) {
   qs('#facets', root).innerHTML = '';
   qsa('#cats .pick', root).forEach(el => el.classList.toggle('on', el.dataset.cat === ALL));
   rows = [];
+  preparedRows = [];
+  currentBase = [];
   if (searchIndexData === undefined && !indexLoading) {
     indexLoading = true;
     searchIndex().then(idx => { indexLoading = false; searchIndexData = idx; draw(root); });
@@ -185,18 +201,19 @@ function selectGlobal(root) {
  * axis from the test, which is how each dropdown lists what is still reachable through the
  * other filters instead of only the value already picked.
  */
-function filtered(skip = null) {
-  if (!active) return [];
-  const needle = query.trim().toLowerCase();
-  const active = skip ? axes.filter(a => a !== skip) : axes;
-  return rows.filter(r => {
-    if (bandOnly && creatureXP(r.level, state.party.level) === null) return false;
-    if (!facetPasses(r, active, chosen)) return false;
-    if (!needle) return true;
-    return (r.name || '').toLowerCase().includes(needle)
-      || (r.traits || []).some(t => t.toLowerCase().includes(needle))
-      || (r.notes || '').toLowerCase().includes(needle);
-  });
+function filtered(skip = null) { return librarySelectedRows(currentBase, axes, chosen, skip); }
+
+function clearScheduledDraw() {
+  if (drawTimer) clearTimeout(drawTimer);
+  drawTimer = null;
+}
+
+function scheduleDraw(root) {
+  clearScheduledDraw();
+  drawTimer = setTimeout(() => {
+    drawTimer = null;
+    if (root.isConnected) draw(root);
+  }, 80);
 }
 
 export function update(root) {
@@ -204,6 +221,7 @@ export function update(root) {
 }
 
 function draw(root) {
+  if (!root.isConnected) return;
   const results = qs('#results', root);
   const count = qs('#count', root);
   if (!results) return;
@@ -229,10 +247,22 @@ function draw(root) {
     return;
   }
 
+  if (unavailable) {
+    count.textContent = '';
+    qs('#facets', root).innerHTML = '';
+    results.innerHTML = `<div class="empty">This ${esc(active.label.toLowerCase())} file is not available on this device. ${navigator.onLine ? 'Use Offline data to download it.' : 'Reconnect, then use Offline data to download it.'}<br><button class="primary" data-offline-data style="margin-top:10px">Offline data</button></div>`;
+    return;
+  }
+
   // Which filters this category gets is decided by the records it holds — creatures offer
   // type, size, rarity and family; spells offer rank, type and tradition; equipment offers
   // category, group and damage type. See buildFacets() in src/facets.js.
   if (!axes.length) axes = buildFacets(rows, { creatureTypes });
+  // One lowercased text/XP pass feeds both the final results and every self-excluding
+  // dropdown count. Selections still run independently per axis, preserving faceting.
+  currentBase = librarySearchBase(preparedRows, {
+    query, bandOnly, partyLevel: state.party.level
+  });
   qs('#facets', root).innerHTML =
     facetSelects(axes, chosen, axis => facetOptions(filtered(axis), axis));
   qs('#clear', root).hidden = !query && !bandOnly && !Object.values(chosen).some(Boolean);
@@ -409,6 +439,8 @@ function openDetailFor(record, categoryEntry) {
     .join('');
 
   const isCreature = categoryEntry.name === 'creatures';
+  const target = { type: 'reference', category: categoryEntry.name, id: record.id };
+  const pinned = hasPin(state.ui.pins, target);
   const body = `
     <div class="muted">${esc(head)}</div>
     ${(record.traits || []).length
@@ -425,13 +457,23 @@ function openDetailFor(record, categoryEntry) {
     ${record.url ? `<div class="muted" style="font-size:0.72rem">
       <a href="${esc(record.url)}" target="_blank" rel="noopener">Open on Archives of Nethys</a>
     </div>` : ''}
-    ${isCreature ? '<button class="primary" data-to-encounter>Add to encounter</button>' : ''}`;
+    ${(isCreature || categoryEntry.name === 'hazards') ? '<button class="primary" data-to-encounter>Add to encounter</button>' : ''}
+    <button class="ghost" data-pin-reference>${pinned ? 'Unpin from session' : 'Pin to session'}</button>`;
 
   const { node, close } = sheet(record.name, body);
   on(node, 'click', '[data-to-encounter]', () => {
-    addEntry(record.name, record.level, 'creature', record);
+    if (isCreature) addEntry(record.name, record.level, 'creature', record);
+    else addHazard(record);
     close();
     location.hash = '#/encounters';
+  });
+  on(node, 'click', '[data-pin-reference]', (event, button) => {
+    const existingPin = state.ui.pins.find(pin => hasPin([pin], target));
+    state.ui.pins = existingPin
+      ? removePin(state.ui.pins, existingPin.id)
+      : addPin(state.ui.pins, { id: uid('pin'), target, label: record.name });
+    save();
+    button.textContent = existingPin ? 'Pin to session' : 'Unpin from session';
   });
 
   remember(categoryEntry.name, record.id, record.name);
@@ -450,21 +492,46 @@ function dropRecent(cat, id) {
   if (state.ui.recent.length !== before) save();
 }
 
-function openByRef(cat, id) {
+function openByRef(cat, id, options = {}) {
   const catEntry = categories.find(c => c.name === cat);
-  if (!catEntry) { dropRecent(cat, id); return; }
-  records(catEntry).then(list => {
+  if (!catEntry) {
+    if (!options.pinned) { dropRecent(cat, id); return; }
+    missingPinnedRecord(options.label, { type: 'reference', category: cat, id });
+    return;
+  }
+  recordsStatus(catEntry).then(result => {
+    if (result.unavailable) {
+      sheet('Rules file unavailable', `<p class="muted">This result appears in the name search, but its ${esc(catEntry.label.toLowerCase())} detail file is not saved here. ${navigator.onLine ? 'Open Offline data on Home to download it.' : 'Reconnect to download it.'}</p><button class="primary" data-offline-data>Offline data</button>`, node => {
+        on(node, 'click', '[data-offline-data]', () => { location.hash = '#/home'; });
+      });
+      return;
+    }
+    const list = result.records;
     const r = list.find(x => x.id === id);
-    if (!r) { dropRecent(cat, id); return; }
+    if (!r) {
+      if (!options.pinned) { dropRecent(cat, id); return; }
+      missingPinnedRecord(options.label, { type: 'reference', category: cat, id });
+      return;
+    }
     openDetailFor(r, catEntry);
+  });
+}
+
+function missingPinnedRecord(label, target) {
+  const pin = state.ui.pins.find(item => hasPin([item], target));
+  const { node, close } = sheet('Pinned record missing', `<p class="muted">${esc(label || 'This record')} is no longer available under its saved record ID. It has not been matched by name.</p>${pin ? '<button class="ghost danger" data-remove-missing-pin>Remove pin</button>' : ''}`);
+  on(node, 'click', '[data-remove-missing-pin]', () => {
+    state.ui.pins = removePin(state.ui.pins, pin.id);
+    save();
+    close();
   });
 }
 
 function maybeOpenPending() {
   if (!pending || !categories.length) return;
-  const { cat, id } = pending;
+  const { cat, id, pinned, label } = pending;
   pending = null;
-  openByRef(cat, id);
+  openByRef(cat, id, { pinned, label });
 }
 
 /**
@@ -476,5 +543,11 @@ function maybeOpenPending() {
  */
 export function openRecord(cat, id) {
   pending = { cat, id };
+  maybeOpenPending();
+}
+
+/** Open a Home session pin by its immutable reference target. */
+export function openPinnedRecord(cat, id, label) {
+  pending = { cat, id, pinned: true, label };
   maybeOpenPending();
 }

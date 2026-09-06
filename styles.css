@@ -35,6 +35,7 @@
 
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;overflow-x:hidden}
+html.sheet-open,html.sheet-open body{overflow:hidden}
 body{
   font-family:'Inter',system-ui,sans-serif;
   color:var(--ink);
@@ -63,10 +64,20 @@ a{color:var(--accent);text-decoration-color:var(--accent-edge)}
 .party-chip label input{width:2.4em;min-height:auto;background:none;border:none;color:var(--ink);
   font:inherit;font-size:0.85rem;font-weight:600;text-align:center;padding:0}
 .party-chip label input:focus{outline:none}
+.persistence{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:-4px 0 8px;padding:7px 9px;
+  border:1px solid var(--blood-edge);border-radius:10px;background:var(--blood-soft);
+  color:var(--blood-ink);font-size:0.76rem;line-height:1.35}
+.persistence span{flex:1;min-width:0}
+.persistence button{flex:0 0 auto;min-height:44px;padding:0 8px;color:var(--blood-ink);font-size:0.72rem}
+.persistence.error span{flex-basis:100%}
+.persistence.saved{margin:-8px 0 4px;padding:0;border:0;background:none;color:var(--muted);justify-content:flex-end}
+.persistence.saved span{flex:0 0 auto;font-size:0.68rem}
 
 /* ---------- layout primitives ---------- */
 .view{display:flex;flex-direction:column;gap:12px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.exploration-clock h2{margin:0}.exploration-actions,.exploration-form{display:flex;gap:7px;align-items:end;flex-wrap:wrap;margin-top:10px}.exploration-actions button,.exploration-form button{flex:0 0 auto}.compact-field{font-size:.72rem;color:var(--muted);display:grid;gap:3px}.compact-field input{width:5em;min-height:44px}.exploration-section{border-top:1px solid var(--line);margin-top:14px;padding-top:12px;display:grid;gap:7px}.exploration-row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:38px}.exploration-row small{color:var(--muted)}.exploration-row button{min-height:36px;padding:0 9px;flex:0 0 auto}.exploration-form input,.exploration-form select{flex:1 1 120px;min-width:0}.timer-notice{color:var(--accent);font-weight:600;margin-top:3px}
+.reference-section{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:9px}.reference-section h3{margin:0;font-size:.82rem;text-transform:uppercase;color:var(--muted)}.reference-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.reference-grid label,.reference-section>label{display:grid;gap:4px;font-size:.72rem;color:var(--muted)}.reference-dc{font-size:1.1rem;display:flex;gap:7px;align-items:baseline}.reference-dc b{font-size:1.7rem;color:var(--accent)}.reference-outcome{padding:8px;border-radius:8px;background:var(--accent-soft);color:var(--ink)}.reference-action{border-bottom:1px solid var(--line);padding:7px 0}.reference-action summary{display:flex;justify-content:space-between;gap:8px;min-height:30px;align-items:center}.reference-skills{display:grid;gap:10px}.reference-character{padding:9px;border:1px solid var(--line);border-radius:9px}.reference-skill-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 10px;margin-top:7px;font-size:.76rem}.reference-skill-grid span{display:flex;justify-content:space-between;gap:5px}.reference-character small{display:block;color:var(--muted);margin-top:8px;line-height:1.35}
 .card > h2{font-size:0.82rem;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
 /* Class-based display rules would otherwise beat the UA [hidden] rule. */
 [hidden]{display:none !important}
@@ -76,6 +87,26 @@ a{color:var(--accent);text-decoration-color:var(--accent-edge)}
 .grow{flex:1;min-width:0}
 .muted{color:var(--muted);font-size:0.85rem}
 .empty{text-align:center;color:var(--muted);font-size:0.88rem;padding:22px 10px;line-height:1.5}
+
+/* ---------- player display ---------- */
+.player-page{display:flex;min-height:100%;padding:20px 14px;background:var(--bg)}
+.player-display{width:100%;max-width:760px;margin:auto;display:flex;flex-direction:column;gap:14px}
+.player-status{text-align:center;color:var(--accent);font-size:1rem;margin:0;min-height:24px}
+.player-actor{display:flex;align-items:center;gap:12px;min-height:76px;padding:12px 16px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);font-size:1.45rem}
+.player-actor.is-current{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent-edge)}
+.player-actor-label{width:4.5em;flex:0 0 4.5em;color:var(--accent);font-size:.68rem;font-weight:700;letter-spacing:.08em}
+.player-boundary{margin:4px 0 0;text-align:center;color:var(--muted);font-size:.75rem;line-height:1.45}
+.player-fullscreen{align-self:center;min-height:44px}
+.player-empty{text-align:center;color:var(--muted);padding:28px 10px}
+.player-setting{display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px;align-items:center;border-bottom:1px solid var(--line);padding:9px 0}
+.player-setting label{display:flex;align-items:center;gap:6px;min-height:44px;white-space:nowrap}
+.player-setting .muted{grid-column:2;font-size:.72rem}
+.hp-entry{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:9px}
+.hp-entry h2{margin:0;font-size:.82rem;text-transform:uppercase;color:var(--muted)}
+.hp-entry-amount{width:7em;flex:0 0 auto}.hp-entry-amount input{min-height:44px}
+.hp-entry-preview{padding:8px;border-radius:8px;background:var(--accent-soft);color:var(--ink)}
+.hp-entry [data-hp-apply]{min-height:44px}
+@media (min-width:560px){.player-display{padding:24px}.player-actor{min-height:92px;font-size:1.8rem}}
 
 /* YouTube requires an embedded player viewport of at least 200x200. The square on a
    phone meets that floor; wider screens use the familiar 16:9 frame. */
@@ -194,6 +225,25 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .menu-tile .sub{display:block;margin-top:3px;font-size:0.74rem;color:var(--muted);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .menu-tile .chev{flex:0 0 auto;font-size:1.3rem;color:var(--muted)}
+.data-manage{width:100%;background:none;color:var(--muted);font-size:0.78rem}
+.home-tools{display:grid;gap:4px}
+.session-pins{display:grid;gap:7px}.session-pins h2{margin:0;font-size:.82rem;text-transform:uppercase;color:var(--muted)}
+.pin-preview,.pin-list{display:grid;gap:7px}.home-pin{width:100%;min-height:52px;text-align:left}.home-pin .name,.home-pin .sub{display:block}
+.home-pin .sub{margin-top:3px}.pin-manage{min-height:36px;font-size:.72rem}.pin-more{font-size:.75rem}
+.pin-row{display:flex;align-items:center;gap:10px}.pin-actions{display:grid;grid-template-columns:repeat(3,auto);gap:5px}.pin-actions button{min-height:44px;padding:0 9px;font-size:.72rem}
+.offline-core{display:grid;gap:4px;margin:10px 0;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:.78rem}
+.offline-list{display:grid;margin:12px 0;border-top:1px solid var(--line)}
+.offline-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:.82rem}
+.offline-row b{font-size:.72rem;text-align:right}.offline-ready{color:var(--green)}.offline-older{color:var(--violet)}.offline-missing,.offline-failed{color:var(--blood)}
+.offline-storage{align-items:center;gap:8px;font-size:.76rem}.offline-storage button{min-height:36px;font-size:.72rem}
+.saved-encounters{display:grid;gap:10px}.saved-encounter{display:grid;gap:7px;padding:12px}.saved-encounter.selected{border-color:var(--accent-edge);background:var(--accent-soft)}
+.saved-encounter .row button{min-height:40px;font-size:.74rem}.saved-warning{font-size:.76rem;color:var(--violet)}
+.button-file{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:8px;
+  border:1px solid var(--line);border-radius:10px;color:var(--ink);font-size:0.82rem;cursor:pointer}
+.button-file input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%)}
+.backup-preview{display:grid;gap:8px;margin-top:12px;padding:12px;border:1px solid var(--accent-edge);
+  border-radius:10px;background:var(--accent-soft);font-size:0.82rem}
+.backup-preview span,.backup-preview p{color:var(--muted);margin:0;line-height:1.45}
 
 /* ---------- picker rows (library categories, campaign sub-nav) ---------- */
 /* Named .picker, not .chip — the combat tracker already owns .chips/.chip for
@@ -395,6 +445,9 @@ h2 + .card-group{margin-top:4px}
    break-word: a column this narrow has to be allowed to break inside a long single word
    rather than push the card wider than its side of the board. */
 .combatant .name{font-size:0.86rem;line-height:1.25;overflow-wrap:anywhere}
+.combat-name{min-width:0;min-height:44px;padding:0;text-align:left;background:none;border:0;border-radius:0;
+  font-size:0.86rem;line-height:1.25;overflow-wrap:anywhere}
+.combat-name:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
 .combatant .sub{font-size:0.66rem;padding:0 1px}
 .combatant .init{width:2.7em;min-height:44px;padding:0;font-size:1rem}
 /* The name wraps before the two-column board overflows, leaving real thumb targets for
@@ -450,6 +503,9 @@ h2 + .card-group{margin-top:4px}
    (border-top only, no fill) until there is something to say. */
 .turn-report{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);
   font-size:0.8rem;color:var(--ink)}
+.turn-expiry{margin-top:8px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.turn-expiry button{min-height:44px;padding:6px 10px}
+.combat-quick-actions{display:flex;gap:6px;margin-top:7px}.combat-quick-actions button{min-height:40px;padding:0 10px}
 
 /* ---------- loot ---------- */
 .coins{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
@@ -490,10 +546,10 @@ h2 + .card-group{margin-top:4px}
 
 /* ---------- modal ---------- */
 .modal{position:fixed;inset:0;z-index:50;display:grid;place-items:end center;padding:0;
-  background:rgba(0,0,0,0.6);backdrop-filter:blur(3px)}
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(3px);overscroll-behavior:contain}
 .modal .sheet{width:100%;max-width:640px;max-height:82vh;overflow-y:auto;background:var(--bg-2);
   border:1px solid var(--line);border-radius:18px 18px 0 0;padding:18px 14px calc(18px + env(safe-area-inset-bottom));
-  display:flex;flex-direction:column;gap:12px}
+  display:flex;flex-direction:column;gap:12px;overscroll-behavior:contain}
 .modal .sheet [data-close]{min-width:44px;min-height:44px}
 
 /* A sheet that browses a long, filtered list (the bestiary picker, and any future

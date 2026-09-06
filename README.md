@@ -41,6 +41,13 @@ To install it on a phone: open the URL in the browser and use *Add to Home Scree
 then launches standalone and works offline, warming the small reference files on first run
 and caching the large ones as you open them.
 
+Home’s **Offline data** sheet shows verified cache readiness and lets you explicitly save
+anything missing. Downloads run two files at a time, can be stopped and resumed, and only
+become ready after their generated hash matches. The browser’s optional storage-protection
+request is just that: a request, not a promise that browser settings or storage pressure
+cannot clear the data. YouTube playback and full Archives of Nethys pages always need an
+internet connection.
+
 `icons/` holds two pairs. `icon-192.png` and `icon-512.png` are the plain icons; the
 `icon-maskable-*.png` pair is the same art inset to 90% so it survives the circular mask
 Android applies to an adaptive icon. Both pairs are listed in the manifest with the
@@ -53,6 +60,7 @@ the palette is.
 
 ```powershell
 npm test                 # node --test, no dependencies
+npm run benchmark:search # repeatable CPU-only Library search comparison
 ```
 
 The suite covers `src/pf2e.js` — the XP band, encounter budgets, threat naming and gauge,
@@ -68,14 +76,34 @@ skill lists, and dice parsing — plus the Pathbuilder conversion, the filter fa
 | --- | --- |
 | **Home** | The landing menu. One tile per screen, each showing what is waiting there. |
 | **Plan** (Encounters) | Add creatures and hazards, watch the needle move across a gauge that runs trivial on the left to extreme on the right, then push the roster into the tracker — or pull it from the tracker instead. The bestiary opens straight into its results on a tall phone sheet; its type, size, rarity, family, trait, level-range, XP-band, and name filters fold away until needed. A creature can be toggled Elite or Weak, which adjusts its level, XP and (once sent to the tracker) HP and AC to match; a planned creature added from the bestiary or Library also links its name straight to the Archives of Nethys. |
-| **Combat** | Both sides of the fight at once: the party down the left, enemies down the right, each column in initiative order, with a round counter and whose turn it is above them. The planned encounter comes in with one tap from here, or gets pushed over from the planner. Initiative is typed in — the die is rolled at the table — and each row prints the Perception modifier to add to it. PC rows use just the character's first name to stay compact; their full roster name remains saved for matching. HP is a typed number and a bar you drag, nothing else on the row. A condition applies everything the rules attach to it — prone also sets off-guard, grabbed also sets off-guard and immobilized — and persistent damage asks for its damage type and amount; a condition that carries a number, like Frightened, asks for that next. Pressing Next turn ticks Frightened down by 1 and applies each stored persistent-damage amount to the combatant whose turn just ended, then reminds you of the DC 15 flat check without rolling it — every other valued condition is yours to adjust by hand. PCs come straight out of the imported roster: tick a few or take the whole party, with AC, HP and Perception from the sheet. Anything added picks its side, so a charmed PC or a friendly NPC lands in the right column. |
+| **Combat** | Both sides of the fight at once: the party down the left, enemies down the right, each column in initiative order, with a round counter and whose turn it is above them. The planned encounter comes in with one tap from here, or gets pushed over from the planner. Initiative is typed in — the die is rolled at the table — and each row prints the Perception modifier to add to it. PC rows use just the character's first name to stay compact; their full roster name remains saved for matching. HP is a typed number and a bar you drag, nothing else on the row. Undo keeps the last 20 meaningful combat actions while the app remains open; refreshing clears that history. A condition applies everything the rules attach to it — prone also sets off-guard, grabbed also sets off-guard and immobilized — and persistent damage asks for its damage type and amount; a condition that carries a number, like Frightened, asks for that next. Pressing Next turn ticks Frightened down by 1 and applies each stored persistent-damage amount to the combatant whose turn just ended, then reminds you of the DC 15 flat check without rolling it — every other valued condition is yours to adjust by hand. PCs come straight out of the imported roster: tick a few or take the whole party, with AC, HP and Perception from the sheet. Anything added picks its side, so a charmed PC or a friendly NPC lands in the right column. |
 | **Library** | One browser over all sixteen reference categories. Search by name, trait or summary, and filter on whatever fields the category has — a level range, type, tradition, size, rarity, category, group; creatures also filter to the party's XP band and add straight to an encounter. |
 | **Loot** | The level's total and remaining treasure budget in coins, a running hoard, and per-character awards. Choose a character to see two broadly usable items at the party's level or one above it; giving one assigns it to that character and deducts its value from the level budget. Every suggestion opens on the Archives of Nethys from the row, so an item can be read before it is awarded. |
 | **Campaign** (Notes) | Where the campaign is now, every arc with its beats, the NPC roster, reference tables — and your own session notes. |
 | **Party** | The player characters, grouped by campaign or one-shot. Each opens a GM-facing sheet: AC, HP, saves, Perception, every skill trained or not, class DC, spellcasting, and a compact feat list ordered by level with action costs. |
 | **BGM** | Three dice, in reach. **Combat** and **Boss** each open a random piece of at least half an hour, so one tap covers a whole fight, and **Victory** opens a short triumphant fanfare, the sting after a win — each die then names what it rolled. Everything opens in the official YouTube app, and a Premium account keeps playback going in the background. Below that, collapsed, are folders holding every track — including **Situational** (story cues: a character's death, a farewell, the heroes' return, rising tension, a long rest) and **Ambience** — for the times you want a particular one by hand, plus any links you saved on this device. |
 
+### Player display
+
+Combat’s **Display** sheet lets the GM choose which combatants are public and assign
+player-facing names. **Player view** opens `player.html` as a separate, read-only window.
+It receives only those names, their public order, the round, and the current-turn flag over
+a same-origin `BroadcastChannel`; HP, AC, initiative values, notes, source IDs, and hidden
+combatants are never included in the projection. This is a display boundary, not an access
+control boundary: it is intended for a second window in the same browser profile, does not
+sync to another device, and does not publish the session remotely. If `BroadcastChannel`
+is unavailable, a player window opened by the GM can use the same-origin popup fallback.
+
 Hovering anything with a description shows what it mechanically does, in a line: a creature's AC, HP and saves, a spell's cost, range and save, what a condition does to you and what it applies alongside itself.
+
+Combat detail sheets also accept a final damage or healing amount and preview the bounded
+HP result before saving it as one undoable combat action. Damage is entered after defenses
+are handled; temporary HP and shields remain manual.
+
+The encounter planner’s **Saved** sheet keeps named, editable encounter templates on this
+device. Loading one makes a fresh working draft, so a template can be launched repeatedly
+for waves without sharing entry or combatant state. A saved party level/size is context
+only; use its explicit Apply party button when you want to change the header settings.
 
 Party level and PC count live in the header and drive every calculation. Everything
 persists to `localStorage` under the key `pf2e-gm-toolkit/v1`.
@@ -156,6 +184,13 @@ name and level (when the category has one) for every record in every category, k
 category name — one ~1 MB file instead of loading all sixteen category files (~9.8 MB)
 just to search by name. It is generated and, like `data/index.json`, only rewritten on a
 full `npm run data` run; a partial run (named targets) leaves it alone.
+
+`data/cache-metadata.json` is generated alongside reference data. It records every
+category's SHA-256 and uncompressed byte size, letting the service worker retain verified
+downloads across shell-only updates and refresh only changed files. Regenerate it locally,
+without contacting Archives of Nethys, with `node tools/cache-metadata.mjs`. A partial
+data pull updates only its affected metadata entries; a download is staged and hash-checked
+before replacing a usable older copy.
 
 Creature records carry their Strikes — name, attack bonus, damage expression and traits —
 parsed out of the stat block by [tools/aon-text.mjs](tools/aon-text.mjs), along with
@@ -324,7 +359,7 @@ codex` whenever a character changes, or the new feats will list without descript
 ```
 index.html            app shell: header, view slot, tab bar
 styles.css            all styling; design tokens live in :root
-service-worker.js     offline cache — bump CACHE_NAME whenever assets change
+service-worker.js     offline shell and verified reference-data caches
 src/app.js            router, party header, view dispatch
 src/store.js          localStorage-backed state + subscribe/save
 src/pf2e.js           pure rules tables and maths (XP, budgets, treasure, DCs, dice)
@@ -335,12 +370,14 @@ src/pathbuilder.js    pure Pathbuilder-export converter, shared by app and tool
 src/youtube.js        pure YouTube URL validation and embed-URL builder
 src/views/*.js        one module per screen, each exporting mount() and update()
 data/index.json       manifest the Library reads to build its category list
+data/cache-metadata.json generated hashes/sizes for retained reference downloads
 data/campaign.json    HAND-AUTHORED campaign notes — never regenerated
 data/soundtrack.json  HAND-AUTHORED BGM folders — never regenerated
 data/codex.json       full rules text for what the PCs use — see "The codex"
 data/characters.json  player characters — imported, never regenerated by fetch-aon
 data/*.json           generated reference data — see "Reference data" above
 tools/fetch-aon.mjs          regenerates data/ from Archives of Nethys (Node 18+)
+tools/cache-metadata.mjs     writes reference hashes/sizes without network access
 tools/import-pathbuilder.mjs merges a Pathbuilder export into data/characters.json
 tools/fetch-codex.mjs        builds data/codex.json from data/characters.json
 tools/aon-text.mjs           pure reader for AoN markdown, stat pairs and names
@@ -371,8 +408,9 @@ it up from the manifest with no view change.
   in `data/` for the ORC/OGL attribution, and a single Archives of Nethys link stands in
   its place. Action costs render through `actionIcons()` as ◆ / ◆◆ / ◆◆◆ / ◇ / ⤾, not as
   words.
-- Bump `CACHE_NAME` in the service worker on every asset change, or phones will serve
-  a stale app.
+- Bump the shell cache name in the service worker on every asset change, or phones will
+  serve a stale app. The reference cache has a stable name, so a shell-only deploy keeps
+  verified downloaded reference files.
 - The shell (`index.html`, `src/**`, `styles.css`, `manifest.json`) is served
   **network-first**, with the cache only as an offline fallback. It has to update as one
   unit: cache-first left a new `index.html` paired with a stale `app.js`, so a newly

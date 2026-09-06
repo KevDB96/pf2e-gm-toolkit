@@ -1,176 +1,245 @@
-const CACHE_NAME = 'pf2e-gm-v52';
-
-// Where this worker is served from: '/' locally, '/pf2e-gm-toolkit/' on GitHub Pages.
-// Every path test below is relative to it. An absolute '/src/' test passed locally and
-// silently failed under a subpath, which flipped the whole shell to cache-first — the
-// one thing it must never be.
+// The shell rotates on each release. Reference data intentionally does not: a shell-only
+// deploy must not evict several megabytes the GM has already chosen to download.
+const SHELL_CACHE = 'pf2e-gm-shell-v73';
+const REFERENCE_CACHE = 'pf2e-gm-reference-v1';
+const LEGACY_CACHES = ['pf2e-gm-v62'];
 const BASE = new URL('./', self.location).pathname;
+const METADATA_FILE = 'cache-metadata.json';
+const METADATA_URL = new URL('./data/' + METADATA_FILE, self.location).href;
 
-// The app shell: small, and precached so the first offline load always works.
 const OFFLINE_URLS = [
-  './',
-  './index.html',
-  './styles.css',
-  './manifest.json',
-  './src/app.js',
-  './src/store.js',
-  './src/pf2e.js',
-  './src/wake.js',
-  './src/dom.js',
-  './src/data.js',
-  './src/pathbuilder.js',
-  './src/facets.js',
-  './src/records.js',
-  './src/youtube.js',
-  './src/search.js',
-  './src/views/home.js',
-  './src/views/encounters.js',
-  './src/views/combat.js',
-  './src/views/library.js',
-  './src/views/loot.js',
-  './src/views/notes.js',
-  './src/views/party.js',
-  './src/views/sound.js',
-  './data/soundtrack.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-maskable-192.png',
+  './', './index.html', './styles.css', './manifest.json', './src/app.js', './src/store.js',
+  './src/pf2e.js', './src/wake.js', './src/dom.js', './src/data.js', './src/offline.js', './src/pathbuilder.js',
+  './src/facets.js', './src/records.js', './src/youtube.js', './src/search.js', './src/library-filter.js', './src/saved-encounters.js', './src/pins.js',
+  './src/combat-details.js', './src/backup.js', './src/combat-turn.js', './src/combat-history.js', './src/exploration.js', './src/gm-reference.js',
+  './src/views/home.js', './src/views/encounters.js', './src/views/combat.js',
+  './src/views/library.js', './src/views/loot.js', './src/views/notes.js',
+  './src/views/party.js', './src/views/sound.js', './data/soundtrack.json',
+  './player.html', './src/player.js', './src/player-state.js', './src/player-channel.js',
+  './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-192.png',
   './icons/icon-maskable-512.png'
 ];
 
-// Google Fonts. Cinzel and Inter are the only cross-origin assets the app loads, and
-// they were never cached: cachePut() refuses anything cross-origin, so offline the app
-// silently fell back to system-ui and Georgia. They cannot be precached — the woff2 URLs
-// live inside the stylesheet and vary by browser — so they are cached on first use
-// instead, which is fine because installing already requires one online load.
 const FONT_ORIGINS = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
-
-// Small data files, warmed in the background after activation. Together about 4 MB,
-// so pulling them costs little and makes the Campaign screen and most of the Library
-// work offline straight after install. search.json is what lets the Library's global
-// search work offline before any one category has been opened.
-const WARM_URLS = [
-  './data/index.json',
-  './data/search.json',
-  './data/campaign.json',
-  './data/characters.json',
-  './data/codex.json',
-  './data/conditions.json',
-  './data/skills.json',
-  './data/classes.json',
-  './data/ancestries.json',
-  './data/heritages.json',
-  './data/backgrounds.json',
-  './data/archetypes.json',
-  './data/actions.json',
-  './data/rituals.json',
-  './data/traits.json',
-  './data/deities.json',
-  './data/hazards.json'
+const LIVE_DATA = ['characters.json', 'campaign.json', 'codex.json', 'index.json', 'search.json'];
+// Large categories remain on-demand. These small categories become ready after install.
+const WARM_REFERENCE_FILES = [
+  'conditions.json', 'skills.json', 'classes.json', 'ancestries.json', 'heritages.json',
+  'backgrounds.json', 'archetypes.json', 'actions.json', 'rituals.json', 'traits.json',
+  'deities.json', 'hazards.json'
 ];
 
-// Files that change between deploys and must never be served from a stale cache.
-// Declared here because the activate handler below uses it.
-const LIVE_DATA = ['characters.json', 'campaign.json', 'codex.json', 'index.json', 'search.json'];
+let referenceMetadata = null;
+const downloads = new Map();
 
-// creatures (2.4 MB), equipment (3.0 MB), feats (2.3 MB) and spells (0.8 MB) are left
-// out on purpose — 8 MB of background download on mobile data is not a decision the app
-// should make for you. The fetch handler caches each one the first time a screen opens
-// it, so whatever you actually use goes offline by itself.
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(OFFLINE_URLS)));
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil((async () => {
-    const keys = await caches.keys();
-    await Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
-    await self.clients.claim();
-    // Best effort, one file at a time so the warm never starves the app. The live files
-    // are re-fetched unconditionally: they change between deploys, and a skipped refresh
-    // is what left an imported character invisible in the app.
-    const cache = await caches.open(CACHE_NAME);
-    for (const url of WARM_URLS) {
-      const live = LIVE_DATA.some(f => url.endsWith('/' + f));
-      if (!live && await cache.match(url)) continue;
-      try { await cache.add(url); } catch { /* picked up on first use instead */ }
-    }
-  })());
-});
-
-/**
- * Everything small and mutable is served network-first, with the cache only as an
- * offline fallback. Two separate bugs came from getting this wrong:
- *
- *  - The shell must update as one unit. Cache-first left a new index.html paired with a
- *    stale app.js, so a newly added tab rendered while its route did not exist.
- *  - data/characters.json and data/campaign.json are hand-edited or written by an import
- *    tool between deploys. Cache-first pinned them to whatever copy was cached first, so
- *    PCs imported afterwards never appeared until CACHE_NAME happened to be bumped.
- *
- * The shell is ~60 KB and revalidates on every load. codex.json is the one large member
- * at ~0.9 MB, but it is fetched only when a character sheet is opened, and it is
- * regenerated every time a PC changes — exactly the case cache-first gets wrong. Only
- * the multi-megabyte reference files, which change only on a full data rebuild, stay
- * cache-first.
- */
+function dataUrl(file) { return new URL('./data/' + file, self.location).href; }
+function isReferenceUrl(url) {
+  return url.origin === self.location.origin && url.pathname.startsWith(BASE + 'data/') &&
+    !!referenceMetadata?.files?.[url.pathname.split('/').pop()];
+}
 function isLive(url) {
   if (url.origin !== self.location.origin) return false;
-  return url.pathname.startsWith(BASE + 'src/') ||
-    url.pathname.endsWith('.html') ||
-    url.pathname.endsWith('styles.css') ||
-    url.pathname.endsWith('manifest.json') ||
-    LIVE_DATA.some(f => url.pathname.endsWith('/data/' + f));
+  return url.pathname.startsWith(BASE + 'src/') || url.pathname.endsWith('.html') ||
+    url.pathname.endsWith('styles.css') || url.pathname.endsWith('manifest.json') ||
+    LIVE_DATA.some(file => url.pathname.endsWith('/data/' + file));
 }
-
-/**
- * A cross-origin stylesheet or font is requested no-cors, so what comes back is an
- * opaque response: `ok` is false and `status` is 0 even on success. `cache.put()` stores
- * one anyway — unlike `cache.add()`, which rejects it — and it replays fine, so the
- * fonts survive offline. Nothing else cross-origin is stored: an opaque response hides
- * its own failures, and that is only an acceptable trade for two known font hosts.
- */
-function storable(request, response) {
+function storableShell(request, response) {
   const origin = new URL(request.url).origin;
   if (FONT_ORIGINS.includes(origin)) return response.ok || response.type === 'opaque';
   return response.ok && origin === self.location.origin;
 }
-
-function cachePut(request, response) {
-  if (storable(request, response)) {
-    const copy = response.clone();
-    caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+async function putShell(request, response) {
+  if (storableShell(request, response)) await (await caches.open(SHELL_CACHE)).put(request, response.clone());
+}
+function validMetadata(value) {
+  return value && value._schema === 1 && value.files &&
+    Object.values(value.files).every(file => /^[a-f0-9]{64}$/.test(file?.sha256) &&
+      Number.isInteger(file.bytes) && file.bytes >= 0);
+}
+async function readMetadata(response) {
+  try { const value = await response.clone().json(); return validMetadata(value) ? value : null; } catch { return null; }
+}
+async function loadCachedMetadata() {
+  const hit = await (await caches.open(REFERENCE_CACHE)).match(METADATA_URL);
+  const metadata = hit && await readMetadata(hit);
+  if (metadata) referenceMetadata = metadata;
+  return metadata;
+}
+// A malformed response never replaces the last coherent offline contract.
+async function refreshMetadata() {
+  try {
+    const response = await fetch(METADATA_URL, { cache: 'no-store' });
+    const metadata = response.ok && await readMetadata(response);
+    if (!metadata) return referenceMetadata || await loadCachedMetadata();
+    await (await caches.open(REFERENCE_CACHE)).put(METADATA_URL, response.clone());
+    referenceMetadata = metadata;
+    return metadata;
+  } catch { return referenceMetadata || await loadCachedMetadata(); }
+}
+async function sha256(bytes) {
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+}
+function cachedHash(response) { return response.headers.get('X-PF2E-Reference-SHA256'); }
+// Buffer and verify before replacement. Interrupted or bad downloads leave older data usable.
+async function stageReference(request, response, expected) {
+  if (!response.ok || !expected) return false;
+  const body = await response.clone().arrayBuffer();
+  if (body.byteLength !== expected.bytes || await sha256(body) !== expected.sha256) return false;
+  const headers = new Headers(response.headers);
+  headers.set('X-PF2E-Reference-SHA256', expected.sha256);
+  headers.set('X-PF2E-Reference-Bytes', String(expected.bytes));
+  const staged = new Response(body, { status: response.status, statusText: response.statusText, headers });
+  await (await caches.open(REFERENCE_CACHE)).put(request, staged);
+  return true;
+}
+async function refreshReference(request, expected) {
+  try { return await stageReference(request, await fetch(request, { cache: 'no-store' }), expected); } catch { return false; }
+}
+async function migrateLegacy(metadata) {
+  const target = await caches.open(REFERENCE_CACHE);
+  for (const legacyName of LEGACY_CACHES) {
+    const legacy = await caches.open(legacyName);
+    for (const [file, expected] of Object.entries(metadata.files)) {
+      const request = dataUrl(file);
+      if (await target.match(request)) continue;
+      const old = await legacy.match(request);
+      if (old) await stageReference(request, old, expected);
+    }
   }
-  return response;
+}
+async function warmReferences(metadata) {
+  const cache = await caches.open(REFERENCE_CACHE);
+  for (const file of WARM_REFERENCE_FILES) {
+    const expected = metadata.files[file];
+    if (!expected) continue;
+    const request = dataUrl(file);
+    const hit = await cache.match(request);
+    if (!hit || cachedHash(hit) !== expected.sha256) await refreshReference(request, expected);
+  }
 }
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(OFFLINE_URLS)).catch(() => {}));
+  self.skipWaiting();
+});
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    await loadCachedMetadata();
+    const metadata = await refreshMetadata();
+    if (metadata) { await migrateLegacy(metadata); await warmReferences(metadata); }
+    // GitHub Pages shares an origin: only delete caches this app explicitly owned.
+    const keys = await caches.keys();
+    await Promise.all(LEGACY_CACHES.filter(name => keys.includes(name)).map(name => caches.delete(name)));
+    await self.clients.claim();
+  })().catch(() => {}));
+});
+function keep(event, task) { event.waitUntil(Promise.resolve(task).catch(() => {})); }
+
+self.addEventListener('fetch', event => {
   const { request } = event;
   if (request.method !== 'GET') return;
-
-  // Network-first for navigations so a deploy is picked up immediately.
+  const url = new URL(request.url);
   if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request).then(resp => cachePut(request, resp))
-        .catch(() => caches.match('./index.html'))
-    );
+    event.respondWith(fetch(request).then(response => { keep(event, putShell(request, response)); return response; })
+      .catch(() => caches.match('./index.html')));
     return;
   }
-
-  // Network-first for the rest of the shell and the small live data files.
-  if (isLive(new URL(request.url))) {
-    event.respondWith(
-      fetch(request).then(resp => cachePut(request, resp))
-        .catch(() => caches.match(request))
-    );
+  // Metadata is fresh online; the latest coherent version remains offline.
+  if (url.href === METADATA_URL) {
+    event.respondWith(fetch(request, { cache: 'no-store' }).then(async response => {
+      const metadata = response.ok && await readMetadata(response);
+      if (metadata) {
+        referenceMetadata = metadata;
+        keep(event, caches.open(REFERENCE_CACHE).then(cache => cache.put(request, response.clone())));
+      }
+      return response;
+    }).catch(() => caches.open(REFERENCE_CACHE).then(cache => cache.match(request))));
     return;
   }
+  if (isLive(url)) {
+    event.respondWith(fetch(request).then(response => { keep(event, putShell(request, response)); return response; })
+      .catch(() => caches.match(request)));
+    return;
+  }
+  if (isReferenceUrl(url)) {
+    event.respondWith((async () => {
+      const expected = referenceMetadata.files[url.pathname.split('/').pop()];
+      const cache = await caches.open(REFERENCE_CACHE);
+      const hit = await cache.match(request);
+      if (hit) {
+        if (cachedHash(hit) !== expected.sha256) keep(event, refreshReference(request, expected));
+        return hit;
+      }
+      const response = await fetch(request);
+      if (response.ok) keep(event, stageReference(request, response, expected));
+      return response;
+    })());
+    return;
+  }
+  // Icons and the two allowed opaque font origins are cache-first. HTTP errors stay uncached.
+  event.respondWith(caches.match(request).then(hit => hit || fetch(request).then(response => {
+    keep(event, putShell(request, response));
+    return response;
+  })));
+});
 
-  // Cache-first for reference data, icons and the Google Fonts files — multi-megabyte
-  // and effectively immutable between regenerations, and stored on first use so whatever
-  // you open goes offline. Fonts land here because isLive() is false for cross-origin.
-  event.respondWith(caches.match(request).then(hit =>
-    hit || fetch(request).then(resp => cachePut(request, resp))));
+async function offlineSnapshot() {
+  const metadata = referenceMetadata || await loadCachedMetadata();
+  const reference = await caches.open(REFERENCE_CACHE);
+  const shell = await caches.open(SHELL_CACHE);
+  const categories = await Promise.all(Object.entries(metadata?.files || {}).map(async ([file, expected]) => {
+    const hit = await reference.match(dataUrl(file));
+    return { file, bytes: expected.bytes,
+      status: !hit ? 'missing' : cachedHash(hit) === expected.sha256 ? 'ready' : 'older' };
+  }));
+  const coreFiles = ['index.html', ...LIVE_DATA];
+  const core = await Promise.all(coreFiles.map(async file => ({
+    file, status: await shell.match(file === 'index.html' ? new URL('./index.html', self.location).href : dataUrl(file))
+      ? 'ready' : 'missing'
+  })));
+  return { type: 'PF2E_OFFLINE', action: 'status', supported: !!metadata, categories, core };
+}
+
+function tell(client, message) { client?.postMessage({ type: 'PF2E_OFFLINE', ...message }); }
+
+async function downloadReferences(client, id, files) {
+  const metadata = referenceMetadata || await refreshMetadata();
+  const wanted = [...new Set(files || [])].filter(file => metadata?.files?.[file]);
+  const job = { cancelled: false };
+  downloads.set(id, job);
+  let next = 0;
+  let completed = 0;
+  const failed = [];
+  const report = phase => tell(client, { action: 'progress', id, phase, total: wanted.length, completed, failed });
+  report('downloading');
+  const one = async () => {
+    while (!job.cancelled) {
+      const file = wanted[next++];
+      if (!file) return;
+      const expected = metadata.files[file];
+      try {
+        const hit = await (await caches.open(REFERENCE_CACHE)).match(dataUrl(file));
+        if (!hit || cachedHash(hit) !== expected.sha256) {
+          if (!await refreshReference(dataUrl(file), expected)) throw new Error('Could not verify download');
+        }
+        completed++;
+      } catch { failed.push(file); }
+      report('downloading');
+    }
+  };
+  await Promise.all([one(), one()]); // bounded queue: two responses at a time
+  downloads.delete(id);
+  report(job.cancelled ? 'cancelled' : failed.length ? 'failed' : 'complete');
+}
+
+self.addEventListener('message', event => {
+  const message = event.data;
+  if (message?.type !== 'PF2E_OFFLINE') return;
+  if (message.action === 'status') {
+    event.waitUntil(offlineSnapshot().then(snapshot => event.ports[0]?.postMessage(snapshot))
+      .catch(() => event.ports[0]?.postMessage({ type: 'PF2E_OFFLINE', action: 'status', supported: false, categories: [], core: [] })));
+  }
+  if (message.action === 'cancel') downloads.get(message.id) && (downloads.get(message.id).cancelled = true);
+  if (message.action === 'download') event.waitUntil(downloadReferences(event.source, message.id, message.files).catch(() => {}));
 });

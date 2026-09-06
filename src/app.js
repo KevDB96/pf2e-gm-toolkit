@@ -1,8 +1,9 @@
 // Shell: owns the party header, the tab bar, and dispatching to a view module.
 
-import { state, save, subscribe } from './store.js';
+import { state, save, reset, subscribe, subscribePersistence, serializeState } from './store.js';
 import { qs, qsa, installTips } from './dom.js';
 import { keepAwake } from './wake.js';
+import { bindPlayerBroadcast } from './player-channel.js';
 import * as home from './views/home.js';
 import * as encounters from './views/encounters.js';
 import * as combat from './views/combat.js';
@@ -132,6 +133,39 @@ function clamp(n, lo, hi) {
   return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : lo;
 }
 
+function downloadCurrentData() {
+  const blob = new Blob([serializeState()], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'pf2e-gm-toolkit-recovery.json';
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function bindPersistence() {
+  const box = qs('#persistence');
+  const message = qs('[data-persistence-message]', box);
+  const retry = qs('[data-persistence-retry]', box);
+  const download = qs('[data-persistence-download]', box);
+  const startFresh = qs('[data-persistence-reset]', box);
+  retry.addEventListener('click', () => save());
+  download.addEventListener('click', downloadCurrentData);
+  startFresh.addEventListener('click', () => {
+    if (window.confirm('This replaces the unreadable saved data with a new empty session. Download recovery data first if you need it.')) reset();
+  });
+  subscribePersistence(status => {
+    const failed = status.kind !== 'saved';
+    box.hidden = false;
+    box.classList.toggle('error', failed);
+    box.classList.toggle('saved', !failed);
+    message.textContent = failed ? status.message : 'Saved';
+    retry.hidden = status.kind !== 'unsaved';
+    download.hidden = !failed;
+    startFresh.hidden = status.kind !== 'load-error';
+  });
+}
+
 // --- boot ----------------------------------------------------------------
 qsa('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -150,9 +184,17 @@ qs('#subnav').addEventListener('click', (e) => {
   if (btn) location.hash = '#/' + btn.dataset.view;
 });
 window.addEventListener('hashchange', render);
-subscribe(() => VIEWS[current]?.mod.update?.(root));
+subscribe(() => {
+  // A backup replacement updates the state object in place, so the persistent header
+  // needs this small direct sync too; persistence status itself uses a different channel.
+  qs('#party-level').value = state.party.level;
+  qs('#party-size').value = state.party.size;
+  VIEWS[current]?.mod.update?.(root);
+});
 
 bindParty();
+bindPersistence();
+bindPlayerBroadcast();
 installTips();
 render();
 
