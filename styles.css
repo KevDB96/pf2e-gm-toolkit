@@ -219,8 +219,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .menu-tile{display:flex;align-items:center;gap:13px;width:100%;min-height:72px;text-align:left;
   padding:12px 14px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--line)}
 .menu-tile:active{background:var(--panel-2)}
-.menu-tile .glyph{flex:0 0 auto;width:46px;height:46px;display:grid;place-items:center;font-size:1.4rem;
-  border-radius:12px;background:var(--accent-soft);border:1px solid var(--accent-edge)}
+.menu-tile .glyph{flex:0 0 auto;width:46px;height:46px;display:block;object-fit:cover;border-radius:10px;
+  background:var(--accent-soft);border:1px solid var(--accent-edge)}
 .menu-tile .grow{display:block;min-width:0}
 .menu-tile .name{display:block;font-family:'Cinzel',serif;font-size:1.05rem;color:var(--accent)}
 .menu-tile .sub{display:block;margin-top:3px;font-size:0.74rem;color:var(--muted);

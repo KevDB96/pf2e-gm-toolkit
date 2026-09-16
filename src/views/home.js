@@ -16,13 +16,13 @@ const HOME_RECENT = 5;   // how many of the Library's recents to surface on Home
 const HOME_PINS = 4;
 
 const TILES = [
-  { view: 'encounters', glyph: '⚔', title: 'Encounters' },
-  { view: 'combat', glyph: '\u{1F3B2}', title: 'Combat' },
-  { view: 'library', glyph: '\u{1F4D6}', title: 'Library' },
-  { view: 'loot', glyph: '\u{1F4B0}', title: 'Loot' },
-  { view: 'notes', glyph: '\u{1F4DC}', title: 'Campaign' },
-  { view: 'party', glyph: '\u{1F465}', title: 'Party' },
-  { view: 'sound', glyph: '\u266B', title: 'BGM' }
+  { view: 'encounters', icon: 'encounters-tile.png', title: 'Encounters' },
+  { view: 'combat', icon: 'combat-tile.png', title: 'Combat' },
+  { view: 'library', icon: 'library-tile.png', title: 'Library' },
+  { view: 'loot', icon: 'loot-tile.png', title: 'Loot' },
+  { view: 'notes', icon: 'campaign-tile.png', title: 'Campaign' },
+  { view: 'party', icon: 'party-tile.png', title: 'Party' },
+  { view: 'sound', icon: 'bgm-tile.png', title: 'BGM' }
 ];
 
 // Filled in once the manifest and campaign file resolve; null means "still loading".
@@ -338,7 +338,7 @@ function openPinManager() {
 function tile(t) {
   return `
     <button class="menu-tile" data-go="${t.view}">
-      <span class="glyph" aria-hidden="true">${t.glyph}</span>
+      <img class="glyph" src="./assets/icons/home/${t.icon}" alt="" aria-hidden="true">
       <span class="grow">
         <span class="name">${esc(t.title)}</span>
         <span class="sub" data-status="${t.view}"></span>

@@ -1,6 +1,6 @@
 // The shell rotates on each release. Reference data intentionally does not: a shell-only
 // deploy must not evict several megabytes the GM has already chosen to download.
-const SHELL_CACHE = 'pf2e-gm-shell-v77';
+const SHELL_CACHE = 'pf2e-gm-shell-v78';
 const REFERENCE_CACHE = 'pf2e-gm-reference-v1';
 const LEGACY_CACHES = ['pf2e-gm-v62'];
 const BASE = new URL('./', self.location).pathname;
@@ -25,7 +25,11 @@ const OFFLINE_URLS = [
   './assets/icons/library/ancestries.png', './assets/icons/library/heritages.png',
   './assets/icons/library/backgrounds.png', './assets/icons/library/archetypes.png',
   './assets/icons/library/deities.png', './assets/icons/library/rituals.png',
-  './assets/icons/library/skills.png', './assets/icons/library/traits.png'
+  './assets/icons/library/skills.png', './assets/icons/library/traits.png',
+  './assets/icons/home/campaign-tile.png', './assets/icons/home/encounters-tile.png',
+  './assets/icons/home/combat-tile.png', './assets/icons/home/party-tile.png',
+  './assets/icons/home/library-tile.png', './assets/icons/home/loot-tile.png',
+  './assets/icons/home/bgm-tile.png'
 ];
 
 const FONT_ORIGINS = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
