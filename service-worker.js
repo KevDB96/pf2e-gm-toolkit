@@ -1,6 +1,6 @@
 // The shell rotates on each release. Reference data intentionally does not: a shell-only
 // deploy must not evict several megabytes the GM has already chosen to download.
-const SHELL_CACHE = 'pf2e-gm-shell-v75';
+const SHELL_CACHE = 'pf2e-gm-shell-v77';
 const REFERENCE_CACHE = 'pf2e-gm-reference-v1';
 const LEGACY_CACHES = ['pf2e-gm-v62'];
 const BASE = new URL('./', self.location).pathname;
@@ -14,7 +14,7 @@ const OFFLINE_URLS = [
   './src/combat-details.js', './src/backup.js', './src/combat-turn.js', './src/combat-history.js', './src/exploration.js', './src/gm-reference.js',
   './src/views/home.js', './src/views/encounters.js', './src/views/combat.js',
   './src/views/library.js', './src/views/loot.js', './src/views/notes.js',
-  './src/views/party.js', './src/views/sound.js', './data/soundtrack.json',
+  './src/views/party.js', './src/views/sound.js', './data/soundtrack.json', './data/index.json', './data/traits.json',
   './player.html', './src/player.js', './src/player-state.js', './src/player-channel.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-192.png',
   './icons/icon-maskable-512.png',
@@ -179,9 +179,13 @@ self.addEventListener('fetch', event => {
         if (cachedHash(hit) !== expected.sha256) keep(event, refreshReference(request, expected));
         return hit;
       }
-      const response = await fetch(request);
-      if (response.ok) keep(event, stageReference(request, response, expected));
-      return response;
+      try {
+        const response = await fetch(request);
+        if (response.ok) keep(event, stageReference(request, response, expected));
+        return response;
+      } catch {
+        return (await caches.open(SHELL_CACHE)).match(request);
+      }
     })());
     return;
   }

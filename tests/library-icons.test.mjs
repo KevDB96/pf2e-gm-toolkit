@@ -21,6 +21,9 @@ test('Library category artwork covers every manifest category and is precached',
   assert.match(view, /libraryIcon\(c\)/);
   assert.match(view, /libraryIcon\(cat\)/);
   assert.match(worker, /['"]\.\/src\/library-icons\.js['"]/);
+  assert.match(worker, /['"]\.\/data\/index\.json['"]/);
+  assert.match(worker, /['"]\.\/data\/traits\.json['"]/);
+  assert.match(worker, /WARM_REFERENCE_FILES = [\s\S]*['"]traits\.json['"]/);
   for (const category of categories) {
     const path = libraryIconPath(category.name);
     await access(join(root, path.slice(2)));
