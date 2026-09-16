@@ -255,9 +255,12 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .picker{display:flex;flex:0 0 auto;max-width:100%;min-width:0;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding:2px 0 6px;
   scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .picker::-webkit-scrollbar{display:none}
-.pick{flex:0 0 auto;min-height:38px;padding:0 13px;border-radius:999px;font-size:0.8rem;
+.pick{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 13px;border-radius:999px;font-size:0.8rem;
   background:var(--panel);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .pick.on{background:var(--accent-soft);border-color:var(--accent-edge);color:var(--accent);font-weight:600}
+.library-icon-wrap{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;width:1.35em;height:1.35em}
+.library-icon{display:block;width:100%;height:100%;object-fit:contain}
+.library-icon-fallback{line-height:1}
 
 /* ---------- subnav (Run / Table sub-strip) ---------- */
 /* Sibling of #view, not inside it — #view is replaced wholesale on every switch, so a
@@ -422,7 +425,7 @@ h2 + .card-group{margin-top:4px}
 
 /* One heading per category block in the Library's "All" search results. */
 .group-head{font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.04em;
-  text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+  text-transform:uppercase;color:var(--muted);margin:14px 0 6px;display:flex;align-items:center;gap:6px}
 .group-head:first-child{margin-top:0}
 
 /* ---------- combat tracker ---------- */

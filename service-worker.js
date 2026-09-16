@@ -1,6 +1,6 @@
 // The shell rotates on each release. Reference data intentionally does not: a shell-only
 // deploy must not evict several megabytes the GM has already chosen to download.
-const SHELL_CACHE = 'pf2e-gm-shell-v74';
+const SHELL_CACHE = 'pf2e-gm-shell-v75';
 const REFERENCE_CACHE = 'pf2e-gm-reference-v1';
 const LEGACY_CACHES = ['pf2e-gm-v62'];
 const BASE = new URL('./', self.location).pathname;
@@ -10,14 +10,22 @@ const METADATA_URL = new URL('./data/' + METADATA_FILE, self.location).href;
 const OFFLINE_URLS = [
   './', './index.html', './styles.css', './manifest.json', './src/app.js', './src/store.js',
   './src/pf2e.js', './src/wake.js', './src/dom.js', './src/data.js', './src/offline.js', './src/pathbuilder.js',
-  './src/facets.js', './src/records.js', './src/youtube.js', './src/search.js', './src/library-filter.js', './src/saved-encounters.js', './src/pins.js',
+  './src/facets.js', './src/records.js', './src/youtube.js', './src/search.js', './src/library-filter.js', './src/library-icons.js', './src/saved-encounters.js', './src/pins.js',
   './src/combat-details.js', './src/backup.js', './src/combat-turn.js', './src/combat-history.js', './src/exploration.js', './src/gm-reference.js',
   './src/views/home.js', './src/views/encounters.js', './src/views/combat.js',
   './src/views/library.js', './src/views/loot.js', './src/views/notes.js',
   './src/views/party.js', './src/views/sound.js', './data/soundtrack.json',
   './player.html', './src/player.js', './src/player-state.js', './src/player-channel.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-192.png',
-  './icons/icon-maskable-512.png'
+  './icons/icon-maskable-512.png',
+  './assets/icons/library/creatures.png', './assets/icons/library/equipment.png',
+  './assets/icons/library/spells.png', './assets/icons/library/feats.png',
+  './assets/icons/library/actions.png', './assets/icons/library/hazards.png',
+  './assets/icons/library/conditions.png', './assets/icons/library/classes.png',
+  './assets/icons/library/ancestries.png', './assets/icons/library/heritages.png',
+  './assets/icons/library/backgrounds.png', './assets/icons/library/archetypes.png',
+  './assets/icons/library/deities.png', './assets/icons/library/rituals.png',
+  './assets/icons/library/skills.png', './assets/icons/library/traits.png'
 ];
 
 const FONT_ORIGINS = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];

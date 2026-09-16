@@ -14,6 +14,7 @@ import { buildFacets, creatureTypeNames, facetChange, facetOptions, facetSelects
 import { addEntry, addHazard } from './encounters.js';
 import { searchAll } from '../search.js';
 import { librarySearchBase, librarySelectedRows, prepareLibraryRows } from '../library-filter.js';
+import { libraryIcon } from '../library-icons.js';
 import { addPin, hasPin, removePin } from '../pins.js';
 
 const RENDER_CAP = 200;
@@ -131,7 +132,7 @@ function drawChips(root) {
     `<button class="pick" data-cat="${ALL}"><span aria-hidden="true">🔍</span> All</button>` +
     categories.map(c => `
       <button class="pick" data-cat="${esc(c.name)}">
-        <span aria-hidden="true">${c.glyph}</span> ${esc(c.label)}
+        ${libraryIcon(c)} <span>${esc(c.label)}</span>
       </button>`).join('');
 }
 
@@ -338,7 +339,7 @@ function groupBlock(g) {
       </button>`
     : '';
   return `
-    <div class="group-head">${cat.glyph} ${esc(cat.label)} · ${g.total}</div>
+    <div class="group-head">${libraryIcon(cat)} <span>${esc(cat.label)} · ${g.total}</span></div>
     <div class="list">${rowsHtml}</div>
     ${more}`;
 }
