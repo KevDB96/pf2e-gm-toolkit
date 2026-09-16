@@ -29,6 +29,8 @@ test('Library category artwork maps every approved asset and is precached', asyn
 
 test('Library category artwork keeps the manifest glyph as a missing-image fallback', () => {
   const markup = libraryIcon({ name: 'future-category', glyph: '☆' });
+  assert.match(markup, /aria-hidden="true"/);
+  assert.match(markup, /alt=""/);
   assert.match(markup, /onerror=/);
   assert.match(markup, /library-icon-fallback/);
   assert.match(markup, /☆/);
