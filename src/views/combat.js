@@ -286,7 +286,16 @@ export function update(root) {
   // the columns only decide where a combatant is drawn, never when it acts — so the
   // highlight goes on the active combatant by identity rather than by position.
   const turnOf = state.combat.round > 0 ? active : null;
-  qs('#board', root).innerHTML =
+  const board = qs('#board', root);
+  // Which side is empty is a style question the board asks of itself: an empty column
+  // holding two lines of prose should not keep claiming half a phone screen while the
+  // cards that exist are squeezed into the other half. styles.css owns what the three
+  // values do; "both" (nobody at all) matches neither rule and leaves the board even.
+  const counts = { pc: 0, npc: 0 };
+  for (const c of list) counts[sideOf(c)] += 1;
+  if (counts.pc && counts.npc) delete board.dataset.empty;
+  else board.dataset.empty = counts.pc ? 'npc' : counts.npc ? 'pc' : 'both';
+  board.innerHTML =
     column('pc', 'Party', list, turnOf) + column('npc', 'Enemies', list, turnOf);
 
   // Whatever the planner is currently holding, one tap away. Hidden when it holds nothing,
