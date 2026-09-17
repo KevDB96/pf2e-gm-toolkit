@@ -333,10 +333,16 @@ function quantise(rgba, width, height, max) {
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const at = (y * width + x) * 3;
-      const r = work[at];
-      const g = work[at + 1];
-      const b = work[at + 2];
-      const q = nearest(Math.round(r), Math.round(g), Math.round(b));
+      // Clamp before matching. The diffused error can push a channel outside the byte
+      // range, and matching on that value both picks an arbitrary palette entry and —
+      // because the lookup cache is keyed on the quantised colour — poisons the cache for
+      // the whole bucket it collides with. Left unclamped this shows as white speckle over
+      // the dark end of the artwork, which is a far bigger change to it than the
+      // quantisation the dither is supposed to be hiding.
+      const r = Math.max(0, Math.min(255, Math.round(work[at])));
+      const g = Math.max(0, Math.min(255, Math.round(work[at + 1])));
+      const b = Math.max(0, Math.min(255, Math.round(work[at + 2])));
+      const q = nearest(r, g, b);
       indices[y * width + x] = q;
       const p = palette[q];
       const er = r - p[0];
