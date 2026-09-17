@@ -61,6 +61,14 @@ conventions. This file only records the things that are easy to get wrong.
   precaching all four charged every install 383 kB for no screen that could show it. The
   art is shaded and brings its own palette, so unlike the flat art before it, recolouring
   `--accent` no longer recolours the icons.
+- **The favicon is a third icon file, and it is likewise in neither the manifest nor
+  `OFFLINE_URLS`.** `icons/favicon-48.png` is the badge resampled to the largest size a tab
+  bar, a bookmark or a shortcut asks for; `npm run icons` writes it, and `index.html` and
+  `player.html` link it with `<link rel="icon">`. Pointing that link at `icon-192.png`
+  instead is the obvious move and it is wrong twice over: 28 kB of shaded art to draw at
+  16px, fetched on every cold load, and a 48px entry in the manifest offers a home screen an
+  icon to blow up. Nothing the app draws uses it, so it is not precached either — the
+  service worker's cache-first fallback picks it up on first load.
 - **The tab icons are colour art, not masks.** `icons/nav/*.png` are generated from the
   supplied badge tiles by `tools/nav-icons.mjs` (`npm run icons`), and they are `<img>`
   elements in `index.html` — there is no `data-icon`, no `--glyph` and no `mask-image` for

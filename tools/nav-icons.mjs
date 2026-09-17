@@ -27,6 +27,12 @@
 // the maskable pair inset so the badge lands inside the middle 80%, which is the safe zone
 // Android's circular adaptive mask leaves.
 //
+// So does the favicon, at 48px. It is written as its own file rather than the pages
+// pointing a `<link rel="icon">` at icon-192.png: that file is 28 kB of shaded art for
+// something the browser draws at 16-48px in a tab, and the favicon is fetched on every
+// cold load in a browser tab. 48 is the largest size a tab, a bookmark or a shortcut asks
+// for, and area-averaging down to it here beats each browser rescaling the 192 by itself.
+//
 // Usage:  node tools/nav-icons.mjs [--src <dir>] [--out <dir>] [--size N] [--crop F]
 //                                  [--colours N] [--report]
 // See README, "Icons".
@@ -53,6 +59,16 @@ const NAV = [
 
 /** The launcher icon, and the two sizes the manifest lists. */
 const APP = { file: 'app-icon.png', sizes: [192, 512] };
+
+/**
+ * The favicon, cut from the same art as the launcher pair.
+ *
+ * Not one of `APP.sizes` on purpose: the manifest's icons are drawn by the launcher at
+ * install time, where 192 and 512 are the sizes it wants, while this one is drawn by the
+ * browser in a tab and belongs in `index.html` rather than in the manifest. Adding it to
+ * the manifest as well would offer a launcher a 48px icon to blow up over a whole screen.
+ */
+const FAVICON = { name: 'favicon-48.png', size: 48 };
 
 /**
  * Fraction of the tile kept, measured from the centre.
@@ -590,6 +606,17 @@ function main() {
     }
   }
   if (!args.report) console.log(`${NAV.length} tab icons and ${APP.sizes.length * 2} launcher icons written`);
+
+  // The same full frame as the plain launcher pair — the favicon is the badge on its own
+  // ground, with no maskable inset, because a tab icon is never masked to a shape.
+  const favicon = encodeIcon(resampleRect(app, full, FAVICON.size), FAVICON.size, args.colours);
+  writeFileSync(join(appOut, FAVICON.name), favicon);
+  if (args.report) {
+    console.log(`app ${FAVICON.size}  ${FAVICON.name} ${(favicon.length / 1024).toFixed(1)} kB ` +
+      `(the badge art at tab size, not the 192px launcher rescaled)`);
+  } else {
+    console.log(`${NAV.length} tab icons, ${APP.sizes.length * 2} launcher icons and ${FAVICON.name} written`);
+  }
 }
 
 main();

@@ -100,6 +100,21 @@ test('the launcher icons exist at the sizes the manifest asks for', () => {
   }
 });
 
+test('both pages point at a favicon cut for a tab, not at the launcher art', () => {
+  const file = join(ROOT, 'icons', 'favicon-48.png');
+  const { bytes } = readIcon(file, 48);
+  // A `<link rel="icon">` at icon-192.png would also resolve — it is just 28 kB of shaded
+  // art, fetched on every cold load, to be drawn at 16px in a tab.
+  assert.ok(bytes <= 8 * 1024,
+    `${file} is ${(bytes / 1024).toFixed(1)} kB; the favicon is fetched on every cold load`);
+
+  for (const page of ['index.html', 'player.html']) {
+    const html = readFileSync(join(ROOT, page), 'utf8');
+    assert.match(html, /<link[^>]+rel="icon"[^>]+href="icons\/favicon-48\.png"/,
+      `${page} does not link icons/favicon-48.png, so the browser has no tab icon`);
+  }
+});
+
 test('the shell references every tab icon it ships', () => {
   const html = readFileSync(join(ROOT, 'index.html'), 'utf8');
   const worker = readFileSync(join(ROOT, 'service-worker.js'), 'utf8');

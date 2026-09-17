@@ -56,7 +56,9 @@ masks an adaptive icon to a circle. Both pairs are listed in the manifest with t
 `OFFLINE_URLS`: nothing in the app draws them — the browser and the OS fetch them from the
 manifest when the app is installed — and at 383 kB for the four they were the heaviest
 thing in the install precache. The art is shaded and brings its own palette, so unlike the
-flat art before it, recolouring `--accent` no longer recolours the icons. See "Tab icons".
+flat art before it, recolouring `--accent` no longer recolours the icons. `favicon-48.png`
+is the same badge resampled for a browser tab, and both pages link it directly rather than
+through the manifest — see "Tab icons".
 
 ## Tests
 
@@ -401,10 +403,10 @@ it up from the manifest with no view change.
 
 ### Tab icons
 
-`npm run icons` rebuilds the five tab icons in `icons/nav/` and the four launcher icons
-from the supplied badge art: one 1254×1254 tile per icon, a shaded rounded-rect badge
-(textured ground, a metal ring, the drawing over it) on a dark surround. The tool is run by
-hand, like the data fetchers; it adds no runtime dependency and no build step, and
+`npm run icons` rebuilds the five tab icons in `icons/nav/`, the four launcher icons and
+the favicon from the supplied badge art: one 1254×1254 tile per icon, a shaded rounded-rect
+badge (textured ground, a metal ring, the drawing over it) on a dark surround. The tool is
+run by hand, like the data fetchers; it adds no runtime dependency and no build step, and
 `tests/nav-icons.test.mjs` checks the output.
 
 The icons ship as **colour art**, not as tinted masks. That is a change of technique forced
@@ -440,6 +442,15 @@ Because they are images and not masks, an icon URL lives in `index.html`, not in
 when the icons change — bump `CACHE_NAME`, and keep the manifest's four entries matching
 what the tool writes. The tab icons must stay in `OFFLINE_URLS`; an `<img>` whose file is
 missing or uncached is a broken image in the middle of the tab bar.
+
+The **favicon** is the third kind of icon file and the only one that neither the manifest
+nor `OFFLINE_URLS` mentions. `icons/favicon-48.png` is the badge resampled to 48px — the
+largest size a tab bar, a bookmark or a shortcut asks for — and both `index.html` and
+`player.html` link it with `<link rel="icon">`. Pointing that link at `icon-192.png` is the
+obvious thing and it is wrong twice over: the launcher file is 28 kB of shaded art to draw
+at 16px, fetched on every cold load, and a 48px manifest entry offers a home screen an icon
+to blow up. Nothing the app draws uses it, so it is not precached — though the service
+worker's cache-first fallback picks it up on first load.
 
 `node tools/nav-icons.mjs --report` prints the crop and the size of every file it wrote.
 

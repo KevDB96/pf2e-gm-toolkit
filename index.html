@@ -10,6 +10,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PF2e GM">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <!-- The same badge art as the tab icon, at 48px — the largest size a tab bar, a bookmark
+       or a shortcut asks for. Deliberately not the 192px launcher file the manifest and the
+       apple-touch-icon above use: that is 28 kB of shaded art to draw at 16, fetched on
+       every cold load, and `npm run icons` writes this one from the same tile. Nothing
+       needs it to lay the app out, so a browser that cannot fetch it just draws its own
+       default. -->
+  <link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
   <title>PF2e GM Toolkit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
