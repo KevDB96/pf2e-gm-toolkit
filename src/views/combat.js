@@ -352,9 +352,14 @@ function card(c, isTurn) {
                 value="${c.hp}" data-hp-slide="${c.id}" aria-label="Set HP of ${esc(name)}">
        </div>`;
 
-  // A card in a 163px column, so it stacks rather than spreads, and the name wraps instead
-  // of ellipsising — "Goblin Warrior 2" on two lines still tells you which goblin it is.
+  // The card is one column of a two-column board, so a phone gives it ~179px, and three
+  // 44px controls across that left the name 35px — which is how "Hobgoblin" ended up
+  // broken in half. So the name row carries only the name and initiative, and the two
+  // row-level actions move down to the sub-line, which is 12px of text that cannot use the
+  // height anyway. The chips row is not rendered when it would be empty — most cards, most
+  // of a fight — and that is where the height saving comes from.
   const sub = subLine(c);
+  const conditions = conditionEffects(effectiveConditionEffects(normalizeConditionEffects(c)));
   return `
     <div class="${cls}">
       <div class="row" style="gap:6px">
@@ -362,19 +367,24 @@ function card(c, isTurn) {
                value="${c.init ?? ''}" placeholder="?"
                aria-label="Initiative for ${esc(c.name)}">
         <button class="combat-name grow" data-open-stats="${c.id}" aria-label="Open statistics for ${esc(name)}">${esc(name)}</button>
-        <button class="icon ghost danger" data-remove="${c.id}"
-                aria-label="Remove ${esc(name)}">&#10005;</button>
       </div>
-      ${sub ? `<div class="sub">${esc(sub)}</div>` : ''}
+      <div class="row spread subrow">
+        <span class="sub">${sub ? esc(sub) : ''}</span>
+        <span class="card-actions">
+          <button class="icon ghost" data-cond="${c.id}"${tip('Add a condition to this combatant')}
+                  aria-label="Add a condition to ${esc(name)}">+</button>
+          <button class="icon ghost danger" data-remove="${c.id}"
+                  aria-label="Remove ${esc(name)}">&#10005;</button>
+        </span>
+      </div>
       <div class="hprow">${hpBlock}</div>
       ${isTurn ? '<div class="combat-quick-actions"><button class="ghost" data-delay>Delay</button><button class="ghost" data-ready>Ready</button></div>' : ''}
-      <div class="chips">
-        ${conditionEffects(effectiveConditionEffects(normalizeConditionEffects(c))).map(cond => `
+      ${conditions.length ? `<div class="chips">
+        ${conditions.map(cond => `
           <button class="chip" data-owner="${c.id}" data-condition-detail="${esc(cond)}"${tip(describe(cond))}
                   aria-label="View ${esc(cond)} on ${esc(name)}">${esc(cond)}</button>
         `).join('')}
-        <button class="chip add" data-cond="${c.id}">+ condition</button>
-      </div>
+      </div>` : ''}
     </div>`;
 }
 
