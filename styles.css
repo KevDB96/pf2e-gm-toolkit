@@ -213,6 +213,15 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .tab span{font-size:0.58rem;font-weight:600;letter-spacing:0.02em;text-transform:uppercase;
   white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .tab.active{color:var(--accent)}
+/* The tab icons are colour art, not masks, and they are `<img>` elements where the emoji
+   glyph used to sit. The supplied badge tiles are shaded drawings — a textured ground with
+   a metal ring over it — so there is no luminance cut that lifts a subject off its
+   background, and tools/nav-icons.mjs crops and resizes the art instead of deriving a
+   silhouette from it. The cost is that `currentColor` can no longer tint a tab, so the
+   active one reads by weight — full-strength art against art at 0.55 opacity — and by the
+   label colour. */
+.tab-icon{width:40px;height:40px;flex:0 0 auto;opacity:0.55;transition:opacity 140ms ease}
+.tab.active .tab-icon{opacity:1}
 
 /* ---------- home menu ---------- */
 .menu{display:flex;flex-direction:column;gap:10px}

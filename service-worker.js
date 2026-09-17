@@ -1,6 +1,6 @@
 // The shell rotates on each release. Reference data intentionally does not: a shell-only
 // deploy must not evict several megabytes the GM has already chosen to download.
-const SHELL_CACHE = 'pf2e-gm-shell-v78';
+const SHELL_CACHE = 'pf2e-gm-shell-v79';
 const REFERENCE_CACHE = 'pf2e-gm-reference-v1';
 const LEGACY_CACHES = ['pf2e-gm-v62'];
 const BASE = new URL('./', self.location).pathname;
@@ -16,8 +16,10 @@ const OFFLINE_URLS = [
   './src/views/library.js', './src/views/loot.js', './src/views/notes.js',
   './src/views/party.js', './src/views/sound.js', './data/soundtrack.json', './data/index.json', './data/traits.json',
   './player.html', './src/player.js', './src/player-state.js', './src/player-channel.js',
-  './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-192.png',
-  './icons/icon-maskable-512.png',
+  // The tab bar draws these, so they have to be here: offline, an <img> with no cache entry
+  // is a broken image sitting in the middle of the bar.
+  './icons/nav/home.png', './icons/nav/run.png', './icons/nav/table.png',
+  './icons/nav/library.png', './icons/nav/bgm.png',
   './assets/icons/library/creatures.png', './assets/icons/library/equipment.png',
   './assets/icons/library/spells.png', './assets/icons/library/feats.png',
   './assets/icons/library/actions.png', './assets/icons/library/hazards.png',
@@ -30,6 +32,10 @@ const OFFLINE_URLS = [
   './assets/icons/home/combat-tile.png', './assets/icons/home/party-tile.png',
   './assets/icons/home/library-tile.png', './assets/icons/home/loot-tile.png',
   './assets/icons/home/bgm-tile.png'
+  // The four launcher icons are deliberately not listed. Nothing in the app draws them —
+  // the browser and the OS fetch them from the manifest when the app is installed — and
+  // they are the heaviest files in the project, so precaching them charged every install
+  // for something no screen can show.
 ];
 
 const FONT_ORIGINS = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];

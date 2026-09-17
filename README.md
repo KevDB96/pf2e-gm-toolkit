@@ -48,13 +48,15 @@ request is just that: a request, not a promise that browser settings or storage 
 cannot clear the data. YouTube playback and full Archives of Nethys pages always need an
 internet connection.
 
-`icons/` holds two pairs. `icon-192.png` and `icon-512.png` are the plain icons; the
-`icon-maskable-*.png` pair is the same art inset to 90% so it survives the circular mask
-Android applies to an adaptive icon. Both pairs are listed in the manifest with the
-matching `purpose`. Replacing the art means replacing all four — a maskable icon whose
-content strays outside the middle 80% gets its corners clipped on the home screen. The art
-uses the same tokens as the app, `--accent` on `--bg`, so it should be recoloured whenever
-the palette is.
+`icons/` holds the launcher icons and the five tab icons in `icons/nav/`. `icon-192.png`
+and `icon-512.png` are the plain launcher pair; the `icon-maskable-*.png` pair is the same
+art drawn larger and inset until the *badge* sits inside the middle 80%, because Android
+masks an adaptive icon to a circle. Both pairs are listed in the manifest with the matching
+`purpose`, and all four are regenerated together by `npm run icons`. They are not in
+`OFFLINE_URLS`: nothing in the app draws them — the browser and the OS fetch them from the
+manifest when the app is installed — and at 383 kB for the four they were the heaviest
+thing in the install precache. The art is shaded and brings its own palette, so unlike the
+flat art before it, recolouring `--accent` no longer recolours the icons. See "Tab icons".
 
 ## Tests
 
@@ -397,6 +399,50 @@ Adding a *reference category* is different and easier: add it to `TARGETS` in
 [tools/fetch-aon.mjs](tools/fetch-aon.mjs) and re-run `npm run data`. The Library picks
 it up from the manifest with no view change.
 
+### Tab icons
+
+`npm run icons` rebuilds the five tab icons in `icons/nav/` and the four launcher icons
+from the supplied badge art: one 1254×1254 tile per icon, a shaded rounded-rect badge
+(textured ground, a metal ring, the drawing over it) on a dark surround. The tool is run by
+hand, like the data fetchers; it adds no runtime dependency and no build step, and
+`tests/nav-icons.test.mjs` checks the output.
+
+The icons ship as **colour art**, not as tinted masks. That is a change of technique forced
+by the art: a mask has to be derived from the artwork's luminance, and this artwork has no
+such cut — the ground is as bright as the drawing — so pointed at this batch the old
+analysis returned hundreds of "glyph" fragments per icon, which is the texture and the ring
+rather than the subject.
+
+So the tool does geometry instead of analysis:
+
+- **Crop** the centre 88% of the tile (`--crop`), which is where the badge ends and its
+  surround begins. One shared ratio for the set, so the icons keep the weight they were
+  drawn with instead of each being scaled to fill its own frame.
+- **Resample** to 128px (`--size`) — 40px on screen, which at the A54's DPR 2.625 needs 105
+  source pixels. The ratio is large (1104px into 128), so the resampler area-averages
+  rather than point-samples; nearest-neighbour aliases the ring's metalwork into noise.
+- **Encode** as an 8-bit palette PNG, with the per-row filter picked for size and the
+  quantisation error dithered (Floyd–Steinberg) so the ground does not band. Truecolour was
+  the first pass and it was three times the weight for no visible gain — 43 kB per tab icon
+  against 13 kB — which mattered, because the tab icons are on the critical path of every
+  cold load. `tests/nav-icons.test.mjs` holds them to a byte ceiling so a change of
+  technique cannot quietly undo that.
+
+The launcher pair comes out of the same run: the plain pair is the art at 192 and 512, and
+the maskable pair redraws it at `safe zone / crop` of the canvas on a flat fill sampled
+from the art's own border, so the **badge** lands inside the middle 80% rather than the
+frame. Padding with the border colour and not `--bg` is what stops the corners showing a
+different shade of near-black against the art's ground.
+
+Because they are images and not masks, an icon URL lives in `index.html`, not in
+`styles.css`, and `currentColor` no longer tints a tab: the active one is shown by weight
+(full-strength art against 0.55 opacity) and by the label colour. Keep two things in step
+when the icons change — bump `CACHE_NAME`, and keep the manifest's four entries matching
+what the tool writes. The tab icons must stay in `OFFLINE_URLS`; an `<img>` whose file is
+missing or uncached is a broken image in the middle of the tab bar.
+
+`node tools/nav-icons.mjs --report` prints the crop and the size of every file it wrote.
+
 ### Conventions
 
 - Rules maths goes in `src/pf2e.js` and stays pure — no DOM, no storage. It is the part
@@ -420,6 +466,11 @@ it up from the manifest with no view change.
   They cannot be precached — the `woff2` URLs live inside the stylesheet and vary by
   browser — so the fonts go offline after one online load, which installing needs anyway.
   Until this was added the app fell back to `system-ui`/Georgia whenever it was offline.
+  The stylesheet is linked `media="print"` and switched to `all` on load, which keeps a
+  cross-origin request off the critical path: left render-blocking, a slow or unreachable
+  `fonts.googleapis.com` holds back the entire first paint, and there is nothing on screen
+  to show for it. `display=swap` is already in the URL, so the app draws in the fallback
+  metrics and reflows when the webfont arrives.
 - Colour lives entirely in the `:root` tokens in [styles.css](styles.css) — greyscale
   ground, purple for every primary accent, green for healthy/done/low, and red reserved
   for danger. Each accent has three forms: `--accent` (text/marks), `--accent-soft`

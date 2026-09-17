@@ -52,14 +52,34 @@ conventions. This file only records the things that are easy to get wrong.
   `woff2` URLs live inside the stylesheet and vary by browser, so they are cached on first
   use. Nothing else cross-origin is cached — an opaque response hides its own failures.
 - **The icons come in two pairs and both are listed in the manifest.** `icon-192/512.png`
-  are `purpose: "any"`; `icon-maskable-192/512.png` are the same art inset to 90% for
-  `purpose: "maskable"`, because Android masks an adaptive icon to a circle and the plain
-  art overflows that safe zone by a few pixels at the d20's top and bottom points. Replace
-  all four together, and keep maskable content inside the middle 80%. The art follows the
-  same tokens as the app — `--accent` `#b592f6` on `--bg` `#0c0c10` — so recolouring the
-  palette means recolouring these too; they were gold against a warm dark until the
-  purple accent landed, and looked like a different app on the home screen.
+  are `purpose: "any"`; `icon-maskable-192/512.png` are the same art drawn larger and
+  inset until the *badge* sits inside the middle 80%, because Android masks an adaptive
+  icon to a circle. Replace all four together — `npm run icons` writes all of them from one
+  run — and keep the maskable inset on the safe zone rather than on the frame, since the
+  art already carries a margin of its own. They are deliberately *not* in `OFFLINE_URLS`:
+  nothing in the app draws them, the browser fetches them from the manifest at install, and
+  precaching all four charged every install 383 kB for no screen that could show it. The
+  art is shaded and brings its own palette, so unlike the flat art before it, recolouring
+  `--accent` no longer recolours the icons.
+- **The tab icons are colour art, not masks.** `icons/nav/*.png` are generated from the
+  supplied badge tiles by `tools/nav-icons.mjs` (`npm run icons`), and they are `<img>`
+  elements in `index.html` — there is no `data-icon`, no `--glyph` and no `mask-image` for
+  them. The art in this batch is shaded — a textured ground with a metal ring over it — so
+  the mask pipeline that worked on flat tiles has no luminance cut to work with here;
+  pointed at this art it returned hundreds of "glyph" fragments per icon, which is the
+  texture, not the drawing. What dropping the mask costs is `currentColor`: an active tab
+  reads by weight (full-strength art against 0.55 opacity) and by the label colour. The
+  files are 8-bit **palette** PNGs with a dithered quantisation, a third of the weight of
+  the truecolour version for no visible difference at 40px, and `tests/nav-icons.test.mjs`
+  holds them to a byte ceiling — getting this wrong once put a megabyte on every cold load
+  and made the app feel broken on a phone.
 
+- **The Google Fonts stylesheet is deliberately non-blocking.** It is linked
+  `media="print"` with `onload="this.media='all'"`. As a plain stylesheet it is
+  render-blocking *and* cross-origin, so an unreachable or slow `fonts.googleapis.com`
+  stops the app painting anything at all — the one failure the offline cache cannot cover.
+  `display=swap` is already in the URL, so the fallback metrics are used until the webfont
+  lands. Do not "tidy" it back into an ordinary `<link rel="stylesheet">`.
 - **Paths stay relative; the service worker derives its own base.** The app is deployed to
   GitHub Pages under `/pf2e-gm-toolkit/`, not a domain root, so a leading-slash path works
   locally and 404s only in production. `BASE` in `service-worker.js` comes from

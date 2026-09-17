@@ -13,7 +13,16 @@
   <title>PF2e GM Toolkit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Loaded as a print stylesheet and switched over on arrival, which takes a
+       cross-origin stylesheet off the critical path. Left blocking, it puts a DNS lookup, a
+       TLS handshake and a round trip to fonts.googleapis.com in front of the first paint,
+       and nothing is painted at all until it resolves — on a phone that is most of a
+       second of empty screen. Nothing here needs the font to lay out: the families are
+       requested with display=swap, so the app draws in the fallback metrics and reflows
+       when the webfont lands. No noscript copy, because the whole shell is ES modules —
+       with scripting off there is no app to style. -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;600&display=swap"
+        rel="stylesheet" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -36,11 +45,26 @@
     <section id="view" class="view" aria-live="polite"></section>
 
     <nav class="tabbar" role="tablist">
-      <button class="tab" data-view="home" role="tab">🏠<span>Home</span></button>
-      <button class="tab" data-view="run" role="tab">🎲<span>Run</span></button>
-      <button class="tab" data-view="table" role="tab">👥<span>Table</span></button>
-      <button class="tab" data-view="library" role="tab">📖<span>Library</span></button>
-      <button class="tab" data-view="sound" role="tab">♫<span>BGM</span></button>
+      <button class="tab" data-view="home" role="tab">
+        <img class="tab-icon" src="icons/nav/home.png" alt="" width="40" height="40">
+        <span>Home</span>
+      </button>
+      <button class="tab" data-view="run" role="tab">
+        <img class="tab-icon" src="icons/nav/run.png" alt="" width="40" height="40">
+        <span>Run</span>
+      </button>
+      <button class="tab" data-view="table" role="tab">
+        <img class="tab-icon" src="icons/nav/table.png" alt="" width="40" height="40">
+        <span>Table</span>
+      </button>
+      <button class="tab" data-view="library" role="tab">
+        <img class="tab-icon" src="icons/nav/library.png" alt="" width="40" height="40">
+        <span>Library</span>
+      </button>
+      <button class="tab" data-view="sound" role="tab">
+        <img class="tab-icon" src="icons/nav/bgm.png" alt="" width="40" height="40">
+        <span>BGM</span>
+      </button>
     </nav>
   </main>
   <script type="module" src="src/app.js"></script>
