@@ -20,8 +20,14 @@
   --green-soft:rgba(95,203,139,0.12);
   --green-edge:rgba(95,203,139,0.38);
 
-  /* Violet sits between purple and red on the escalation scale. */
+  /* Violet sits between purple and red on the *escalation* scale — how outmatched the
+     party is, in the encounter planner — and nowhere else. It used to be the HP bar's
+     half-health band as well, which made a wounded creature read as the same signal as
+     a severe encounter. */
   --violet:#cf6be0;
+
+  /* Amber is the wound colour on the health scale: green, amber, blood. */
+  --amber:#e8a24e;
 
   /* Red stays for danger only — it is the one signal that must not be reinterpreted. */
   --blood:#e2596f;
@@ -510,10 +516,10 @@ h2 + .card-group{margin-top:4px}
 /* flex:1 1 auto is load-bearing, not decoration: as a bare flex item the bar has no
    basis, its child is a percentage of a width that is still being resolved, and the whole
    thing resolves to zero — so the bar was invisible and only the slider's thumb showed,
-   taking the HP colour cue (green/violet/red) with it. */
+   taking the HP colour cue (green/amber/blood) with it. */
 .hpbar{flex:1 1 auto;min-width:0;height:8px;border-radius:999px;background:rgba(0,0,0,0.35);overflow:hidden}
 .hpbar > div{height:100%;background:var(--green);transition:width 200ms ease}
-.hpbar.warn > div{background:var(--violet)}
+.hpbar.warn > div{background:var(--amber)}
 .hpbar.crit > div{background:var(--blood)}
 /* The bar doubles as a slider: a range input laid over it, sized to the whole strip so
    there is something to aim at either side of an 8px bar. Only the thumb is drawn — the
@@ -550,6 +556,19 @@ h2 + .card-group{margin-top:4px}
    (border-top only, no fill) until there is something to say. */
 .turn-report{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);
   font-size:0.8rem;color:var(--ink)}
+/* The status line and Undo share a row, because on its own line the button read as a
+   second primary action under "Next turn" — a bordered box 44px tall the width of a
+   sentence. It is a text button instead: no border, no fill, label-sized glyphs, and it
+   right-aligns against whatever the status line says. What does *not* shrink is the tap
+   area — min-height stays at the app's 44px floor, since this is the control a GM reaches
+   for after a mis-tap and it has to be as easy to hit as it was when it looked big.
+   flex-wrap, so a long label ("Undo: Add condition") drops below the status text rather
+   than squeezing it. */
+.turn-foot{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;margin-top:6px}
+.turn-foot .undo{margin-left:auto;border:0;background:none;padding:0 2px;min-height:44px;
+  font-size:0.76rem;color:var(--muted);text-decoration:underline;
+  text-decoration-color:transparent;text-underline-offset:3px}
+.turn-foot .undo:not(:disabled){color:var(--ink);text-decoration-color:var(--accent-edge)}
 .turn-expiry{margin-top:8px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
 .turn-expiry button{min-height:44px;padding:6px 10px}
 /* 44px, not 40: this pair only shows on the active combatant, which is the one row a GM is

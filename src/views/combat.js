@@ -116,9 +116,11 @@ function shell() {
         </div>
         <div class="row wrap"><button class="ghost" data-gm-reference>Reference</button><button class="ghost" data-player-settings>Display</button><button class="ghost" data-open-player>Player view</button><button class="primary" data-next>Next turn</button></div>
       </div>
-      <div class="muted" id="turn-of" style="margin-top:6px"></div>
+      <div class="turn-foot">
+        <div class="muted grow" id="turn-of"></div>
+        <button class="ghost undo" data-undo disabled>Undo</button>
+      </div>
       <div class="turn-report" id="turn-report" hidden></div>
-      <button class="ghost" data-undo disabled>Undo</button>
     </div>
 
     <div class="board" id="board"></div>
