@@ -131,7 +131,11 @@ let lastPublicFingerprint = publicFingerprint(state);
 
 function publicFingerprint(value) {
   const projection = adaptPublicCampaignSession({
+    campaign: value.campaign,
     combat: value.combat,
+    encounter: value.encounter,
+    characters: value.characters?.extra,
+    notes: value.notes?.entries,
     player: value.player,
     session: value.session,
     revision: 0

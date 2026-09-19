@@ -9,7 +9,11 @@ let heartbeat = null;
 function snapshot() {
   return { kind: 'snapshot', channel: PLAYER_CHANNEL,
     projection: adaptPublicCampaignSession({
+      campaign: state.campaign,
       combat: state.combat,
+      encounter: state.encounter,
+      characters: state.characters?.extra,
+      notes: state.notes?.entries,
       player: state.player,
       session: state.session
     }) };

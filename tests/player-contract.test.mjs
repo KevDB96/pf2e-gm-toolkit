@@ -26,7 +26,11 @@ test('legacy GM state maps deterministically to the versioned public contract', 
     version: 1,
     revision: 0,
     campaign: { title: 'Mists' },
-    session: { phase: 'downtime', round: 4, actors: [{ id: 'ari', name: 'Ari', active: false, order: 1 }] }
+    session: {
+      phase: 'downtime', round: 4,
+      encounter: { title: '', status: 'planned' }, characters: [], creatures: [], notes: [], events: [],
+      actors: [{ id: 'ari', name: 'Ari', active: false, order: 1 }]
+    }
   };
   assert.deepEqual(adaptPublicCampaignSession(input), expected);
   assert.deepEqual(adaptPublicCampaignSession(input), adaptPublicCampaignSession(input));
@@ -55,7 +59,7 @@ test('serialized projection contains no GM-private fields or internal ids', () =
     }
   };
   visit(parsed);
-  for (const field of ['hp', 'ac', 'saves', 'attacks', 'damage', 'weaknesses', 'resistances', 'notes', 'source']) {
+  for (const field of ['hp', 'ac', 'saves', 'attacks', 'damage', 'weaknesses', 'resistances', 'source']) {
     assert.equal(keys.includes(field), false, `leaked ${field}`);
   }
   for (const value of ['secret name', 'campaign-secret']) {
@@ -63,7 +67,7 @@ test('serialized projection contains no GM-private fields or internal ids', () =
   }
   assert.equal(isPublicCampaignSession(parsed), true);
   assert.deepEqual(Object.keys(parsed), ['contract', 'version', 'revision', 'campaign', 'session']);
-  assert.deepEqual(Object.keys(parsed.session), ['phase', 'round', 'actors']);
+  assert.deepEqual(Object.keys(parsed.session), ['phase', 'round', 'encounter', 'characters', 'creatures', 'notes', 'events', 'actors']);
   assert.deepEqual(Object.keys(parsed.session.actors[0]), ['id', 'name', 'active', 'order']);
 });
 
@@ -90,5 +94,51 @@ test('public revisions are non-negative integers and phase/session data stays al
   assert.equal(isPublicCampaignSession(projection), true);
   assert.equal(isPublicCampaignSession({ ...projection, revision: -1 }), false);
   assert.equal(isPublicCampaignSession({ ...projection, session: { ...projection.session, phase: 'rest' } }), false);
-  assert.deepEqual(Object.keys(projection.session), ['phase', 'round', 'actors']);
+  assert.deepEqual(Object.keys(projection.session), ['phase', 'round', 'encounter', 'characters', 'creatures', 'notes', 'events', 'actors']);
+});
+
+test('the public boundary projects only explicitly public sections and strips GM mechanics', () => {
+  const parsed = JSON.parse(serializePublicCampaignSession({
+    campaign: { title: 'Mists', gmNotes: 'secret', sourceId: 'campaign-id' },
+    session: { phase: 'combat', privateTimer: 'hidden' },
+    encounter: { name: 'Bridge', status: 'active', entries: [{ id: 'monster-id', hp: 40 }] },
+    characters: [{ id: 'pc-id', public: true, name: 'Ari', level: 7, class: 'Ranger', ancestry: 'Elf', ac: 22 }],
+    notes: [{ id: 'n1', title: 'GM note', body: 'secret' }, { public: true, title: 'Table', body: 'Meet at dawn', gmOnly: true }],
+    events: [{ public: true, title: 'Bell', sourceId: 'event-id', hidden: true }],
+    combat: { round: 2, activeId: 'monster-id', combatants: [{
+      id: 'monster-id', name: 'Ogre', isPC: false, hp: 40, ac: 19, conditions: ['Frightened 1'],
+      saves: { fort: 10 }, attacks: ['club'], damage: '2d8', weaknesses: ['fire'], resistances: ['physical'],
+      notes: 'GM-only'
+    }] },
+    player: { entries: { 'monster-id': { revealed: true, conditions: true, token: 'ogre-public', name: 'The Ogre' } } }
+  }));
+  assert.deepEqual(parsed.session.encounter, { title: 'Bridge', status: 'active' });
+  assert.deepEqual(parsed.session.characters, [{ id: 'character-1', name: 'Ari', level: 7, class: 'Ranger', ancestry: 'Elf' }]);
+  assert.deepEqual(parsed.session.creatures, [{ id: 'ogre-public', name: 'The Ogre', conditions: ['Frightened 1'] }]);
+  assert.deepEqual(parsed.session.notes, [{ title: 'Table', body: 'Meet at dawn' }]);
+  assert.deepEqual(parsed.session.events, [{ message: 'Bell' }]);
+  assert.equal(isPublicCampaignSession(parsed), true);
+  const forbiddenKeys = [];
+  const forbiddenValues = [];
+  const visit = value => {
+    if (!value || typeof value !== 'object') {
+      if (typeof value === 'string') forbiddenValues.push(value.toLowerCase());
+      return;
+    }
+    for (const [key, child] of Object.entries(value)) {
+      forbiddenKeys.push(key.toLowerCase());
+      visit(child);
+    }
+  };
+  visit(parsed);
+  for (const field of ['hp', 'ac', 'saves', 'attacks', 'damage', 'weaknesses', 'resistances', 'sourceid', 'gmnotes', 'hidden']) {
+    assert.equal(forbiddenKeys.includes(field), false, `leaked ${field}`);
+  }
+  assert.equal(forbiddenValues.includes('gm-only'), false);
+});
+
+test('public contract validation fails closed when an unknown field is added', () => {
+  const projection = adaptPublicCampaignSession();
+  assert.equal(isPublicCampaignSession({ ...projection, session: { ...projection.session, secret: true } }), false);
+  assert.equal(isPublicCampaignSession({ ...projection, campaign: { ...projection.campaign, notes: 'secret' } }), false);
 });

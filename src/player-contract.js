@@ -7,6 +7,12 @@ export const PUBLIC_PHASES = Object.freeze(['downtime', 'exploration', 'combat']
 
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
 
+const PUBLIC_STATUSES = Object.freeze(['planned', 'active', 'complete']);
+
+function publicText(value, max = 120) {
+  return typeof value === 'string' ? value.slice(0, max).trim() : '';
+}
+
 export function isPublicPhase(value) {
   return PUBLIC_PHASES.includes(value);
 }
@@ -27,10 +33,69 @@ function publicPlayerSettings(saved) {
     if (!object(entry) || entry.revealed !== true) continue;
     clean[id] = {
       token: typeof entry.token === 'string' ? entry.token.slice(0, 80) : '',
-      name: typeof entry.name === 'string' ? entry.name.slice(0, 80).trim() : ''
+      name: typeof entry.name === 'string' ? entry.name.slice(0, 80).trim() : '',
+      conditions: entry.conditions === true || entry.revealConditions === true
     };
   }
   return clean;
+}
+
+function publicConditions(value) {
+  if (!Array.isArray(value)) return [];
+  return value.filter(condition => typeof condition === 'string')
+    .map(condition => publicText(condition, 80))
+    .filter(Boolean)
+    .slice(0, 20);
+}
+
+function publicEncounter(encounter) {
+  if (!object(encounter)) return { title: '', status: 'planned' };
+  const status = PUBLIC_STATUSES.includes(encounter.status) ? encounter.status : 'planned';
+  return {
+    title: publicText(encounter.title ?? encounter.name),
+    status
+  };
+}
+
+function publicCharacters(characters) {
+  if (!Array.isArray(characters)) return [];
+  return characters.flatMap((character, index) => {
+    if (!object(character) || (character.public !== true && character.revealed !== true)) return [];
+    const name = publicText(character.publicName ?? character.name, 80);
+    if (!name) return [];
+    const summary = {
+      id: publicText(character.token, 80) || `character-${index + 1}`,
+      name
+    };
+    if (Number.isInteger(character.level) && character.level >= -1 && character.level <= 30) {
+      summary.level = character.level;
+    }
+    for (const field of ['class', 'ancestry']) {
+      const value = publicText(character[field], 80);
+      if (value) summary[field] = value;
+    }
+    return [summary];
+  });
+}
+
+function publicNotes(notes) {
+  if (!Array.isArray(notes)) return [];
+  return notes.flatMap(note => {
+    if (!object(note) || note.public !== true) return [];
+    const title = publicText(note.title, 120);
+    const body = publicText(note.body, 500);
+    if (!title && !body) return [];
+    return [{ title, body }];
+  }).slice(0, 50);
+}
+
+function publicEvents(events) {
+  if (!Array.isArray(events)) return [];
+  return events.flatMap(event => {
+    if (!object(event) || event.public !== true) return [];
+    const message = publicText(event.message ?? event.title, 240);
+    return message ? [{ message }] : [];
+  }).slice(0, 50);
 }
 
 function publicActors(combat, settings) {
@@ -54,11 +119,27 @@ function publicActors(combat, settings) {
   }).map((actor, index) => ({ ...actor, order: index + 1 }));
 }
 
+function publicCreatures(combat, settings) {
+  const combatants = Array.isArray(combat?.combatants) ? combat.combatants : [];
+  return combatants.flatMap((combatant, index) => {
+    const setting = settings[combatant?.id];
+    if (!setting || combatant?.isPC === true || setting.conditions !== true) return [];
+    const name = setting.name || 'Creature';
+    return [{
+      id: setting.token || `creature-${index + 1}`,
+      name,
+      conditions: publicConditions(combatant.conditions)
+    }];
+  });
+}
+
 /**
  * Map legacy GM state into the v1 public campaign/session contract.
  * Only explicitly allowlisted fields are copied; unknown GM fields are ignored.
  */
-export function adaptPublicCampaignSession({ campaign, combat, player, session, revision } = {}) {
+export function adaptPublicCampaignSession({ campaign, combat, player, session, revision,
+  encounter, characters, notes, events } = {}) {
+  const settings = publicPlayerSettings(player);
   return {
     contract: PUBLIC_CONTRACT,
     version: PUBLIC_CONTRACT_VERSION,
@@ -69,7 +150,12 @@ export function adaptPublicCampaignSession({ campaign, combat, player, session, 
     session: {
       phase: publicPhase(session?.phase),
       round: Number.isFinite(combat?.round) ? combat.round : 0,
-      actors: publicActors(combat, publicPlayerSettings(player))
+      encounter: publicEncounter(encounter),
+      characters: publicCharacters(characters),
+      creatures: publicCreatures(combat, settings),
+      notes: publicNotes(notes),
+      events: publicEvents(events),
+      actors: publicActors(combat, settings)
     }
   };
 }
@@ -80,9 +166,37 @@ export function serializePublicCampaignSession(input) {
 }
 
 export function isPublicCampaignSession(value) {
+  const session = value?.session;
+  const exactKeys = (candidate, keys) => object(candidate) &&
+    Object.keys(candidate).every(key => keys.includes(key)) &&
+    keys.every(key => Object.prototype.hasOwnProperty.call(candidate, key));
+  const allowedKeys = (candidate, keys) => object(candidate) &&
+    Object.keys(candidate).every(key => keys.includes(key));
+  const validActors = actors => Array.isArray(actors) && actors.every(actor =>
+    exactKeys(actor, ['id', 'name', 'active', 'order']) &&
+    typeof actor.id === 'string' && typeof actor.name === 'string' &&
+    typeof actor.active === 'boolean' && Number.isInteger(actor.order));
+  const validCharacters = characters => Array.isArray(characters) && characters.every(character =>
+    allowedKeys(character, ['id', 'name', 'level', 'class', 'ancestry']) &&
+    typeof character.id === 'string' && typeof character.name === 'string' &&
+    (character.level === undefined || Number.isInteger(character.level)) &&
+    (character.class === undefined || typeof character.class === 'string') &&
+    (character.ancestry === undefined || typeof character.ancestry === 'string'));
+  const validCreatures = creatures => Array.isArray(creatures) && creatures.every(creature =>
+    exactKeys(creature, ['id', 'name', 'conditions']) &&
+    typeof creature.id === 'string' && typeof creature.name === 'string' &&
+    Array.isArray(creature.conditions) && creature.conditions.every(condition => typeof condition === 'string'));
+  const validMessages = (messages, key) => Array.isArray(messages) && messages.every(message =>
+    exactKeys(message, key === 'notes' ? ['title', 'body'] : ['message']) &&
+    Object.values(message).every(value => typeof value === 'string'));
   return value?.contract === PUBLIC_CONTRACT && value.version === PUBLIC_CONTRACT_VERSION &&
     Number.isInteger(value.revision) && value.revision >= 0 &&
-    object(value.campaign) && typeof value.campaign.title === 'string' &&
-    object(value.session) && isPublicPhase(value.session.phase) && Number.isFinite(value.session.round) &&
-    Array.isArray(value.session.actors);
+    exactKeys(value.campaign, ['title']) && typeof value.campaign.title === 'string' &&
+    exactKeys(session, ['phase', 'round', 'encounter', 'characters', 'creatures', 'notes', 'events', 'actors']) &&
+    isPublicPhase(session.phase) && Number.isFinite(session.round) &&
+    exactKeys(session.encounter, ['title', 'status']) && typeof session.encounter.title === 'string' &&
+    PUBLIC_STATUSES.includes(session.encounter.status) &&
+    validCharacters(session.characters) && validCreatures(session.creatures) &&
+    validMessages(session.notes, 'notes') && validMessages(session.events, 'events') &&
+    validActors(session.actors);
 }

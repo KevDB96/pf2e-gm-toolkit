@@ -27,9 +27,7 @@ export function projectPlayerState(combat, player, session) {
   return {
     version: contract.version,
     revision: contract.revision,
-    phase: contract.session.phase,
-    round: contract.session.round,
-    actors: contract.session.actors
+    ...contract.session
   };
 }
 
