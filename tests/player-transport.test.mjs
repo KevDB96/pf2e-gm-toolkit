@@ -8,9 +8,9 @@ import {
 
 function projection(revision, phase = 'downtime') {
   return {
-    contract: 'pf2e-companion/public-campaign-session', version: 1, revision,
+    contract: 'pf2e-companion/public-campaign-session', version: 2, revision,
     campaign: { title: '' },
-    session: { phase, round: 0, encounter: { title: '', status: 'planned' },
+    session: { phase, round: 0, currentTurnId: null, encounter: { title: '', status: 'planned' },
       characters: [], creatures: [], notes: [], events: [], actors: [] }
   };
 }

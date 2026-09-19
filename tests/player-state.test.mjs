@@ -19,10 +19,11 @@ test('player projection is an allowlisted public snapshot', () => {
     b: { token: 'p-b', revealed: false, name: 'Goblin B' }
   } });
   assert.deepEqual(snapshot, {
-    version: 1,
+    version: 2,
     revision: 0,
     phase: 'downtime',
     round: 3,
+    currentTurnId: null,
     encounter: { title: '', status: 'planned' },
     characters: [],
     creatures: [],
@@ -42,12 +43,12 @@ test('player settings normalize to safe sparse entries', () => {
 
 function snapshot(revision, phase = 'downtime') {
   return createPlayerSnapshot({
-      contract: 'pf2e-companion/public-campaign-session',
-      version: 1,
-      revision,
-      campaign: { title: '' },
-      session: { phase, round: 0, encounter: { title: '', status: 'planned' }, characters: [], creatures: [], notes: [], events: [], actors: [] }
-    });
+    contract: 'pf2e-companion/public-campaign-session',
+    version: 2,
+    revision,
+    campaign: { title: '' },
+    session: { phase, round: 0, currentTurnId: null, encounter: { title: '', status: 'planned' }, characters: [], creatures: [], notes: [], events: [], actors: [] }
+  });
 }
 
 test('player accepts only newer public revisions', () => {

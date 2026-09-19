@@ -2,7 +2,7 @@
 // Keep transport concerns (BroadcastChannel/window messages) out of this module.
 
 export const PUBLIC_CONTRACT = 'pf2e-companion/public-campaign-session';
-export const PUBLIC_CONTRACT_VERSION = 1;
+export const PUBLIC_CONTRACT_VERSION = 2;
 export const PUBLIC_PHASES = Object.freeze(['downtime', 'exploration', 'combat']);
 
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
@@ -116,18 +116,32 @@ function publicActors(combat, settings) {
   for (const combatant of combatants) add(combatant?.id);
 
   let publicIndex = 0;
+  const usedPublicIds = new Set();
+  const activeId = Number.isInteger(combat?.round) && combat.round > 0
+    ? combat.activeId : null;
   return ordered.flatMap(combatant => {
     const setting = settings[combatant?.id];
     if (!setting) return [];
     publicIndex += 1;
+    const preferredId = setting.token || `public-${publicIndex}`;
+    let id = preferredId;
+    while (usedPublicIds.has(id)) id = `public-${publicIndex}-${usedPublicIds.size + 1}`;
+    usedPublicIds.add(id);
     return [{
       // This is a public alias, never the GM combatant/source id.
-      id: setting.token || `public-${publicIndex}`,
+      id,
       name: setting.name || 'Participant',
-      active: combatant.id === combat?.activeId,
+      active: combatant.id === activeId,
       order: publicIndex
     }];
   });
+}
+
+function publicCombatState(combat, settings) {
+  const actors = publicActors(combat, settings);
+  const active = actors.find(actor => actor.active);
+  const round = Number.isInteger(combat?.round) && combat.round > 0 ? combat.round : 0;
+  return { round, currentTurnId: active?.id || null, actors };
 }
 
 function publicCreatures(combat, settings) {
@@ -145,12 +159,13 @@ function publicCreatures(combat, settings) {
 }
 
 /**
- * Map legacy GM state into the v1 public campaign/session contract.
+ * Map legacy GM state into the v2 public campaign/session contract.
  * Only explicitly allowlisted fields are copied; unknown GM fields are ignored.
  */
 export function adaptPublicCampaignSession({ campaign, combat, player, session, revision,
   encounter, characters, notes, events } = {}) {
   const settings = publicPlayerSettings(player);
+  const publicCombat = publicCombatState(combat, settings);
   return {
     contract: PUBLIC_CONTRACT,
     version: PUBLIC_CONTRACT_VERSION,
@@ -160,13 +175,14 @@ export function adaptPublicCampaignSession({ campaign, combat, player, session, 
     },
     session: {
       phase: publicPhase(session?.phase),
-      round: Number.isFinite(combat?.round) ? combat.round : 0,
+      round: publicCombat.round,
+      currentTurnId: publicCombat.currentTurnId,
       encounter: publicEncounter(encounter),
       characters: publicCharacters(characters),
       creatures: publicCreatures(combat, settings),
       notes: publicNotes(notes),
       events: publicEvents(events),
-      actors: publicActors(combat, settings)
+      actors: publicCombat.actors
     }
   };
 }
@@ -204,8 +220,11 @@ export function isPublicCampaignSession(value) {
     value.contract === PUBLIC_CONTRACT && value.version === PUBLIC_CONTRACT_VERSION &&
     Number.isInteger(value.revision) && value.revision >= 0 &&
     exactKeys(value.campaign, ['title']) && typeof value.campaign.title === 'string' &&
-    exactKeys(session, ['phase', 'round', 'encounter', 'characters', 'creatures', 'notes', 'events', 'actors']) &&
-    isPublicPhase(session.phase) && Number.isFinite(session.round) &&
+    exactKeys(session, ['phase', 'round', 'currentTurnId', 'encounter', 'characters', 'creatures', 'notes', 'events', 'actors']) &&
+    isPublicPhase(session.phase) && Number.isInteger(session.round) && session.round >= 0 &&
+    (session.currentTurnId === null || typeof session.currentTurnId === 'string') &&
+    Array.isArray(session.actors) &&
+    session.actors.every(actor => actor?.active === (session.currentTurnId !== null && actor?.id === session.currentTurnId)) &&
     exactKeys(session.encounter, ['title', 'status']) && typeof session.encounter.title === 'string' &&
     PUBLIC_STATUSES.includes(session.encounter.status) &&
     validCharacters(session.characters) && validCreatures(session.creatures) &&

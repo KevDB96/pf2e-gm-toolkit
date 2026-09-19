@@ -23,11 +23,11 @@ test('legacy GM state maps deterministically to the versioned public contract', 
   };
   const expected = {
     contract: PUBLIC_CONTRACT,
-    version: 1,
+    version: 2,
     revision: 0,
     campaign: { title: 'Mists' },
     session: {
-      phase: 'downtime', round: 4,
+      phase: 'downtime', round: 4, currentTurnId: null,
       encounter: { title: '', status: 'planned' }, characters: [], creatures: [], notes: [], events: [],
       actors: [{ id: 'ari', name: 'Ari', active: false, order: 1 }]
     }
@@ -40,6 +40,7 @@ test('public actors follow initiative order for revealed PCs, allies, and NPCs o
   const projection = adaptPublicCampaignSession({
     session: { phase: 'combat' },
     combat: {
+      round: 3,
       activeId: 'ally-internal',
       order: ['hidden-npc', 'ally-internal', 'pc-internal', 'visible-npc', 'ally-internal'],
       combatants: [
@@ -62,6 +63,8 @@ test('public actors follow initiative order for revealed PCs, allies, and NPCs o
     { id: 'pc-ari', name: 'Ari', active: false, order: 2 },
     { id: 'npc-ogre', name: 'The Ogre', active: false, order: 3 }
   ]);
+  assert.equal(projection.session.round, 3);
+  assert.equal(projection.session.currentTurnId, 'ally-wolf');
   assert.equal(JSON.stringify(projection).includes('pc-internal'), false);
   assert.equal(JSON.stringify(projection).includes('hidden-npc'), false);
   assert.equal(JSON.stringify(projection).includes('npc-source'), false);
@@ -118,7 +121,7 @@ test('serialized projection contains no GM-private fields or internal ids', () =
   }
   assert.equal(isPublicCampaignSession(parsed), true);
   assert.deepEqual(Object.keys(parsed), ['contract', 'version', 'revision', 'campaign', 'session']);
-  assert.deepEqual(Object.keys(parsed.session), ['phase', 'round', 'encounter', 'characters', 'creatures', 'notes', 'events', 'actors']);
+  assert.deepEqual(Object.keys(parsed.session), ['phase', 'round', 'currentTurnId', 'encounter', 'characters', 'creatures', 'notes', 'events', 'actors']);
   assert.deepEqual(Object.keys(parsed.session.actors[0]), ['id', 'name', 'active', 'order']);
 });
 
@@ -145,7 +148,7 @@ test('public revisions are non-negative integers and phase/session data stays al
   assert.equal(isPublicCampaignSession(projection), true);
   assert.equal(isPublicCampaignSession({ ...projection, revision: -1 }), false);
   assert.equal(isPublicCampaignSession({ ...projection, session: { ...projection.session, phase: 'rest' } }), false);
-  assert.deepEqual(Object.keys(projection.session), ['phase', 'round', 'encounter', 'characters', 'creatures', 'notes', 'events', 'actors']);
+  assert.deepEqual(Object.keys(projection.session), ['phase', 'round', 'currentTurnId', 'encounter', 'characters', 'creatures', 'notes', 'events', 'actors']);
 });
 
 test('the public boundary projects only explicitly public sections and strips GM mechanics', () => {
@@ -192,4 +195,50 @@ test('public contract validation fails closed when an unknown field is added', (
   const projection = adaptPublicCampaignSession();
   assert.equal(isPublicCampaignSession({ ...projection, session: { ...projection.session, secret: true } }), false);
   assert.equal(isPublicCampaignSession({ ...projection, campaign: { ...projection.campaign, notes: 'secret' } }), false);
+});
+
+test('combat lifecycle publishes a public turn only for a live revealed combatant', () => {
+  const player = { entries: {
+    first: { revealed: true, token: 'first-public', name: 'First' },
+    second: { revealed: true, token: 'second-public', name: 'Second' }
+  } };
+  const combatants = [{ id: 'first', init: 20 }, { id: 'second', init: 10 }];
+  const start = adaptPublicCampaignSession({ combat: { round: 0, activeId: null, combatants }, player });
+  assert.equal(start.session.round, 0);
+  assert.equal(start.session.currentTurnId, null);
+  assert.equal(start.session.actors.some(actor => actor.active), false);
+
+  const active = adaptPublicCampaignSession({
+    combat: { round: 1, activeId: 'second', order: ['first', 'second'], combatants }, player
+  });
+  assert.equal(active.session.round, 1);
+  assert.equal(active.session.currentTurnId, 'second-public');
+  assert.equal(active.session.actors.find(actor => actor.id === 'second-public').active, true);
+
+  const removed = adaptPublicCampaignSession({
+    combat: { round: 1, activeId: 'second', order: ['first'], combatants: [combatants[0]] }, player
+  });
+  assert.equal(removed.session.round, 1);
+  assert.equal(removed.session.currentTurnId, null);
+  assert.equal(removed.session.actors.some(actor => actor.active), false);
+
+  const ended = adaptPublicCampaignSession({
+    combat: { round: 0, activeId: null, combatants: [] }, player
+  });
+  assert.equal(ended.session.round, 0);
+  assert.equal(ended.session.currentTurnId, null);
+  assert.deepEqual(ended.session.actors, []);
+});
+
+test('public aliases remain deterministic and unique when roster tokens collide', () => {
+  const projection = adaptPublicCampaignSession({
+    combat: { round: 1, activeId: 'b', order: ['a', 'b'], combatants: [{ id: 'a' }, { id: 'b' }] },
+    player: { entries: {
+      a: { revealed: true, token: 'same', name: 'A' },
+      b: { revealed: true, token: 'same', name: 'B' }
+    } }
+  });
+  assert.deepEqual(projection.session.actors.map(actor => actor.id), ['same', 'public-2-2']);
+  assert.equal(projection.session.currentTurnId, 'public-2-2');
+  assert.equal(isPublicCampaignSession(projection), true);
 });
