@@ -90,6 +90,27 @@ test('encounter visibility fails closed and visible creature projections stay sa
   assert.equal(isPublicCampaignSession(projection), true);
 });
 
+test('public identity and image controls never leak hidden monster fields', () => {
+  const input = {
+    session: { phase: 'combat' },
+    combat: { round: 1, order: ['hidden', 'unknown', 'revealed'], activeId: 'unknown', combatants: [
+      { id: 'hidden', isPC: false, publicVisible: false, publicIdentity: 'revealed', publicName: 'Secret Hydra', publicImage: 'https://example.test/hydra.png', publicImageVisible: true, hp: 999, ac: 30 },
+      { id: 'unknown', isPC: false, publicVisible: true, publicIdentity: 'unknown', publicName: 'Secret Ogre', publicImage: 'https://example.test/ogre.png', publicImageVisible: true, hp: 80 },
+      { id: 'revealed', isPC: false, publicVisible: true, publicIdentity: 'revealed', publicName: 'The Ogre', publicImage: 'https://example.test/ogre.png', publicImageVisible: true, hp: 80 }
+    ] }
+  };
+  const projection = adaptPublicCampaignSession(input);
+  assert.deepEqual(projection.session.actors.map(({ name, image }) => ({ name, image })), [
+    { name: 'Unknown creature', image: undefined },
+    { name: 'The Ogre', image: 'https://example.test/ogre.png' }
+  ]);
+  const serialized = JSON.stringify(projection);
+  assert.equal(serialized.includes('Secret Hydra'), false);
+  assert.equal(serialized.includes('Secret Ogre'), false);
+  assert.equal(serialized.includes('hydra.png'), false);
+  assert.equal(isPublicCampaignSession(projection), true);
+});
+
 test('generated public actor aliases are based only on revealed roster members', () => {
   const input = {
     combat: {

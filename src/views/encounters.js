@@ -10,7 +10,8 @@ import { recordTip } from '../records.js';
 import { buildFacets, creatureTypeNames, facetChange, facetOptions, facetPasses, facetSelects }
   from '../facets.js';
 import { copyEncounterEntries, savedEncounter, templateWarnings, updatedEncounter } from '../saved-encounters.js';
-import { encounterEntryIsPlayerVisible } from '../encounter-visibility.js';
+import { encounterEntryIsPlayerVisible, encounterIdentity, encounterImageIsPlayerVisible,
+  setEncounterEntryIdentity, setEncounterEntryImageVisibility } from '../encounter-visibility.js';
 
 const KIND_LABEL = { creature: 'Creature', simple: 'Simple hazard', complex: 'Complex hazard' };
 
@@ -86,6 +87,8 @@ function wire(root) {
   on(root, 'click', '[data-to-combat]', () => toCombat());
   on(root, 'click', '[data-adjust]', (e, el) => setAdjust(el.dataset.adjust, el.dataset.kind));
   on(root, 'click', '[data-visibility]', (e, el) => setVisibility(el.dataset.visibility));
+  on(root, 'click', '[data-identity]', (e, el) => setIdentity(el.dataset.identity, el.dataset.kind));
+  on(root, 'click', '[data-image-visibility]', (e, el) => setImageVisibility(el.dataset.imageVisibility));
 }
 
 function bump(id, delta) {
@@ -104,7 +107,24 @@ function setAdjust(id, kind) {
 function setVisibility(id) {
   const entry = state.encounter.entries.find(item => item.id === id);
   if (!entry || entry.kind !== 'creature') return;
-  changeDraft(() => { entry.playerVisible = !encounterEntryIsPlayerVisible(entry); });
+  changeDraft(() => {
+    entry.playerVisible = !encounterEntryIsPlayerVisible(entry);
+    if (!entry.playerVisible) {
+      entry.publicIdentity = 'hidden';
+      entry.publicImageVisible = false;
+    }
+  });
+}
+
+function setIdentity(id, identity) {
+  const next = setEncounterEntryIdentity(state.encounter.entries, id, identity);
+  changeDraft(() => { state.encounter.entries = next; });
+}
+
+function setImageVisibility(id) {
+  const next = setEncounterEntryImageVisibility(state.encounter.entries, id,
+    !encounterImageIsPlayerVisible(state.encounter.entries.find(entry => entry.id === id)));
+  changeDraft(() => { state.encounter.entries = next; });
 }
 
 function changeDraft(mutate) {
@@ -176,7 +196,9 @@ function row(e, partyLevel) {
     <div class="enc-adjust">
       <button class="pick${e.adjust === 'elite' ? ' on' : ''}" data-adjust="${e.id}" data-kind="elite">Elite</button>
       <button class="pick${e.adjust === 'weak' ? ' on' : ''}" data-adjust="${e.id}" data-kind="weak">Weak</button>
-      <button class="pick enc-visibility${encounterEntryIsPlayerVisible(e) ? ' on' : ''}" data-visibility="${e.id}" aria-pressed="${encounterEntryIsPlayerVisible(e)}">Players: ${encounterEntryIsPlayerVisible(e) ? 'Visible' : 'Hidden'}</button>
+      <button class="pick enc-visibility${encounterEntryIsPlayerVisible(e) ? ' on' : ''}" data-visibility="${e.id}" aria-pressed="${encounterEntryIsPlayerVisible(e)}">Slot: ${encounterEntryIsPlayerVisible(e) ? 'Shown' : 'Hidden'}</button>
+      ${encounterEntryIsPlayerVisible(e) ? `<button class="pick${encounterIdentity(e) === 'revealed' ? ' on' : ''}" data-identity="${e.id}" data-kind="${encounterIdentity(e) === 'revealed' ? 'unknown' : 'revealed'}" aria-pressed="${encounterIdentity(e) === 'revealed'}">Name: ${encounterIdentity(e) === 'revealed' ? 'Shown' : 'Unknown'}</button>
+      <button class="pick${encounterImageIsPlayerVisible(e) ? ' on' : ''}" data-image-visibility="${e.id}" aria-pressed="${encounterImageIsPlayerVisible(e)}">Image: ${encounterImageIsPlayerVisible(e) ? 'Shown' : 'Hidden'}</button>` : ''}
     </div>` : '';
   return `
     <div class="item">
@@ -529,7 +551,10 @@ export function sendToCombat() {
           adjust: e.adjust === 'elite' || e.adjust === 'weak' ? e.adjust : null,
           baseLevel: e.level,
           isPC: false, side: 'npc', init: null, publicVisible: e.playerVisible === true,
-          publicName: e.playerVisible === true ? e.name : null,
+          publicIdentity: e.playerVisible === true ? encounterIdentity(e) : 'hidden',
+          publicName: encounterIdentity(e) === 'revealed' ? e.name : null,
+          publicImage: e.publicImageVisible === true ? (e.creature?.image || e.creature?.imageUrl || null) : null,
+          publicImageVisible: e.publicImageVisible === true,
           initMod: adjustedModifier(e.creature?.perception, e.adjust),
           hp, maxHp: hp, ac, conditions: []
         });

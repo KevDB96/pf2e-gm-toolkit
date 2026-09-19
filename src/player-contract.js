@@ -30,11 +30,14 @@ function publicPlayerSettings(saved) {
   const clean = {};
   for (const [id, entry] of Object.entries(entries)) {
     if (id === '__proto__' || id === 'prototype' || id === 'constructor') continue;
-    if (!object(entry) || entry.revealed !== true) continue;
+    if (!object(entry)) continue;
     clean[id] = {
       token: typeof entry.token === 'string' ? entry.token.slice(0, 80) : '',
       name: typeof entry.name === 'string' ? entry.name.slice(0, 80).trim() : '',
-      conditions: entry.conditions === true || entry.revealConditions === true
+      conditions: entry.conditions === true || entry.revealConditions === true,
+      identity: ['hidden', 'unknown', 'revealed'].includes(entry.identity)
+        ? entry.identity : (entry.revealed === true ? 'revealed' : 'hidden'),
+      imageVisible: entry.imageVisible === true
     };
   }
   return clean;
@@ -120,20 +123,23 @@ function publicActors(combat, settings) {
   const activeId = Number.isInteger(combat?.round) && combat.round > 0
     ? combat.activeId : null;
   return ordered.flatMap(combatant => {
-    if (combatant?.publicVisible === false) return [];
-    const setting = settings[combatant?.id] || (combatant?.publicVisible === true
-      ? { token: '', name: combatant.publicName || '' }
-      : null);
-    if (!setting) return [];
+    const setting = settings[combatant?.id];
+    const visible = combatant?.publicVisible === true || (combatant?.publicVisible !== false && setting?.identity !== 'hidden');
+    if (!visible) return [];
+    const identity = ['hidden', 'unknown', 'revealed'].includes(combatant?.publicIdentity)
+      ? combatant.publicIdentity : (setting?.identity || (combatant?.publicVisible === true ? 'revealed' : setting ? 'revealed' : 'unknown'));
+    const image = identity === 'revealed' && (combatant?.publicImageVisible === true || setting?.imageVisible === true)
+      ? publicImage(combatant?.publicImage) : '';
     publicIndex += 1;
-    const preferredId = setting.token || `public-${publicIndex}`;
+    const preferredId = publicText(setting?.token, 80) || `public-${publicIndex}`;
     let id = preferredId;
     while (usedPublicIds.has(id)) id = `public-${publicIndex}-${usedPublicIds.size + 1}`;
     usedPublicIds.add(id);
     return [{
       // This is a public alias, never the GM combatant/source id.
       id,
-      name: setting.name || 'Participant',
+      name: identity === 'revealed' ? (publicText(setting?.name || combatant?.publicName, 80) || 'Participant') : 'Unknown creature',
+      ...(image ? { image } : {}),
       active: combatant.id === activeId,
       order: publicIndex
     }];
@@ -150,18 +156,31 @@ function publicCombatState(combat, settings) {
 function publicCreatures(combat, settings) {
   const combatants = Array.isArray(combat?.combatants) ? combat.combatants : [];
   return combatants.flatMap((combatant, index) => {
-    if (combatant?.publicVisible === false) return [];
-    const setting = settings[combatant?.id] || (combatant?.publicVisible === true
-      ? { token: '', name: combatant.publicName || '' }
-      : null);
-    if (!setting || combatant?.isPC === true || setting.conditions !== true) return [];
-    const name = setting.name || 'Creature';
+    const setting = settings[combatant?.id];
+    if (combatant?.publicVisible === false || combatant?.isPC === true || !setting || setting.conditions !== true) return [];
+    const identity = ['hidden', 'unknown', 'revealed'].includes(combatant?.publicIdentity)
+      ? combatant.publicIdentity : (setting.identity || (combatant?.publicVisible === true ? 'revealed' : 'hidden'));
+    if (identity === 'hidden') return [];
+    const name = identity === 'revealed' ? (publicText(setting.name || combatant?.publicName, 80) || 'Creature') : 'Unknown creature';
     return [{
       id: setting.token || `creature-${index + 1}`,
       name,
-      conditions: publicConditions(combatant.conditions)
+      conditions: publicConditions(combatant.conditions),
+      ...(identity === 'revealed' && (combatant?.publicImageVisible === true || setting.imageVisible === true)
+        && publicImage(combatant?.publicImage) ? { image: publicImage(combatant.publicImage) } : {})
     }];
   });
+}
+
+function publicImage(value) {
+  if (typeof value !== 'string' || value.length > 2048) return '';
+  const url = value.trim();
+  if (!url || /[\u0000-\u001f\u007f]/.test(url)) return '';
+  try {
+    const parsed = new URL(url, 'https://pf2e.invalid');
+    if (!['https:', 'http:'].includes(parsed.protocol) && !url.startsWith('./') && !url.startsWith('../')) return '';
+    return url;
+  } catch { return ''; }
 }
 
 /**
@@ -206,8 +225,9 @@ export function isPublicCampaignSession(value) {
   const allowedKeys = (candidate, keys) => object(candidate) &&
     Object.keys(candidate).every(key => keys.includes(key));
   const validActors = actors => Array.isArray(actors) && actors.every(actor =>
-    exactKeys(actor, ['id', 'name', 'active', 'order']) &&
+    allowedKeys(actor, ['id', 'name', 'image', 'active', 'order']) &&
     typeof actor.id === 'string' && typeof actor.name === 'string' &&
+    (actor.image === undefined || typeof actor.image === 'string') &&
     typeof actor.active === 'boolean' && Number.isInteger(actor.order));
   const validCharacters = characters => Array.isArray(characters) && characters.every(character =>
     allowedKeys(character, ['id', 'name', 'level', 'class', 'ancestry']) &&
@@ -216,8 +236,9 @@ export function isPublicCampaignSession(value) {
     (character.class === undefined || typeof character.class === 'string') &&
     (character.ancestry === undefined || typeof character.ancestry === 'string'));
   const validCreatures = creatures => Array.isArray(creatures) && creatures.every(creature =>
-    exactKeys(creature, ['id', 'name', 'conditions']) &&
+    allowedKeys(creature, ['id', 'name', 'image', 'conditions']) &&
     typeof creature.id === 'string' && typeof creature.name === 'string' &&
+    (creature.image === undefined || typeof creature.image === 'string') &&
     Array.isArray(creature.conditions) && creature.conditions.every(condition => typeof condition === 'string'));
   const validMessages = (messages, key) => Array.isArray(messages) && messages.every(message =>
     exactKeys(message, key === 'notes' ? ['title', 'body'] : ['message']) &&

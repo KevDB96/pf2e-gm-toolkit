@@ -575,6 +575,7 @@ h2 + .card-group{margin-top:4px}
 /* 44px, not 40: this pair only shows on the active combatant, which is the one row a GM is
    tapping during someone else's turn — the app's floor is 44 everywhere else. */
 .combat-quick-actions{display:flex;gap:6px;margin-top:7px}.combat-quick-actions button{min-height:44px;padding:0 10px}
+.player-actor-image{width:36px;height:36px;object-fit:cover;border-radius:8px;flex:0 0 auto}
 
 /* ---------- loot ---------- */
 .coins{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}

@@ -45,6 +45,14 @@ function render(message) {
     label.textContent = actor.active ? 'CURRENT' : (index === session.actors.findIndex(x => x.active) + 1 ? 'NEXT' : '');
     const name = document.createElement('strong');
     name.textContent = actor.name;
+    if (actor.image) {
+      const image = document.createElement('img');
+      image.className = 'player-actor-image';
+      image.src = actor.image;
+      image.alt = '';
+      image.referrerPolicy = 'no-referrer';
+      row.append(image);
+    }
     row.append(label, name);
     actors.append(row);
   });

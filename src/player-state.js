@@ -24,6 +24,8 @@ export function normalizePlayer(saved) {
       revealed: entry.revealed === true,
       name: typeof entry.name === 'string' ? entry.name.slice(0, 80) : ''
     };
+    if (['hidden', 'unknown', 'revealed'].includes(entry.identity)) clean[id].identity = entry.identity;
+    if (entry.imageVisible === true) clean[id].imageVisible = true;
   }
   return { entries: clean };
 }

@@ -2,7 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   encounterEntryIsPlayerVisible,
+  encounterIdentity,
+  encounterImageIsPlayerVisible,
   normalizeEncounterEntries,
+  setEncounterEntryIdentity,
+  setEncounterEntryImageVisibility,
   setEncounterEntryVisibility
 } from '../src/encounter-visibility.js';
 
@@ -30,4 +34,18 @@ test('visibility survives encounter template copies and normalization', () => {
   const loaded = normalizeEncounterEntries(saved.entries);
   assert.equal(loaded[0].playerVisible, true);
   assert.equal(JSON.parse(JSON.stringify(loaded))[0].playerVisible, true);
+});
+
+test('slot visibility, identity, and image transitions stay independent and fail closed', () => {
+  const base = [{ id: 'c-1', kind: 'creature', playerVisible: true, publicIdentity: 'unknown', publicImageVisible: true }];
+  assert.equal(encounterIdentity(base[0]), 'unknown');
+  assert.equal(encounterImageIsPlayerVisible(base[0]), false);
+  const revealed = setEncounterEntryIdentity(base, 'c-1', 'revealed');
+  assert.equal(encounterIdentity(revealed[0]), 'revealed');
+  const withImage = setEncounterEntryImageVisibility(revealed, 'c-1', true);
+  assert.equal(encounterImageIsPlayerVisible(withImage[0]), true);
+  const hidden = setEncounterEntryIdentity(withImage, 'c-1', 'hidden');
+  assert.equal(encounterEntryIsPlayerVisible(hidden[0]), false);
+  assert.equal(encounterIdentity(hidden[0]), 'hidden');
+  assert.equal(encounterImageIsPlayerVisible(hidden[0]), false);
 });
