@@ -10,7 +10,7 @@ import {
   adaptCompanionCharacter
 } from './companion-characters.js';
 
-const EMPTY = Object.freeze({ characters: [], assignments: {} });
+const EMPTY = Object.freeze({ characters: [], assignments: {}, annotations: {} });
 
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
 
@@ -50,7 +50,7 @@ function uniqueIds(values) {
 
 /** Normalize saved shared-character records and campaign links. */
 export function normalizeCompanionRosterState(saved) {
-  if (!object(saved)) return { ...EMPTY, assignments: {} };
+  if (!object(saved)) return { ...EMPTY, assignments: {}, annotations: {} };
   const characters = uniqueRecords(saved.characters);
   const known = new Set(characters.map(record => record.character.id));
   const assignments = {};
@@ -62,7 +62,15 @@ export function normalizeCompanionRosterState(saved) {
       if (links.length) assignments[cleanCampaignId] = links;
     }
   }
-  return { characters, assignments };
+  const annotations = {};
+  if (object(saved.annotations)) {
+    for (const [characterId, value] of Object.entries(saved.annotations)) {
+      if (!known.has(characterId) || !object(value)) continue;
+      const note = typeof value.note === 'string' ? value.note.slice(0, 2000).trim() : '';
+      if (note) annotations[characterId] = { note };
+    }
+  }
+  return { characters, assignments, annotations };
 }
 
 /** Add or refresh a shared character link for exactly one campaign. */
@@ -101,6 +109,25 @@ export function companionCharactersForCampaign(saved, campaignId) {
     const character = records.get(characterId);
     return character ? [character] : [];
   });
+}
+
+/** Return each campaign's linked public characters for a GM read view. */
+export function companionCharactersByCampaign(saved) {
+  const next = normalizeCompanionRosterState(saved);
+  const records = new Map(next.characters.map(record => [record.character.id, record.character]));
+  return Object.entries(next.assignments).map(([campaignId, ids]) => ({
+    campaignId,
+    characters: ids.flatMap(characterId => {
+      const character = records.get(characterId);
+      return character ? [character] : [];
+    })
+  })).filter(group => group.characters.length);
+}
+
+/** Read one explicitly GM-owned annotation; Companion fields never enter this result. */
+export function companionAnnotation(saved, characterId) {
+  const next = normalizeCompanionRosterState(saved);
+  return next.annotations[characterId]?.note || '';
 }
 
 /** Merge a campaign's shared links with native records without duplicate IDs. */

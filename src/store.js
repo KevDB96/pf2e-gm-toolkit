@@ -21,7 +21,7 @@ const DEFAULTS = {
   sound: { url: '', saved: [] },  // Last YouTube URL and named links on this device
   characters: { extra: [] },      // PCs pasted in on this device; the repo roster is
                                   // data/characters.json
-  companion: { characters: [], assignments: {} },
+  companion: { characters: [], assignments: {}, annotations: {} },
   exploration: { elapsedMinutes: 0, activities: {}, timers: [] },
   session: { phase: 'downtime', revision: 0 },
   player: { entries: {} },

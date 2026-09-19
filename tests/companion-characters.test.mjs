@@ -15,6 +15,8 @@ import {
 import {
   assignCompanionCharacter,
   campaignRoster,
+  companionAnnotation,
+  companionCharactersByCampaign,
   companionCharactersForCampaign,
   normalizeCompanionRosterState,
   unassignCompanionCharacter
@@ -70,6 +72,24 @@ test('invalid and cross-campaign links fail closed during normalization', () => 
   });
   assert.deepEqual(normalized.assignments, { 'campaign-a': ['known'] });
   assert.deepEqual(companionCharactersForCampaign(normalized, 'campaign-b'), []);
+});
+
+test('GM read view groups linked public characters and keeps annotations separate', () => {
+  const saved = normalizeCompanionRosterState({
+    characters: [sharedRecord('shared-1', 'Ari'), sharedRecord('shared-2', 'Bo')],
+    assignments: { 'campaign-a': ['shared-1'], 'campaign-b': ['shared-2'] },
+    annotations: {
+      'shared-1': { note: 'Ask about the missing map.' },
+      'shared-2': { note: 'ignored if not a known character' },
+      secret: { note: 'not exposed' }
+    }
+  });
+  assert.deepEqual(companionCharactersByCampaign(saved).map(group => [group.campaignId, group.characters.map(c => c.name)]), [
+    ['campaign-a', ['Ari']], ['campaign-b', ['Bo']]
+  ]);
+  assert.equal(companionAnnotation(saved, 'shared-1'), 'Ask about the missing map.');
+  assert.equal(JSON.stringify(companionCharactersByCampaign(saved)).includes('gmNotes'), false);
+  assert.equal(companionAnnotation(saved, 'secret'), '');
 });
 
 test('versioned Companion character records adapt to the public character summary', () => {

@@ -10,6 +10,7 @@ import { caps, esc, on, rich, sheet, tip, qs, qsa } from '../dom.js';
 import { characters as loadCharacters, codex as loadCodex } from '../data.js';
 import { fromPathbuilder } from '../pathbuilder.js';
 import { actionIcons, ATTRIBUTES, featsByLevel, skillList } from '../pf2e.js';
+import { companionAnnotation, companionCharactersByCampaign } from '../companion-rosters.js';
 
 const ALL = '__all__';
 
@@ -63,6 +64,7 @@ export function mount(root) {
       <button data-import>+ Import</button>
     </div>
     <div class="list" id="roster"><div class="empty">Loading characters&hellip;</div></div>
+    <section class="card companion-roster" id="companion-roster" aria-labelledby="companion-heading"></section>
     <div class="row wrap" id="actions" hidden>
       <button class="grow" data-to-loot>Use as loot roster</button>
       <button data-to-header>Set header</button>
@@ -74,6 +76,12 @@ export function mount(root) {
   on(root, 'click', '[data-open]', (e, el) => {
     const id = el.dataset.open;
     loadCodexOnce().then(() => openSheet(id));
+  });
+  on(root, 'click', '[data-companion-open]', (e, el) => {
+    const id = el.dataset.companionOpen;
+    const character = companionCharactersByCampaign(state.companion)
+      .flatMap(group => group.characters).find(item => item.id === id);
+    if (character) openCompanionSheet(character, companionAnnotation(state.companion, id));
   });
   on(root, 'click', '[data-import]', () => importSheet(root));
   on(root, 'click', '[data-remove]', (e, el) => {
@@ -131,6 +139,48 @@ function draw(root) {
       : `<div class="empty">No characters here yet.<br>
           Import a Pathbuilder export, or run
           <code>node tools/import-pathbuilder.mjs</code>.</div>`;
+  drawCompanion(root);
+}
+
+function drawCompanion(root) {
+  const host = qs('#companion-roster', root);
+  const groups = companionCharactersByCampaign(state.companion);
+  host.innerHTML = `
+    <h2 id="companion-heading">Linked Companion characters</h2>
+    <p class="muted companion-boundary">Read-only public data from the Player Companion. Player-owned fields stay in the Companion.</p>
+    ${groups.length ? groups.map(({ campaignId, characters }) => `
+      <div class="companion-group">
+        <div class="card-group">Campaign ${esc(campaignId)}</div>
+        <div class="list">${characters.map(companionRow).join('')}</div>
+      </div>`).join('') : '<div class="empty">No Companion characters are linked to a campaign yet.</div>'}`;
+}
+
+function companionRow(character) {
+  const role = [character.ancestry, character.class].filter(Boolean).join(' · ');
+  return `<button class="item companion-item" data-companion-open="${esc(character.id)}" style="text-align:left">
+    <span class="lvl">${character.level ?? '—'}</span>
+    <div class="grow"><div class="name">${esc(character.name)}</div>
+      <div class="sub">${esc(role || 'Shared character')}</div>
+      <div class="sub">Public summary · read only</div></div>
+    <span class="go" aria-hidden="true">›</span>
+  </button>`;
+}
+
+function openCompanionSheet(character, annotation) {
+  const publicRows = [
+    ['Level', character.level],
+    ['Ancestry', character.ancestry],
+    ['Class', character.class]
+  ].filter(([, value]) => value !== undefined && value !== null && value !== '');
+  const body = `
+    <div class="companion-readonly-banner">Shared public summary · read only</div>
+    <p class="muted">This view is a projection from the Player Companion. It does not expose or edit player-owned sheet fields.</p>
+    <div class="card"><h2>Public character data</h2>
+      ${publicRows.map(([label, value]) => stat(label, value)).join('')}
+    </div>
+    ${annotation ? `<div class="card companion-annotation"><h2>GM-owned annotation</h2><p>${esc(annotation)}</p></div>` : ''}`;
+  const { node } = sheet(character.name, body);
+  qs('.sheet', node).classList.add('character-sheet', 'companion-sheet');
 }
 
 function row(c) {
