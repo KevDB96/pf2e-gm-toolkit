@@ -101,22 +101,33 @@ function publicEvents(events) {
 function publicActors(combat, settings) {
   const combatants = Array.isArray(combat?.combatants) ? combat.combatants : [];
   const byId = new Map(combatants.filter(c => typeof c?.id === 'string').map(c => [c.id, c]));
-  const ordered = Array.isArray(combat?.order) && combat.order.length
-    ? combat.order.map(id => byId.get(id)).filter(Boolean)
-    : combatants.slice();
-  for (const combatant of combatants) if (!ordered.includes(combatant)) ordered.push(combatant);
+  const ordered = [];
+  const seenIds = new Set();
+  const add = id => {
+    if (typeof id !== 'string' || seenIds.has(id)) return;
+    const combatant = byId.get(id);
+    if (!combatant) return;
+    seenIds.add(id);
+    ordered.push(combatant);
+  };
+  if (Array.isArray(combat?.order) && combat.order.length) {
+    for (const id of combat.order) add(id);
+  }
+  for (const combatant of combatants) add(combatant?.id);
 
-  return ordered.flatMap((combatant, index) => {
+  let publicIndex = 0;
+  return ordered.flatMap(combatant => {
     const setting = settings[combatant?.id];
     if (!setting) return [];
+    publicIndex += 1;
     return [{
       // This is a public alias, never the GM combatant/source id.
-      id: setting.token || `public-${index + 1}`,
+      id: setting.token || `public-${publicIndex}`,
       name: setting.name || 'Participant',
       active: combatant.id === combat?.activeId,
-      order: index + 1
+      order: publicIndex
     }];
-  }).map((actor, index) => ({ ...actor, order: index + 1 }));
+  });
 }
 
 function publicCreatures(combat, settings) {

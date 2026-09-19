@@ -36,6 +36,57 @@ test('legacy GM state maps deterministically to the versioned public contract', 
   assert.deepEqual(adaptPublicCampaignSession(input), adaptPublicCampaignSession(input));
 });
 
+test('public actors follow initiative order for revealed PCs, allies, and NPCs only', () => {
+  const projection = adaptPublicCampaignSession({
+    session: { phase: 'combat' },
+    combat: {
+      activeId: 'ally-internal',
+      order: ['hidden-npc', 'ally-internal', 'pc-internal', 'visible-npc', 'ally-internal'],
+      combatants: [
+        { id: 'pc-internal', isPC: true, hp: 28, ac: 20, init: 21 },
+        { id: 'hidden-npc', isPC: false, side: 'enemy', hp: 80, ac: 22, source: { id: 'npc-source' } },
+        { id: 'ally-internal', isPC: false, side: 'ally', hp: 35, ac: 19, saves: { fort: 10 } },
+        { id: 'visible-npc', isPC: false, side: 'enemy', hp: 12, ac: 16, attacks: ['claw'] }
+      ]
+    },
+    player: { entries: {
+      'pc-internal': { revealed: true, token: 'pc-ari', name: 'Ari' },
+      'hidden-npc': { revealed: false, token: 'npc-hidden', name: 'Secret Horror' },
+      'ally-internal': { revealed: true, token: 'ally-wolf', name: 'Moonfang' },
+      'visible-npc': { revealed: true, token: 'npc-ogre', name: 'The Ogre' }
+    } }
+  });
+
+  assert.deepEqual(projection.session.actors, [
+    { id: 'ally-wolf', name: 'Moonfang', active: true, order: 1 },
+    { id: 'pc-ari', name: 'Ari', active: false, order: 2 },
+    { id: 'npc-ogre', name: 'The Ogre', active: false, order: 3 }
+  ]);
+  assert.equal(JSON.stringify(projection).includes('pc-internal'), false);
+  assert.equal(JSON.stringify(projection).includes('hidden-npc'), false);
+  assert.equal(JSON.stringify(projection).includes('npc-source'), false);
+  for (const actor of projection.session.actors) {
+    assert.deepEqual(Object.keys(actor), ['id', 'name', 'active', 'order']);
+  }
+  assert.equal(isPublicCampaignSession(projection), true);
+});
+
+test('generated public actor aliases are based only on revealed roster members', () => {
+  const input = {
+    combat: {
+      order: ['hidden', 'revealed-without-token'],
+      combatants: [{ id: 'hidden' }, { id: 'revealed-without-token' }]
+    },
+    player: { entries: {
+      hidden: { revealed: false, name: 'GM-only' },
+      'revealed-without-token': { revealed: true, name: 'Visible' }
+    } }
+  };
+  assert.deepEqual(adaptPublicCampaignSession(input).session.actors, [
+    { id: 'public-1', name: 'Visible', active: false, order: 1 }
+  ]);
+});
+
 test('serialized projection contains no GM-private fields or internal ids', () => {
   const serialized = serializePublicCampaignSession({
     campaign: { title: 'Public', gmNotes: 'do not leak', sourceId: 'campaign-secret' },
