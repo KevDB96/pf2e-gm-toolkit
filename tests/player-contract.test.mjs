@@ -111,6 +111,39 @@ test('public identity and image controls never leak hidden monster fields', () =
   assert.equal(isPublicCampaignSession(projection), true);
 });
 
+test('creature cards are allowlisted, stable across reveal changes, and metadata-gated', () => {
+  const combatants = [
+    { id: 'secret-a', isPC: false, publicVisibility: 'hidden', publicId: 'hidden-wolf-card',
+      publicDescription: 'Should stay hidden', hp: 999 },
+    { id: 'secret-b', isPC: false, publicVisibility: 'public', publicId: 'wolf-card',
+      publicName: 'Ash Wolf', publicImage: './wolf.png', publicDescription: 'A watchful wolf.',
+      publicRole: 'skirmisher', publicTraits: ['beast', 'fire'], publicStatus: ['Marked'],
+      conditions: ['Frightened 2'], hp: 80, ac: 22, saves: { fort: 10 }, source: { id: 'gm-source' } }
+  ];
+  const player = { entries: {
+    'secret-a': { token: 'wolf-card', name: 'Hidden Wolf', revealed: false, conditions: true },
+    'secret-b': { token: 'wolf-card', name: 'Ash Wolf', revealed: true, conditions: true }
+  } };
+  const revealed = adaptPublicCampaignSession({ session: { phase: 'combat' }, combat: { combatants }, player });
+  assert.deepEqual(revealed.session.creatures, [{
+    id: 'wolf-card', name: 'Ash Wolf', image: './wolf.png', conditions: ['Frightened 2'],
+    description: 'A watchful wolf.', role: 'skirmisher', traits: ['beast', 'fire'], status: ['Marked']
+  }]);
+  assert.equal(JSON.stringify(revealed).includes('gm-source'), false);
+  assert.equal(JSON.stringify(revealed).includes('999'), false);
+  assert.equal(isPublicCampaignSession(revealed), true);
+
+  const hidden = adaptPublicCampaignSession({ session: { phase: 'combat' }, combat: {
+    combatants: combatants.map(creature => ({ ...creature, publicVisibility: 'hidden' }))
+  }, player });
+  assert.deepEqual(hidden.session.creatures, []);
+
+  const presence = adaptPublicCampaignSession({ session: { phase: 'combat' }, combat: {
+    combatants: [{ ...combatants[1], publicVisibility: 'presence' }]
+  }, player });
+  assert.deepEqual(presence.session.creatures, [{ id: 'wolf-card', name: 'Unknown creature', conditions: ['Frightened 2'] }]);
+});
+
 test('generated public actor aliases are based only on revealed roster members', () => {
   const input = {
     combat: {

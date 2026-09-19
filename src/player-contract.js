@@ -52,6 +52,28 @@ function publicConditions(value) {
     .slice(0, 20);
 }
 
+function publicLabels(value) {
+  const values = Array.isArray(value) ? value : [value];
+  return values.filter(label => typeof label === 'string')
+    .map(label => publicText(label, 80))
+    .filter(Boolean)
+    .slice(0, 20);
+}
+
+function publicCreatureMetadata(combatant, policy) {
+  if (!policy.metadata) return {};
+  const metadata = {};
+  const description = publicText(combatant?.publicDescription, 500);
+  const role = publicText(combatant?.publicRole, 80);
+  const traits = publicLabels(combatant?.publicTraits);
+  const status = publicLabels(combatant?.publicStatus);
+  if (description) metadata.description = description;
+  if (role) metadata.role = role;
+  if (traits.length) metadata.traits = traits;
+  if (status.length) metadata.status = status;
+  return metadata;
+}
+
 function publicEncounter(encounter) {
   if (!object(encounter)) return { title: '', status: 'planned' };
   const status = PUBLIC_STATUSES.includes(encounter.status) ? encounter.status : 'planned';
@@ -154,17 +176,25 @@ function publicCombatState(combat, settings) {
 
 function publicCreatures(combat, settings) {
   const combatants = Array.isArray(combat?.combatants) ? combat.combatants : [];
+  const usedPublicIds = new Set();
   return combatants.flatMap((combatant, index) => {
     const setting = settings[combatant?.id];
     const policy = creatureVisibilityPolicy(combatant, setting);
     if (!policy.present || combatant?.isPC === true || !setting || setting.conditions !== true) return [];
     const name = policy.identity ? (publicText(setting.name || combatant?.publicName, 80) || 'Creature') : 'Unknown creature';
+    const preferredId = publicText(setting.token || combatant?.publicId || combatant?.publicToken, 80)
+      || `creature-${index + 1}`;
+    let id = preferredId;
+    let suffix = 2;
+    while (usedPublicIds.has(id)) id = `${preferredId}-${suffix++}`;
+    usedPublicIds.add(id);
     return [{
-      id: setting.token || `creature-${index + 1}`,
+      id,
       name,
       conditions: publicConditions(combatant.conditions),
       ...(policy.image
-        && publicImage(combatant?.publicImage) ? { image: publicImage(combatant.publicImage) } : {})
+        && publicImage(combatant?.publicImage) ? { image: publicImage(combatant.publicImage) } : {}),
+      ...publicCreatureMetadata(combatant, policy)
     }];
   });
 }
@@ -233,10 +263,14 @@ export function isPublicCampaignSession(value) {
     (character.class === undefined || typeof character.class === 'string') &&
     (character.ancestry === undefined || typeof character.ancestry === 'string'));
   const validCreatures = creatures => Array.isArray(creatures) && creatures.every(creature =>
-    allowedKeys(creature, ['id', 'name', 'image', 'conditions']) &&
+    allowedKeys(creature, ['id', 'name', 'image', 'conditions', 'description', 'role', 'traits', 'status']) &&
     typeof creature.id === 'string' && typeof creature.name === 'string' &&
     (creature.image === undefined || typeof creature.image === 'string') &&
-    Array.isArray(creature.conditions) && creature.conditions.every(condition => typeof condition === 'string'));
+    Array.isArray(creature.conditions) && creature.conditions.every(condition => typeof condition === 'string') &&
+    (creature.description === undefined || typeof creature.description === 'string') &&
+    (creature.role === undefined || typeof creature.role === 'string') &&
+    (creature.traits === undefined || (Array.isArray(creature.traits) && creature.traits.every(trait => typeof trait === 'string'))) &&
+    (creature.status === undefined || (Array.isArray(creature.status) && creature.status.every(label => typeof label === 'string'))));
   const validMessages = (messages, key) => Array.isArray(messages) && messages.every(message =>
     exactKeys(message, key === 'notes' ? ['title', 'body'] : ['message']) &&
     Object.values(message).every(value => typeof value === 'string'));
