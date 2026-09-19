@@ -189,7 +189,8 @@ export function isPublicCampaignSession(value) {
   const validMessages = (messages, key) => Array.isArray(messages) && messages.every(message =>
     exactKeys(message, key === 'notes' ? ['title', 'body'] : ['message']) &&
     Object.values(message).every(value => typeof value === 'string'));
-  return value?.contract === PUBLIC_CONTRACT && value.version === PUBLIC_CONTRACT_VERSION &&
+  return exactKeys(value, ['contract', 'version', 'revision', 'campaign', 'session']) &&
+    value.contract === PUBLIC_CONTRACT && value.version === PUBLIC_CONTRACT_VERSION &&
     Number.isInteger(value.revision) && value.revision >= 0 &&
     exactKeys(value.campaign, ['title']) && typeof value.campaign.title === 'string' &&
     exactKeys(session, ['phase', 'round', 'encounter', 'characters', 'creatures', 'notes', 'events', 'actors']) &&

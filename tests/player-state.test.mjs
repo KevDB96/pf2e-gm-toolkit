@@ -2,6 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   acceptPlayerSnapshot,
+  createPlayerRequest,
+  createPlayerSnapshot,
+  isPlayerSnapshot,
   isPlayerRequest,
   normalizePlayer,
   projectPlayerState
@@ -38,17 +41,13 @@ test('player settings normalize to safe sparse entries', () => {
 });
 
 function snapshot(revision, phase = 'downtime') {
-  return {
-    kind: 'snapshot',
-    channel: 'pf2e-gm-toolkit/player-v1',
-    projection: {
+  return createPlayerSnapshot({
       contract: 'pf2e-companion/public-campaign-session',
       version: 1,
       revision,
       campaign: { title: '' },
       session: { phase, round: 0, encounter: { title: '', status: 'planned' }, characters: [], creatures: [], notes: [], events: [], actors: [] }
-    }
-  };
+    });
 }
 
 test('player accepts only newer public revisions', () => {
@@ -68,4 +67,16 @@ test('player-side phase mutation messages are not requests and cannot change the
   assert.equal(isPlayerRequest(attemptedMutation), false);
   assert.equal(acceptPlayerSnapshot(current, attemptedMutation), current);
   assert.equal(current.projection.session.phase, 'exploration');
+});
+
+test('transport envelopes are versioned and reject legacy or mixed-channel messages', () => {
+  const request = createPlayerRequest();
+  assert.equal(isPlayerRequest(request), true);
+  assert.equal(isPlayerRequest({ ...request, version: 2 }), false);
+  assert.equal(isPlayerRequest({ kind: 'player-request', channel: 'pf2e-gm-toolkit/player-v1' }), false);
+
+  const valid = snapshot(1);
+  assert.equal(isPlayerSnapshot(valid), true);
+  assert.equal(isPlayerSnapshot({ ...valid, transport: 'other' }), false);
+  assert.equal(isPlayerSnapshot({ ...valid, projection: { ...valid.projection, secret: true } }), false);
 });

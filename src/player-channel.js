@@ -1,14 +1,14 @@
 import { state, subscribe } from './store.js';
-import { PLAYER_CHANNEL, isPlayerRequest } from './player-state.js';
+import { PLAYER_CHANNEL } from './player-state.js';
 import { adaptPublicCampaignSession } from './player-contract.js';
+import { createPlayerSnapshot, isPlayerRequest } from './player-transport.js';
 
 let channel = null;
 let installed = false;
 let heartbeat = null;
 
 function snapshot() {
-  return { kind: 'snapshot', channel: PLAYER_CHANNEL,
-    projection: adaptPublicCampaignSession({
+  return createPlayerSnapshot(adaptPublicCampaignSession({
       campaign: state.campaign,
       combat: state.combat,
       encounter: state.encounter,
@@ -16,7 +16,7 @@ function snapshot() {
       notes: state.notes?.entries,
       player: state.player,
       session: state.session
-    }) };
+    }));
 }
 
 function installFallback() {
@@ -24,7 +24,8 @@ function installFallback() {
   installed = true;
   window.addEventListener('message', event => {
     if (event.origin !== location.origin || !isPlayerRequest(event.data)) return;
-    event.source?.postMessage(snapshot(), location.origin);
+    const payload = snapshot();
+    if (payload) event.source?.postMessage(payload, location.origin);
   });
 }
 

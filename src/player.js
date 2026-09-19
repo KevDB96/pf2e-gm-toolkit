@@ -1,9 +1,14 @@
-import { PLAYER_CHANNEL, acceptPlayerSnapshot } from './player-state.js';
+import { PLAYER_CHANNEL } from './player-state.js';
 import { isPublicCampaignSession } from './player-contract.js';
+import { acceptPlayerSnapshot, createPlayerRequest } from './player-transport.js';
 
 const status = document.querySelector('[data-player-status]');
 const actors = document.querySelector('[data-player-actors]');
 let timer;
+let poller;
+let liveChannel = null;
+let requestFallback = null;
+let fallbackListenerInstalled = false;
 let currentSnapshot = null;
 
 function keepAlive() {
@@ -47,22 +52,39 @@ function render(message) {
 }
 
 function requestSnapshot() {
+  const request = createPlayerRequest();
+  if (liveChannel) {
+    liveChannel.postMessage(request);
+  } else if (requestFallback) {
+    requestFallback(request);
+  }
+}
+
+function connectTransport() {
   if ('BroadcastChannel' in window) {
-    const channel = new BroadcastChannel(PLAYER_CHANNEL);
-    channel.addEventListener('message', event => render(event.data));
-    channel.postMessage({ kind: 'player-request', channel: PLAYER_CHANNEL });
+    liveChannel = new BroadcastChannel(PLAYER_CHANNEL);
+    liveChannel.addEventListener('message', event => render(event.data));
   } else if (window.opener) {
-    window.opener.postMessage({ kind: 'player-request', channel: PLAYER_CHANNEL }, location.origin);
+    requestFallback = request => window.opener?.postMessage(request, location.origin);
     status.textContent = 'BroadcastChannel is unavailable; using the GM window fallback.';
-    window.addEventListener('message', event => {
-      if (event.origin === location.origin) render(event.data);
-    });
+    if (!fallbackListenerInstalled) {
+      fallbackListenerInstalled = true;
+      window.addEventListener('message', event => {
+        if (event.origin === location.origin) render(event.data);
+      });
+    }
   } else {
     status.textContent = 'BroadcastChannel is unavailable. Open this display from the GM window.';
   }
+  requestSnapshot();
+  poller = setInterval(requestSnapshot, 3000);
 }
+
+window.addEventListener('visibilitychange', () => {
+  if (!document.hidden) requestSnapshot();
+});
 
 document.querySelector('[data-fullscreen]').addEventListener('click', () => {
   document.documentElement.requestFullscreen?.();
 });
-requestSnapshot();
+connectTransport();
