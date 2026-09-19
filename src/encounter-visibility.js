@@ -1,5 +1,10 @@
 // GM-owned encounter visibility. Missing or malformed values fail closed.
 
+import {
+  CREATURE_VISIBILITY,
+  creatureVisibilityPolicy
+} from './creature-visibility.js';
+
 export const ENCOUNTER_IDENTITIES = Object.freeze(['hidden', 'unknown', 'revealed']);
 
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
@@ -10,11 +15,14 @@ export function encounterEntryIsPlayerVisible(entry) {
 
 export function encounterIdentity(entry) {
   if (!encounterEntryIsPlayerVisible(entry)) return 'hidden';
-  return ENCOUNTER_IDENTITIES.includes(entry.publicIdentity) ? entry.publicIdentity : 'revealed';
+  const policy = creatureVisibilityPolicy(entry);
+  if (policy.level === CREATURE_VISIBILITY.HIDDEN) return 'hidden';
+  if (policy.identity) return 'revealed';
+  return 'unknown';
 }
 
 export function encounterImageIsPlayerVisible(entry) {
-  return encounterIdentity(entry) === 'revealed' && entry.publicImageVisible === true;
+  return encounterEntryIsPlayerVisible(entry) && creatureVisibilityPolicy(entry).image;
 }
 
 export function normalizeEncounterEntries(entries) {
@@ -25,7 +33,7 @@ export function normalizeEncounterEntries(entries) {
       ...entry,
       playerVisible: entry.kind === 'creature' && entry.playerVisible === true,
       publicIdentity: entry.kind === 'creature' && entry.playerVisible === true
-        ? (ENCOUNTER_IDENTITIES.includes(entry.publicIdentity) ? entry.publicIdentity : 'revealed')
+        ? (ENCOUNTER_IDENTITIES.includes(entry.publicIdentity) ? entry.publicIdentity : 'unknown')
         : 'hidden',
       publicImageVisible: entry.kind === 'creature' && entry.playerVisible === true
         && entry.publicIdentity === 'revealed' && entry.publicImageVisible === true

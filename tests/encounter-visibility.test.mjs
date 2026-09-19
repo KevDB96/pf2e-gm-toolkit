@@ -49,3 +49,9 @@ test('slot visibility, identity, and image transitions stay independent and fail
   assert.equal(encounterIdentity(hidden[0]), 'hidden');
   assert.equal(encounterImageIsPlayerVisible(hidden[0]), false);
 });
+
+test('a visible creature with no valid identity stays presence-only', () => {
+  const entries = normalizeEncounterEntries([{ id: 'c-1', kind: 'creature', playerVisible: true }]);
+  assert.equal(encounterIdentity(entries[0]), 'unknown');
+  assert.equal(encounterImageIsPlayerVisible(entries[0]), false);
+});

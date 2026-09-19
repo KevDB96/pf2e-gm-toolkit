@@ -1,6 +1,6 @@
 // The shell rotates on each release. Reference data intentionally does not: a shell-only
 // deploy must not evict several megabytes the GM has already chosen to download.
-const SHELL_CACHE = 'pf2e-gm-shell-v83';
+const SHELL_CACHE = 'pf2e-gm-shell-v84';
 const REFERENCE_CACHE = 'pf2e-gm-reference-v1';
 const LEGACY_CACHES = ['pf2e-gm-v62'];
 const BASE = new URL('./', self.location).pathname;
@@ -10,7 +10,7 @@ const METADATA_URL = new URL('./data/' + METADATA_FILE, self.location).href;
 const OFFLINE_URLS = [
   './', './index.html', './styles.css', './manifest.json', './src/app.js', './src/store.js',
   './src/pf2e.js', './src/wake.js', './src/dom.js', './src/data.js', './src/offline.js', './src/pathbuilder.js',
-  './src/facets.js', './src/records.js', './src/youtube.js', './src/search.js', './src/library-filter.js', './src/library-icons.js', './src/saved-encounters.js', './src/encounter-visibility.js', './src/pins.js',
+  './src/facets.js', './src/records.js', './src/youtube.js', './src/search.js', './src/library-filter.js', './src/library-icons.js', './src/saved-encounters.js', './src/encounter-visibility.js', './src/creature-visibility.js', './src/pins.js',
   './src/combat-details.js', './src/backup.js', './src/combat-turn.js', './src/combat-history.js', './src/exploration.js', './src/gm-reference.js',
   './src/views/home.js', './src/views/encounters.js', './src/views/combat.js',
   './src/views/library.js', './src/views/loot.js', './src/views/notes.js',

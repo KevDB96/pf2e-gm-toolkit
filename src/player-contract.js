@@ -1,5 +1,6 @@
 // Versioned, public-only adapter between GM state and Companion-facing data.
 // Keep transport concerns (BroadcastChannel/window messages) out of this module.
+import { CREATURE_VISIBILITY, creatureVisibilityPolicy } from './creature-visibility.js';
 
 export const PUBLIC_CONTRACT = 'pf2e-companion/public-campaign-session';
 export const PUBLIC_CONTRACT_VERSION = 2;
@@ -124,11 +125,9 @@ function publicActors(combat, settings) {
     ? combat.activeId : null;
   return ordered.flatMap(combatant => {
     const setting = settings[combatant?.id];
-    const visible = combatant?.publicVisible === true || (combatant?.publicVisible !== false && setting?.identity !== 'hidden');
-    if (!visible) return [];
-    const identity = ['hidden', 'unknown', 'revealed'].includes(combatant?.publicIdentity)
-      ? combatant.publicIdentity : (setting?.identity || (combatant?.publicVisible === true ? 'revealed' : setting ? 'revealed' : 'unknown'));
-    const image = identity === 'revealed' && (combatant?.publicImageVisible === true || setting?.imageVisible === true)
+    const policy = creatureVisibilityPolicy(combatant, setting);
+    if (!policy.present) return [];
+    const image = policy.image
       ? publicImage(combatant?.publicImage) : '';
     publicIndex += 1;
     const preferredId = publicText(setting?.token, 80) || `public-${publicIndex}`;
@@ -138,7 +137,7 @@ function publicActors(combat, settings) {
     return [{
       // This is a public alias, never the GM combatant/source id.
       id,
-      name: identity === 'revealed' ? (publicText(setting?.name || combatant?.publicName, 80) || 'Participant') : 'Unknown creature',
+      name: policy.identity ? (publicText(setting?.name || combatant?.publicName, 80) || 'Participant') : 'Unknown creature',
       ...(image ? { image } : {}),
       active: combatant.id === activeId,
       order: publicIndex
@@ -157,16 +156,14 @@ function publicCreatures(combat, settings) {
   const combatants = Array.isArray(combat?.combatants) ? combat.combatants : [];
   return combatants.flatMap((combatant, index) => {
     const setting = settings[combatant?.id];
-    if (combatant?.publicVisible === false || combatant?.isPC === true || !setting || setting.conditions !== true) return [];
-    const identity = ['hidden', 'unknown', 'revealed'].includes(combatant?.publicIdentity)
-      ? combatant.publicIdentity : (setting.identity || (combatant?.publicVisible === true ? 'revealed' : 'hidden'));
-    if (identity === 'hidden') return [];
-    const name = identity === 'revealed' ? (publicText(setting.name || combatant?.publicName, 80) || 'Creature') : 'Unknown creature';
+    const policy = creatureVisibilityPolicy(combatant, setting);
+    if (!policy.present || combatant?.isPC === true || !setting || setting.conditions !== true) return [];
+    const name = policy.identity ? (publicText(setting.name || combatant?.publicName, 80) || 'Creature') : 'Unknown creature';
     return [{
       id: setting.token || `creature-${index + 1}`,
       name,
       conditions: publicConditions(combatant.conditions),
-      ...(identity === 'revealed' && (combatant?.publicImageVisible === true || setting.imageVisible === true)
+      ...(policy.image
         && publicImage(combatant?.publicImage) ? { image: publicImage(combatant.publicImage) } : {})
     }];
   });

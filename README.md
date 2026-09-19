@@ -100,6 +100,11 @@ is unavailable, a player window opened by the GM can use the same-origin popup f
 
 Hovering anything with a description shows what it mechanically does, in a line: a creature's AC, HP and saves, a spell's cost, range and save, what a condition does to you and what it applies alongside itself.
 
+Creature visibility is resolved by the pure policy in [src/creature-visibility.js](src/creature-visibility.js):
+`hidden`, `presence` (an unknown creature), `image`, `identity`, or `public` metadata. Unknown policy
+values fail closed to `hidden`. The player contract copies only the deliberately public projection; creature
+mechanical statistics and GM/source fields remain private by default.
+
 Combat detail sheets also accept a final damage or healing amount and preview the bounded
 HP result before saving it as one undoable combat action. Damage is entered after defenses
 are handled; temporary HP and shields remain manual.
