@@ -1,9 +1,10 @@
 // Shell: owns the party header, the tab bar, and dispatching to a view module.
 
-import { state, save, reset, subscribe, subscribePersistence, serializeState } from './store.js';
+import { state, save, reset, setSessionPhase, subscribe, subscribePersistence, serializeState } from './store.js';
 import { qs, qsa, installTips } from './dom.js';
 import { keepAwake } from './wake.js';
 import { bindPlayerBroadcast } from './player-channel.js';
+import { phaseControlMarkup, SESSION_PHASES } from './session-phase.js';
 import * as home from './views/home.js';
 import * as encounters from './views/encounters.js';
 import * as combat from './views/combat.js';
@@ -166,6 +167,20 @@ function bindPersistence() {
   });
 }
 
+function bindSessionPhase() {
+  const control = qs('#session-phase-control');
+  control.innerHTML = phaseControlMarkup(state.session.phase);
+  control.addEventListener('click', event => {
+    const button = event.target.closest('[data-session-phase]');
+    if (button && SESSION_PHASES.includes(button.dataset.sessionPhase)) {
+      setSessionPhase(button.dataset.sessionPhase);
+    }
+  });
+  subscribe(() => {
+    control.innerHTML = phaseControlMarkup(state.session.phase);
+  });
+}
+
 // --- boot ----------------------------------------------------------------
 qsa('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -194,6 +209,7 @@ subscribe(() => {
 
 bindParty();
 bindPersistence();
+bindSessionPhase();
 bindPlayerBroadcast();
 installTips();
 render();
