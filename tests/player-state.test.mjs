@@ -37,8 +37,38 @@ test('player projection is an allowlisted public snapshot', () => {
 
 test('player settings normalize to safe sparse entries', () => {
   assert.deepEqual(normalizePlayer({ entries: { a: { revealed: true, name: 4 }, bad: null, '__proto__': { revealed: true } } }), {
-    entries: { a: { token: '', revealed: true, name: '' } }
+    entries: { a: { token: '', revealed: true, name: '', conditions: false } }
   });
+  assert.equal(normalizePlayer({ entries: { a: { revealConditions: true } } }).entries.a.conditions, true);
+});
+
+test('fresh public snapshots expose only explicitly enabled condition/status labels and reflect removal', () => {
+  const combatant = {
+    id: 'wolf-internal', isPC: false, publicVisibility: 'public', publicId: 'wolf-public',
+    publicName: 'Ash Wolf', publicStatus: ['Marked'], conditions: ['Frightened 2'],
+    hp: 80, ac: 22, saves: { fort: 10 }, attacks: ['claw'], source: { id: 'secret-source' },
+    effects: [{ id: 'secret-effect', duration: { remaining: 2 } }]
+  };
+  const player = { entries: {
+    'wolf-internal': { revealed: true, identity: 'revealed', token: 'wolf-public', name: 'Ash Wolf', conditions: true }
+  } };
+
+  const initial = projectPlayerState({ combatants: [combatant] }, player);
+  assert.deepEqual(initial.creatures, [{
+    id: 'wolf-public', name: 'Ash Wolf', conditions: ['Frightened 2'], status: ['Marked']
+  }]);
+  assert.equal(JSON.stringify(initial).includes('secret-source'), false);
+  assert.equal(JSON.stringify(initial).includes('secret-effect'), false);
+  assert.equal(JSON.stringify(initial).includes('duration'), false);
+
+  combatant.conditions = ['Stunned 1'];
+  const updated = projectPlayerState({ combatants: [combatant] }, player);
+  assert.deepEqual(updated.creatures[0].conditions, ['Stunned 1']);
+
+  combatant.conditions = [];
+  const removed = projectPlayerState({ combatants: [combatant] }, player);
+  assert.deepEqual(removed.creatures[0].conditions, []);
+  assert.equal(JSON.stringify(removed).includes('Frightened 2'), false);
 });
 
 function snapshot(revision, phase = 'downtime') {

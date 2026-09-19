@@ -191,7 +191,9 @@ function publicCreatures(combat, settings) {
     return [{
       id,
       name,
-      conditions: publicConditions(combatant.conditions),
+      // Presence-only creatures may be shown as unknown participants, but their
+      // conditions are not public until identity has been revealed.
+      conditions: policy.identity ? publicConditions(combatant.conditions) : [],
       ...(policy.image
         && publicImage(combatant?.publicImage) ? { image: publicImage(combatant.publicImage) } : {}),
       ...publicCreatureMetadata(combatant, policy)

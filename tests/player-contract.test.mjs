@@ -141,7 +141,29 @@ test('creature cards are allowlisted, stable across reveal changes, and metadata
   const presence = adaptPublicCampaignSession({ session: { phase: 'combat' }, combat: {
     combatants: [{ ...combatants[1], publicVisibility: 'presence' }]
   }, player });
-  assert.deepEqual(presence.session.creatures, [{ id: 'wolf-card', name: 'Unknown creature', conditions: ['Frightened 2'] }]);
+  assert.deepEqual(presence.session.creatures, [{ id: 'wolf-card', name: 'Unknown creature', conditions: [] }]);
+});
+
+test('conditions require a revealed creature identity and never apply to PCs or hidden creatures', () => {
+  const combatants = [
+    { id: 'pc', isPC: true, conditions: ['Dying 2'], publicVisibility: 'public', publicName: 'Ari' },
+    { id: 'hidden', isPC: false, conditions: ['Frightened 3'], publicVisibility: 'hidden' },
+    { id: 'presence', isPC: false, conditions: ['Clumsy 2'], publicVisibility: 'presence' },
+    { id: 'revealed', isPC: false, conditions: ['Slowed 1'], publicVisibility: 'identity', publicName: 'The Ogre' }
+  ];
+  const projection = adaptPublicCampaignSession({
+    combat: { combatants },
+    player: { entries: Object.fromEntries(combatants.map(combatant => [combatant.id, {
+      revealed: true, conditions: true, token: `${combatant.id}-public`, name: combatant.publicName || combatant.id
+    }])) }
+  });
+  assert.deepEqual(projection.session.creatures, [
+    { id: 'presence-public', name: 'Unknown creature', conditions: [] },
+    { id: 'revealed-public', name: 'The Ogre', conditions: ['Slowed 1'] }
+  ]);
+  assert.equal(JSON.stringify(projection).includes('Dying 2'), false);
+  assert.equal(JSON.stringify(projection).includes('Frightened 3'), false);
+  assert.equal(JSON.stringify(projection).includes('Clumsy 2'), false);
 });
 
 test('generated public actor aliases are based only on revealed roster members', () => {

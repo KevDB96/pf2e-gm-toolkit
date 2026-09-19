@@ -224,7 +224,7 @@ function openPlayerSettings() {
   const list = ordered();
   const entries = state.player?.entries || {};
   const body = `<p class="muted">Slot visibility, identity, and image are separate. HP, AC, initiatives, notes, source IDs, and hidden identities never leave this screen.</p>
-    ${list.length ? list.map(c => { const entry = entries[c.id] || {}; const identity = ['hidden', 'unknown', 'revealed'].includes(entry.identity) ? entry.identity : (entry.revealed ? 'revealed' : 'hidden'); return `<div class="player-setting"><label>Slot <input type="checkbox" data-player-reveal="${esc(c.id)}"${entry.revealed ? ' checked' : ''}></label><label>Identity <select data-player-identity="${esc(c.id)}"><option value="hidden"${identity === 'hidden' ? ' selected' : ''}>Hidden</option><option value="unknown"${identity === 'unknown' ? ' selected' : ''}>Unknown</option><option value="revealed"${identity === 'revealed' ? ' selected' : ''}>Revealed</option></select></label><label>Image <input type="checkbox" data-player-image="${esc(c.id)}"${entry.imageVisible ? ' checked' : ''}></label><input class="grow" data-player-name="${esc(c.id)}" value="${esc(entry.name || '')}" placeholder="Public name (optional)" aria-label="Public name for ${esc(trackerName(c))}"><span class="muted">${esc(trackerName(c))}</span></div>`; }).join('') : '<p class="empty">Add combatants before configuring the player display.</p>'}
+    ${list.length ? list.map(c => { const entry = entries[c.id] || {}; const identity = ['hidden', 'unknown', 'revealed'].includes(entry.identity) ? entry.identity : (entry.revealed ? 'revealed' : 'hidden'); return `<div class="player-setting"><label>Slot <input type="checkbox" data-player-reveal="${esc(c.id)}"${entry.revealed ? ' checked' : ''}></label><label>Identity <select data-player-identity="${esc(c.id)}"><option value="hidden"${identity === 'hidden' ? ' selected' : ''}>Hidden</option><option value="unknown"${identity === 'unknown' ? ' selected' : ''}>Unknown</option><option value="revealed"${identity === 'revealed' ? ' selected' : ''}>Revealed</option></select></label><label>Image <input type="checkbox" data-player-image="${esc(c.id)}"${entry.imageVisible ? ' checked' : ''}></label><label>Conditions <input type="checkbox" data-player-conditions="${esc(c.id)}"${entry.conditions ? ' checked' : ''}></label><input class="grow" data-player-name="${esc(c.id)}" value="${esc(entry.name || '')}" placeholder="Public name (optional)" aria-label="Public name for ${esc(trackerName(c))}"><span class="muted">${esc(trackerName(c))}</span></div>`; }).join('') : '<p class="empty">Add combatants before configuring the player display.</p>'}
     <button class="primary" data-player-save>Save display settings</button>`;
   const { node, close } = sheet('Player display', body, sheetNode => {
     on(sheetNode, 'click', '[data-player-save]', () => {
@@ -239,11 +239,13 @@ function openPlayerSettings() {
         c.publicName = identity === 'revealed' && slotVisible ? publicName : null;
         c.publicImageVisible = identity === 'revealed' && slotVisible
           && Boolean(qs(`[data-player-image="${CSS.escape(c.id)}"]`, sheetNode)?.checked);
+        const revealConditions = Boolean(qs(`[data-player-conditions="${CSS.escape(c.id)}"]`, sheetNode)?.checked);
         next[c.id] = {
           token: prior.token || uid('player'),
           revealed: slotVisible,
           identity,
           imageVisible: Boolean(qs(`[data-player-image="${CSS.escape(c.id)}"]`, sheetNode)?.checked),
+          conditions: revealConditions,
           name: publicName
         };
       }

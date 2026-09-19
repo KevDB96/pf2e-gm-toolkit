@@ -56,6 +56,39 @@ function render(message) {
     row.append(label, name);
     actors.append(row);
   });
+  const creatures = Array.isArray(session.creatures) ? session.creatures : [];
+  const visibleCreatures = creatures.filter(creature =>
+    (Array.isArray(creature.conditions) && creature.conditions.length) ||
+    (Array.isArray(creature.status) && creature.status.length));
+  if (visibleCreatures.length) {
+    const heading = document.createElement('h2');
+    heading.className = 'player-creatures-heading';
+    heading.textContent = 'Conditions and status';
+    actors.append(heading);
+    visibleCreatures.forEach(creature => {
+      const card = document.createElement('section');
+      card.className = 'player-creature-status';
+      const name = document.createElement('strong');
+      name.textContent = creature.name;
+      card.append(name);
+      const labels = document.createElement('div');
+      labels.className = 'player-condition-list';
+      for (const condition of creature.conditions || []) {
+        const label = document.createElement('span');
+        label.className = 'player-condition';
+        label.textContent = condition;
+        labels.append(label);
+      }
+      for (const statusLabel of creature.status || []) {
+        const label = document.createElement('span');
+        label.className = 'player-status-label';
+        label.textContent = statusLabel;
+        labels.append(label);
+      }
+      card.append(labels);
+      actors.append(card);
+    });
+  }
   keepAlive();
 }
 

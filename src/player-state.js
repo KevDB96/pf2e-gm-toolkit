@@ -22,7 +22,8 @@ export function normalizePlayer(saved) {
     clean[id] = {
       token: typeof entry.token === 'string' ? entry.token : '',
       revealed: entry.revealed === true,
-      name: typeof entry.name === 'string' ? entry.name.slice(0, 80) : ''
+      name: typeof entry.name === 'string' ? entry.name.slice(0, 80) : '',
+      conditions: entry.conditions === true || entry.revealConditions === true
     };
     if (['hidden', 'unknown', 'revealed'].includes(entry.identity)) clean[id].identity = entry.identity;
     if (entry.imageVisible === true) clean[id].imageVisible = true;
