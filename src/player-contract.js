@@ -6,6 +6,12 @@ import {
   normalizeRevealState,
   publicRevealDecisions
 } from './reveal-progression.js';
+import {
+  adaptCompanionCharacter,
+  resolveCompanionCharacter
+} from './companion-characters.js';
+
+export { adaptCompanionCharacter, resolveCompanionCharacter } from './companion-characters.js';
 
 export const PUBLIC_CONTRACT = 'pf2e-companion/public-campaign-session';
 export const PUBLIC_CONTRACT_VERSION = 2;
@@ -93,6 +99,8 @@ function publicEncounter(encounter) {
 function publicCharacters(characters) {
   if (!Array.isArray(characters)) return [];
   return characters.flatMap((character, index) => {
+    const companionCharacter = adaptCompanionCharacter(character);
+    if (companionCharacter) return [companionCharacter];
     if (!object(character) || (character.public !== true && character.revealed !== true)) return [];
     const name = publicText(character.publicName ?? character.name, 80);
     if (!name) return [];
@@ -226,9 +234,13 @@ function publicImage(value) {
  * Only explicitly allowlisted fields are copied; unknown GM fields are ignored.
  */
 export function adaptPublicCampaignSession({ campaign, combat, player, session, revision,
-  encounter, characters, notes, events } = {}) {
+  encounter, characters, companionCharacters, notes, events } = {}) {
   const settings = publicPlayerSettings(player);
   const publicCombat = publicCombatState(combat, settings);
+  const characterRecords = [
+    ...(Array.isArray(characters) ? characters : []),
+    ...(Array.isArray(companionCharacters) ? companionCharacters : [])
+  ];
   return {
     contract: PUBLIC_CONTRACT,
     version: PUBLIC_CONTRACT_VERSION,
@@ -241,7 +253,7 @@ export function adaptPublicCampaignSession({ campaign, combat, player, session, 
       round: publicCombat.round,
       currentTurnId: publicCombat.currentTurnId,
       encounter: publicEncounter(encounter),
-      characters: publicCharacters(characters),
+      characters: publicCharacters(characterRecords),
       creatures: publicCreatures(combat, settings),
       notes: publicNotes(notes),
       events: publicEvents(events),
