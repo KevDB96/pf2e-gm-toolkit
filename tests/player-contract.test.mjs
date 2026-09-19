@@ -144,6 +144,37 @@ test('creature cards are allowlisted, stable across reveal changes, and metadata
   assert.deepEqual(presence.session.creatures, [{ id: 'wolf-card', name: 'Unknown creature', conditions: [] }]);
 });
 
+test('staged reveals publish only explicit allowlisted labels at the selected tier', () => {
+  const projection = adaptPublicCampaignSession({
+    combat: { combatants: [{
+      id: 'wolf', publicVisibility: 'identity', publicName: 'Ash Wolf',
+      hp: 80, ac: 22, publicReveal: {
+        tier: 'known',
+        decisions: [
+          { tier: 'basic', category: 'appearance', labels: ['Scaled'] },
+          { tier: 'known', category: 'traits', labels: ['Beast'] },
+          { tier: 'detailed', category: 'lore', labels: ['Secret weakness: fire'] },
+          { tier: 'known', category: 'weaknesses', labels: ['fire'] }
+        ]
+      }
+    }] },
+    player: { entries: {
+      wolf: { token: 'public-1', name: 'Ash Wolf', conditions: true }
+    } }
+  });
+  assert.deepEqual(projection.session.creatures, [{
+    id: 'public-1', name: 'Ash Wolf', conditions: [],
+    reveals: [
+      { category: 'appearance', labels: ['Scaled'] },
+      { category: 'traits', labels: ['Beast'] }
+    ]
+  }]);
+  const serialized = JSON.stringify(projection);
+  for (const secret of ['Secret weakness: fire', 'weaknesses', '80', '22']) {
+    assert.equal(serialized.includes(secret), false, `leaked ${secret}`);
+  }
+});
+
 test('conditions require a revealed creature identity and never apply to PCs or hidden creatures', () => {
   const combatants = [
     { id: 'pc', isPC: true, conditions: ['Dying 2'], publicVisibility: 'public', publicName: 'Ari' },

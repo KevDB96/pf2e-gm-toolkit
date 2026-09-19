@@ -15,7 +15,7 @@ const OFFLINE_URLS = [
   './src/views/home.js', './src/views/encounters.js', './src/views/combat.js',
   './src/views/library.js', './src/views/loot.js', './src/views/notes.js',
   './src/views/party.js', './src/views/sound.js', './data/soundtrack.json', './data/index.json', './data/traits.json',
-  './player.html', './src/player.js', './src/player-state.js', './src/player-channel.js',
+  './player.html', './src/player.js', './src/player-state.js', './src/player-contract.js', './src/reveal-progression.js', './src/player-channel.js',
   // The tab bar draws these, so they have to be here: offline, an <img> with no cache entry
   // is a broken image sitting in the middle of the bar.
   './icons/nav/home.png', './icons/nav/run.png', './icons/nav/table.png',

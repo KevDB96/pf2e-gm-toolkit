@@ -1,6 +1,11 @@
 // Versioned, public-only adapter between GM state and Companion-facing data.
 // Keep transport concerns (BroadcastChannel/window messages) out of this module.
 import { CREATURE_VISIBILITY, creatureVisibilityPolicy } from './creature-visibility.js';
+import {
+  isRevealCategory,
+  normalizeRevealState,
+  publicRevealDecisions
+} from './reveal-progression.js';
 
 export const PUBLIC_CONTRACT = 'pf2e-companion/public-campaign-session';
 export const PUBLIC_CONTRACT_VERSION = 2;
@@ -38,7 +43,9 @@ function publicPlayerSettings(saved) {
       conditions: entry.conditions === true || entry.revealConditions === true,
       identity: ['hidden', 'unknown', 'revealed'].includes(entry.identity)
         ? entry.identity : (entry.revealed === true ? 'revealed' : 'hidden'),
-      imageVisible: entry.imageVisible === true
+      imageVisible: entry.imageVisible === true,
+      ...(entry.reveal !== undefined || entry.reveals !== undefined
+        ? { reveal: normalizeRevealState(entry.reveal ?? entry.reveals) } : {})
     };
   }
   return clean;
@@ -196,7 +203,9 @@ function publicCreatures(combat, settings) {
       conditions: policy.identity ? publicConditions(combatant.conditions) : [],
       ...(policy.image
         && publicImage(combatant?.publicImage) ? { image: publicImage(combatant.publicImage) } : {}),
-      ...publicCreatureMetadata(combatant, policy)
+      ...publicCreatureMetadata(combatant, policy),
+      ...(publicRevealDecisions(setting?.reveal ?? combatant?.publicReveal).length
+        ? { reveals: publicRevealDecisions(setting?.reveal ?? combatant?.publicReveal) } : {})
     }];
   });
 }
@@ -265,14 +274,17 @@ export function isPublicCampaignSession(value) {
     (character.class === undefined || typeof character.class === 'string') &&
     (character.ancestry === undefined || typeof character.ancestry === 'string'));
   const validCreatures = creatures => Array.isArray(creatures) && creatures.every(creature =>
-    allowedKeys(creature, ['id', 'name', 'image', 'conditions', 'description', 'role', 'traits', 'status']) &&
+    allowedKeys(creature, ['id', 'name', 'image', 'conditions', 'description', 'role', 'traits', 'status', 'reveals']) &&
     typeof creature.id === 'string' && typeof creature.name === 'string' &&
     (creature.image === undefined || typeof creature.image === 'string') &&
     Array.isArray(creature.conditions) && creature.conditions.every(condition => typeof condition === 'string') &&
     (creature.description === undefined || typeof creature.description === 'string') &&
     (creature.role === undefined || typeof creature.role === 'string') &&
     (creature.traits === undefined || (Array.isArray(creature.traits) && creature.traits.every(trait => typeof trait === 'string'))) &&
-    (creature.status === undefined || (Array.isArray(creature.status) && creature.status.every(label => typeof label === 'string'))));
+    (creature.status === undefined || (Array.isArray(creature.status) && creature.status.every(label => typeof label === 'string'))) &&
+    (creature.reveals === undefined || (Array.isArray(creature.reveals) && creature.reveals.every(reveal =>
+      exactKeys(reveal, ['category', 'labels']) && isRevealCategory(reveal.category) &&
+      Array.isArray(reveal.labels) && reveal.labels.every(label => typeof label === 'string')))));
   const validMessages = (messages, key) => Array.isArray(messages) && messages.every(message =>
     exactKeys(message, key === 'notes' ? ['title', 'body'] : ['message']) &&
     Object.values(message).every(value => typeof value === 'string'));

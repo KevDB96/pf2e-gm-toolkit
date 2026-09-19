@@ -1,6 +1,7 @@
 // Compatibility facade for the public contract. New boundary code belongs in
 // player-contract.js; this file preserves the existing display API for the GM UI.
 import { adaptPublicCampaignSession } from './player-contract.js';
+import { normalizeRevealState } from './reveal-progression.js';
 import {
   createPlayerRequest,
   createPlayerSnapshot,
@@ -27,6 +28,9 @@ export function normalizePlayer(saved) {
     };
     if (['hidden', 'unknown', 'revealed'].includes(entry.identity)) clean[id].identity = entry.identity;
     if (entry.imageVisible === true) clean[id].imageVisible = true;
+    if (entry.reveal !== undefined || entry.reveals !== undefined) {
+      clean[id].reveal = normalizeRevealState(entry.reveal ?? entry.reveals);
+    }
   }
   return { entries: clean };
 }
