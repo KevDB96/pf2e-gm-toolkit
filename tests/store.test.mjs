@@ -65,6 +65,7 @@ test('older valid state gains defaults without dropping device data or condition
   assert.equal(store.state.party.size, 5);
   assert.equal(store.state.notes.entries[0].title, 'Keep');
   assert.equal(store.state.characters.extra[0].id, 'pc');
+  assert.deepEqual(store.state.companion, { characters: [], assignments: {} });
   assert.deepEqual(store.state.combat.combatants[0].conditions, ['Made-up condition']);
   assert.equal(store.state.future.keep, true);
   assert.equal(store.state.ui.recent.length, 0);

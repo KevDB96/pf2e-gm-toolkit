@@ -12,6 +12,65 @@ import {
   adaptPublicCampaignSession,
   isPublicCampaignSession
 } from '../src/player-contract.js';
+import {
+  assignCompanionCharacter,
+  campaignRoster,
+  companionCharactersForCampaign,
+  normalizeCompanionRosterState,
+  unassignCompanionCharacter
+} from '../src/companion-rosters.js';
+
+const sharedRecord = (id, name = id) => ({
+  contract: PUBLIC_CHARACTER_CONTRACT,
+  version: PUBLIC_CHARACTER_VERSION,
+  character: { id, name, level: 4, hp: 99, ac: 24, gmNotes: 'private' }
+});
+
+test('Companion assignment is idempotent, reversible, and campaign-scoped', () => {
+  let saved = assignCompanionCharacter({}, 'campaign-a', sharedRecord('shared-1', 'Ari'));
+  saved = assignCompanionCharacter(saved, 'campaign-a', sharedRecord('shared-1', 'Ari Updated'));
+  saved = assignCompanionCharacter(saved, 'campaign-b', sharedRecord('shared-2', 'Bo'));
+
+  assert.deepEqual(saved.assignments, {
+    'campaign-a': ['shared-1'],
+    'campaign-b': ['shared-2']
+  });
+  assert.deepEqual(companionCharactersForCampaign(saved, 'campaign-a'), [{
+    id: 'shared-1', name: 'Ari Updated', level: 4
+  }]);
+  assert.deepEqual(companionCharactersForCampaign(saved, 'campaign-b'), [{
+    id: 'shared-2', name: 'Bo', level: 4
+  }]);
+
+  saved = unassignCompanionCharacter(saved, 'campaign-a', 'shared-1');
+  assert.deepEqual(companionCharactersForCampaign(saved, 'campaign-a'), []);
+  assert.deepEqual(companionCharactersForCampaign(saved, 'campaign-b'), [{
+    id: 'shared-2', name: 'Bo', level: 4
+  }]);
+  assert.equal(saved.characters.length, 2);
+});
+
+test('campaign roster keeps native characters and never duplicates a shared identity', () => {
+  const saved = assignCompanionCharacter({}, 'campaign-a', sharedRecord('native-1', 'Shared copy'));
+  const roster = campaignRoster([
+    { id: 'native-1', name: 'Native character', hp: 40 },
+    { id: 'native-1', name: 'duplicate native' }
+  ], saved, 'campaign-a');
+  assert.deepEqual(roster, [{ id: 'native-1', name: 'Native character', hp: 40 }]);
+  assert.equal(JSON.stringify(roster).includes('Shared copy'), false);
+});
+
+test('invalid and cross-campaign links fail closed during normalization', () => {
+  const normalized = normalizeCompanionRosterState({
+    characters: [sharedRecord('known', 'Known'), { public: { id: 'bad', name: '' } }],
+    assignments: {
+      'campaign-a': ['known', 'known', 'unknown'],
+      'campaign-b': ['unknown']
+    }
+  });
+  assert.deepEqual(normalized.assignments, { 'campaign-a': ['known'] });
+  assert.deepEqual(companionCharactersForCampaign(normalized, 'campaign-b'), []);
+});
 
 test('versioned Companion character records adapt to the public character summary', () => {
   const record = {

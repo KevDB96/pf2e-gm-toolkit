@@ -6,6 +6,7 @@ import { normalizeExploration } from './exploration.js';
 import { normalizePlayer } from './player-state.js';
 import { adaptPublicCampaignSession, isPublicPhase } from './player-contract.js';
 import { normalizeEncounterEntries } from './encounter-visibility.js';
+import { normalizeCompanionRosterState } from './companion-rosters.js';
 
 const KEY = 'pf2e-gm-toolkit/v1';
 
@@ -20,6 +21,7 @@ const DEFAULTS = {
   sound: { url: '', saved: [] },  // Last YouTube URL and named links on this device
   characters: { extra: [] },      // PCs pasted in on this device; the repo roster is
                                   // data/characters.json
+  companion: { characters: [], assignments: {} },
   exploration: { elapsedMinutes: 0, activities: {}, timers: [] },
   session: { phase: 'downtime', revision: 0 },
   player: { entries: {} },
@@ -84,6 +86,7 @@ function merge(base, saved) {
   out.sound = slice(base.sound, saved?.sound, ['saved']);
   out.sound.url = typeof out.sound.url === 'string' ? out.sound.url : '';
   out.characters = slice(base.characters, saved?.characters, ['extra']);
+  out.companion = normalizeCompanionRosterState(saved?.companion);
   out.exploration = normalizeExploration(saved?.exploration);
   out.session = normalizeSession(saved?.session);
   out.player = normalizePlayer(saved?.player);
