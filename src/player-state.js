@@ -1,4 +1,7 @@
-// The only data allowed across the GM/player boundary.
+// Compatibility facade for the public contract. New boundary code belongs in
+// player-contract.js; this file preserves the existing display API for the GM UI.
+import { adaptPublicCampaignSession, isPublicCampaignSession } from './player-contract.js';
+
 export const PLAYER_CHANNEL = 'pf2e-gm-toolkit/player-v1';
 
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
@@ -20,33 +23,14 @@ export function normalizePlayer(saved) {
 
 /** Return a deliberately small, public-only snapshot for the player display. */
 export function projectPlayerState(combat, player) {
-  const entries = normalizePlayer(player).entries;
-  const combatants = Array.isArray(combat?.combatants) ? combat.combatants : [];
-  const order = Array.isArray(combat?.order) && combat.order.length
-    ? combat.order.map(id => combatants.find(c => c?.id === id)).filter(Boolean)
-    : combatants.slice();
-  for (const combatant of combatants) if (!order.includes(combatant)) order.push(combatant);
-
-  const actors = [];
-  for (const combatant of order) {
-    const entry = entries[combatant?.id];
-    if (!entry?.revealed) continue;
-    actors.push({
-      id: entry.token || `public-${actors.length + 1}`,
-      name: entry.name.trim() || String(combatant.name || 'Participant'),
-      active: combatant.id === combat?.activeId,
-      order: actors.length + 1
-    });
-  }
-  return {
-    version: 1,
-    round: Number.isFinite(combat?.round) ? combat.round : 0,
-    actors
-  };
+  const contract = adaptPublicCampaignSession({ combat, player });
+  return { version: contract.version, round: contract.session.round, actors: contract.session.actors };
 }
 
 export function isPlayerSnapshot(value) {
-  return value?.kind === 'snapshot' && value.channel === PLAYER_CHANNEL &&
-    value.projection?.version === 1 && Array.isArray(value.projection.actors) &&
-    Number.isFinite(value.projection.round);
+  return value?.kind === 'snapshot' && value.channel === PLAYER_CHANNEL && (
+    isPublicCampaignSession(value.projection) ||
+    (value.projection?.version === 1 && Array.isArray(value.projection.actors) &&
+      Number.isFinite(value.projection.round))
+  );
 }

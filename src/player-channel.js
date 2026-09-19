@@ -1,12 +1,14 @@
 import { state, subscribe } from './store.js';
-import { PLAYER_CHANNEL, projectPlayerState } from './player-state.js';
+import { PLAYER_CHANNEL } from './player-state.js';
+import { adaptPublicCampaignSession } from './player-contract.js';
 
 let channel = null;
 let installed = false;
 let heartbeat = null;
 
 function snapshot() {
-  return { kind: 'snapshot', channel: PLAYER_CHANNEL, projection: projectPlayerState(state.combat, state.player) };
+  return { kind: 'snapshot', channel: PLAYER_CHANNEL,
+    projection: adaptPublicCampaignSession({ combat: state.combat, player: state.player }) };
 }
 
 function installFallback() {

@@ -1,4 +1,5 @@
 import { PLAYER_CHANNEL, isPlayerSnapshot } from './player-state.js';
+import { isPublicCampaignSession } from './player-contract.js';
 
 const status = document.querySelector('[data-player-status]');
 const actors = document.querySelector('[data-player-actors]');
@@ -7,21 +8,24 @@ let timer;
 function render(message) {
   if (!isPlayerSnapshot(message)) return;
   const projection = message.projection;
-  status.textContent = projection.round > 0 ? `Round ${projection.round}` : 'Waiting for combat to begin';
+  const session = isPublicCampaignSession(projection)
+    ? projection.session
+    : projection;
+  status.textContent = session.round > 0 ? `Round ${session.round}` : 'Waiting for combat to begin';
   actors.replaceChildren();
-  if (!projection.actors.length) {
+  if (!session.actors.length) {
     const empty = document.createElement('p');
     empty.className = 'player-empty';
     empty.textContent = 'No combatants are revealed for players yet.';
     actors.append(empty);
     return;
   }
-  projection.actors.forEach((actor, index) => {
+  session.actors.forEach((actor, index) => {
     const row = document.createElement('div');
     row.className = `player-actor${actor.active ? ' is-current' : ''}`;
     const label = document.createElement('span');
     label.className = 'player-actor-label';
-    label.textContent = actor.active ? 'CURRENT' : (index === projection.actors.findIndex(x => x.active) + 1 ? 'NEXT' : '');
+    label.textContent = actor.active ? 'CURRENT' : (index === session.actors.findIndex(x => x.active) + 1 ? 'NEXT' : '');
     const name = document.createElement('strong');
     name.textContent = actor.name;
     row.append(label, name);
