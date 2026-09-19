@@ -22,9 +22,15 @@ export function normalizePlayer(saved) {
 }
 
 /** Return a deliberately small, public-only snapshot for the player display. */
-export function projectPlayerState(combat, player) {
-  const contract = adaptPublicCampaignSession({ combat, player });
-  return { version: contract.version, round: contract.session.round, actors: contract.session.actors };
+export function projectPlayerState(combat, player, session) {
+  const contract = adaptPublicCampaignSession({ combat, player, session });
+  return {
+    version: contract.version,
+    revision: contract.revision,
+    phase: contract.session.phase,
+    round: contract.session.round,
+    actors: contract.session.actors
+  };
 }
 
 export function isPlayerSnapshot(value) {
@@ -33,4 +39,28 @@ export function isPlayerSnapshot(value) {
     (value.projection?.version === 1 && Array.isArray(value.projection.actors) &&
       Number.isFinite(value.projection.round))
   );
+}
+
+/** Player messages are requests for a read-only snapshot, never commands. */
+export function isPlayerRequest(value) {
+  return value?.kind === 'player-request' &&
+    (!value.channel || value.channel === PLAYER_CHANNEL);
+}
+
+function snapshotRevision(value) {
+  const projection = value?.projection;
+  return Number.isInteger(projection?.revision) && projection.revision >= 0
+    ? projection.revision
+    : null;
+}
+
+/** Accept only valid snapshots newer than the one already rendered. */
+export function acceptPlayerSnapshot(current, incoming) {
+  if (!isPlayerSnapshot(incoming)) return current;
+  const currentRevision = snapshotRevision(current);
+  const incomingRevision = snapshotRevision(incoming);
+  if (currentRevision !== null && (incomingRevision === null || incomingRevision <= currentRevision)) {
+    return current;
+  }
+  return incoming;
 }

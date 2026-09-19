@@ -1,13 +1,25 @@
-import { PLAYER_CHANNEL, isPlayerSnapshot } from './player-state.js';
+import { PLAYER_CHANNEL, acceptPlayerSnapshot } from './player-state.js';
 import { isPublicCampaignSession } from './player-contract.js';
 
 const status = document.querySelector('[data-player-status]');
 const actors = document.querySelector('[data-player-actors]');
 let timer;
+let currentSnapshot = null;
+
+function keepAlive() {
+  clearTimeout(timer);
+  timer = setTimeout(() => { status.textContent = 'Waiting for the GM window…'; }, 8000);
+}
 
 function render(message) {
-  if (!isPlayerSnapshot(message)) return;
-  const projection = message.projection;
+  const accepted = acceptPlayerSnapshot(currentSnapshot, message);
+  if (accepted === currentSnapshot) {
+    if (Number.isInteger(message?.projection?.revision) &&
+        message.projection.revision === currentSnapshot?.projection?.revision) keepAlive();
+    return;
+  }
+  currentSnapshot = accepted;
+  const projection = accepted.projection;
   const session = isPublicCampaignSession(projection)
     ? projection.session
     : projection;
@@ -31,8 +43,7 @@ function render(message) {
     row.append(label, name);
     actors.append(row);
   });
-  clearTimeout(timer);
-  timer = setTimeout(() => { status.textContent = 'Waiting for the GM window…'; }, 8000);
+  keepAlive();
 }
 
 function requestSnapshot() {
@@ -41,7 +52,7 @@ function requestSnapshot() {
     channel.addEventListener('message', event => render(event.data));
     channel.postMessage({ kind: 'player-request', channel: PLAYER_CHANNEL });
   } else if (window.opener) {
-    window.opener.postMessage({ kind: 'player-request' }, location.origin);
+    window.opener.postMessage({ kind: 'player-request', channel: PLAYER_CHANNEL }, location.origin);
     status.textContent = 'BroadcastChannel is unavailable; using the GM window fallback.';
     window.addEventListener('message', event => {
       if (event.origin === location.origin) render(event.data);

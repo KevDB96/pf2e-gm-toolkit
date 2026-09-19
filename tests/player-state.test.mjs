@@ -1,6 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizePlayer, projectPlayerState } from '../src/player-state.js';
+import {
+  acceptPlayerSnapshot,
+  isPlayerRequest,
+  normalizePlayer,
+  projectPlayerState
+} from '../src/player-state.js';
 
 test('player projection is an allowlisted public snapshot', () => {
   const snapshot = projectPlayerState({ round: 3, activeId: 'b', order: ['b', 'a'], combatants: [
@@ -10,7 +15,13 @@ test('player projection is an allowlisted public snapshot', () => {
     a: { token: 'p-a', revealed: true, name: 'Goblin A' },
     b: { token: 'p-b', revealed: false, name: 'Goblin B' }
   } });
-  assert.deepEqual(snapshot, { version: 1, round: 3, actors: [{ id: 'p-a', name: 'Goblin A', active: false, order: 1 }] });
+  assert.deepEqual(snapshot, {
+    version: 1,
+    revision: 0,
+    phase: 'downtime',
+    round: 3,
+    actors: [{ id: 'p-a', name: 'Goblin A', active: false, order: 1 }]
+  });
   assert.equal(JSON.stringify(snapshot).includes('hp'), false);
   assert.equal(JSON.stringify(snapshot).includes('secret'), false);
 });
@@ -19,4 +30,37 @@ test('player settings normalize to safe sparse entries', () => {
   assert.deepEqual(normalizePlayer({ entries: { a: { revealed: true, name: 4 }, bad: null, '__proto__': { revealed: true } } }), {
     entries: { a: { token: '', revealed: true, name: '' } }
   });
+});
+
+function snapshot(revision, phase = 'downtime') {
+  return {
+    kind: 'snapshot',
+    channel: 'pf2e-gm-toolkit/player-v1',
+    projection: {
+      contract: 'pf2e-companion/public-campaign-session',
+      version: 1,
+      revision,
+      campaign: { title: '' },
+      session: { phase, round: 0, actors: [] }
+    }
+  };
+}
+
+test('player accepts only newer public revisions', () => {
+  const first = snapshot(4, 'exploration');
+  const stale = snapshot(3, 'combat');
+  const duplicate = snapshot(4, 'combat');
+  const next = snapshot(5, 'combat');
+  assert.equal(acceptPlayerSnapshot(null, first), first);
+  assert.equal(acceptPlayerSnapshot(first, stale), first);
+  assert.equal(acceptPlayerSnapshot(first, duplicate), first);
+  assert.equal(acceptPlayerSnapshot(first, next), next);
+});
+
+test('player-side phase mutation messages are not requests and cannot change the accepted snapshot', () => {
+  const current = snapshot(2, 'exploration');
+  const attemptedMutation = { kind: 'set-session-phase', phase: 'combat', revision: 99 };
+  assert.equal(isPlayerRequest(attemptedMutation), false);
+  assert.equal(acceptPlayerSnapshot(current, attemptedMutation), current);
+  assert.equal(current.projection.session.phase, 'exploration');
 });

@@ -4,6 +4,7 @@
 import { normalizeCombat } from './combat-turn.js';
 import { normalizeExploration } from './exploration.js';
 import { normalizePlayer } from './player-state.js';
+import { adaptPublicCampaignSession, isPublicPhase } from './player-contract.js';
 
 const KEY = 'pf2e-gm-toolkit/v1';
 
@@ -19,6 +20,7 @@ const DEFAULTS = {
   characters: { extra: [] },      // PCs pasted in on this device; the repo roster is
                                   // data/characters.json
   exploration: { elapsedMinutes: 0, activities: {}, timers: [] },
+  session: { phase: 'downtime', revision: 0 },
   player: { entries: {} },
   ui: { group: { run: 'encounters', table: 'party' }, recent: [], pins: [] },
   // group: last sub-screen used in each group. recent: the Library's last 12 opened
@@ -28,6 +30,16 @@ const DEFAULTS = {
 function clone(v) { return JSON.parse(JSON.stringify(v)); }
 
 function object(v) { return v && typeof v === 'object' && !Array.isArray(v); }
+
+function normalizeSession(saved) {
+  const candidate = object(saved) ? saved : {};
+  return {
+    phase: isPublicPhase(candidate.phase) ? candidate.phase : DEFAULTS.session.phase,
+    revision: Number.isInteger(candidate.revision) && candidate.revision >= 0
+      ? candidate.revision
+      : DEFAULTS.session.revision
+  };
+}
 
 function slice(defaults, saved, arrays = []) {
   if (!object(saved)) return clone(defaults);
@@ -71,6 +83,7 @@ function merge(base, saved) {
   out.sound.url = typeof out.sound.url === 'string' ? out.sound.url : '';
   out.characters = slice(base.characters, saved?.characters, ['extra']);
   out.exploration = normalizeExploration(saved?.exploration);
+  out.session = normalizeSession(saved?.session);
   out.player = normalizePlayer(saved?.player);
   out.ui = slice(base.ui, saved?.ui, ['recent', 'pins']);
   out.ui.group = object(out.ui.group) ? { ...base.ui.group, ...out.ui.group } : clone(base.ui.group);
@@ -113,12 +126,34 @@ function load() {
 
 export const state = load();
 
+let publicationRevision = state.session.revision;
+let lastPublicFingerprint = publicFingerprint(state);
+
+function publicFingerprint(value) {
+  const projection = adaptPublicCampaignSession({
+    combat: value.combat,
+    player: value.player,
+    session: value.session,
+    revision: 0
+  });
+  return JSON.stringify(projection);
+}
+
+function preparePublication() {
+  if (!isPublicPhase(state.session.phase)) state.session.phase = 'downtime';
+  const fingerprint = publicFingerprint(state);
+  if (fingerprint !== lastPublicFingerprint) publicationRevision += 1;
+  state.session.revision = publicationRevision;
+  lastPublicFingerprint = fingerprint;
+}
+
 const listeners = new Set();
 const persistenceListeners = new Set();
 const resetHooks = new Set();
 
 /** Persist state and notify subscribers. Call after every mutation. */
 export function save() {
+  preparePublication();
   let saved = false;
   try {
     if (loadProtected) throw new Error('Saved data needs recovery or reset first.');
@@ -161,14 +196,20 @@ export function corruptSavedData() { return corruptRaw; }
  */
 export function restoreState(candidate) {
   const next = normalizeState(candidate);
+  const nextFingerprint = publicFingerprint(next);
+  let nextRevision = Math.max(publicationRevision, next.session.revision);
+  if (nextFingerprint !== lastPublicFingerprint) nextRevision += 1;
+  next.session.revision = nextRevision;
   try {
     localStorage.setItem(KEY, JSON.stringify(next));
   } catch {
     setPersistence('unsaved', 'Backup was checked, but this device could not save it. Current data is unchanged.');
     return false;
   }
+  publicationRevision = nextRevision;
   for (const key of Object.keys(state)) delete state[key];
   Object.assign(state, next);
+  lastPublicFingerprint = nextFingerprint;
   corruptRaw = null;
   loadProtected = false;
   resetHooks.forEach(fn => fn());
@@ -190,6 +231,14 @@ export function reset() {
   corruptRaw = null;
   loadProtected = false;
   resetHooks.forEach(fn => fn());
+  return save();
+}
+
+/** Change the GM-owned session phase; player displays have no write path. */
+export function setSessionPhase(phase) {
+  if (!isPublicPhase(phase)) return false;
+  if (state.session.phase === phase) return true;
+  state.session.phase = phase;
   return save();
 }
 

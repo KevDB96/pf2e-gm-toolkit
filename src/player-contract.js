@@ -3,8 +3,21 @@
 
 export const PUBLIC_CONTRACT = 'pf2e-companion/public-campaign-session';
 export const PUBLIC_CONTRACT_VERSION = 1;
+export const PUBLIC_PHASES = Object.freeze(['downtime', 'exploration', 'combat']);
 
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
+
+export function isPublicPhase(value) {
+  return PUBLIC_PHASES.includes(value);
+}
+
+function publicPhase(value) {
+  return isPublicPhase(value) ? value : PUBLIC_PHASES[0];
+}
+
+function publicRevision(value) {
+  return Number.isInteger(value) && value >= 0 ? value : 0;
+}
 
 function publicPlayerSettings(saved) {
   const entries = object(saved?.entries) ? saved.entries : {};
@@ -45,14 +58,16 @@ function publicActors(combat, settings) {
  * Map legacy GM state into the v1 public campaign/session contract.
  * Only explicitly allowlisted fields are copied; unknown GM fields are ignored.
  */
-export function adaptPublicCampaignSession({ campaign, combat, player } = {}) {
+export function adaptPublicCampaignSession({ campaign, combat, player, session, revision } = {}) {
   return {
     contract: PUBLIC_CONTRACT,
     version: PUBLIC_CONTRACT_VERSION,
+    revision: publicRevision(revision ?? session?.revision),
     campaign: {
       title: typeof campaign?.title === 'string' ? campaign.title.slice(0, 120) : ''
     },
     session: {
+      phase: publicPhase(session?.phase),
       round: Number.isFinite(combat?.round) ? combat.round : 0,
       actors: publicActors(combat, publicPlayerSettings(player))
     }
@@ -66,7 +81,8 @@ export function serializePublicCampaignSession(input) {
 
 export function isPublicCampaignSession(value) {
   return value?.contract === PUBLIC_CONTRACT && value.version === PUBLIC_CONTRACT_VERSION &&
+    Number.isInteger(value.revision) && value.revision >= 0 &&
     object(value.campaign) && typeof value.campaign.title === 'string' &&
-    object(value.session) && Number.isFinite(value.session.round) &&
+    object(value.session) && isPublicPhase(value.session.phase) && Number.isFinite(value.session.round) &&
     Array.isArray(value.session.actors);
 }
