@@ -10,6 +10,7 @@ import { recordTip } from '../records.js';
 import { buildFacets, creatureTypeNames, facetChange, facetOptions, facetPasses, facetSelects }
   from '../facets.js';
 import { copyEncounterEntries, savedEncounter, templateWarnings, updatedEncounter } from '../saved-encounters.js';
+import { encounterEntryIsPlayerVisible } from '../encounter-visibility.js';
 
 const KIND_LABEL = { creature: 'Creature', simple: 'Simple hazard', complex: 'Complex hazard' };
 
@@ -84,6 +85,7 @@ function wire(root) {
   on(root, 'click', '[data-clear]', () => changeDraft(() => { state.encounter.entries = []; }));
   on(root, 'click', '[data-to-combat]', () => toCombat());
   on(root, 'click', '[data-adjust]', (e, el) => setAdjust(el.dataset.adjust, el.dataset.kind));
+  on(root, 'click', '[data-visibility]', (e, el) => setVisibility(el.dataset.visibility));
 }
 
 function bump(id, delta) {
@@ -97,6 +99,12 @@ function setAdjust(id, kind) {
   const entry = state.encounter.entries.find(x => x.id === id);
   if (!entry) return;
   changeDraft(() => { entry.adjust = entry.adjust === kind ? null : kind; });
+}
+
+function setVisibility(id) {
+  const entry = state.encounter.entries.find(item => item.id === id);
+  if (!entry || entry.kind !== 'creature') return;
+  changeDraft(() => { entry.playerVisible = !encounterEntryIsPlayerVisible(entry); });
 }
 
 function changeDraft(mutate) {
@@ -168,6 +176,7 @@ function row(e, partyLevel) {
     <div class="enc-adjust">
       <button class="pick${e.adjust === 'elite' ? ' on' : ''}" data-adjust="${e.id}" data-kind="elite">Elite</button>
       <button class="pick${e.adjust === 'weak' ? ' on' : ''}" data-adjust="${e.id}" data-kind="weak">Weak</button>
+      <button class="pick enc-visibility${encounterEntryIsPlayerVisible(e) ? ' on' : ''}" data-visibility="${e.id}" aria-pressed="${encounterEntryIsPlayerVisible(e)}">Players: ${encounterEntryIsPlayerVisible(e) ? 'Visible' : 'Hidden'}</button>
     </div>` : '';
   return `
     <div class="item">
@@ -190,7 +199,7 @@ export function addEntry(name, level, kind = 'creature', creature = null) {
     const match = state.encounter.entries
       .find(e => e.name === name && e.level === level && e.kind === kind);
     if (match) match.count += 1;
-    else state.encounter.entries.push({ id: uid('enc'), name, level, count: 1, kind, creature, adjust: null });
+    else state.encounter.entries.push({ id: uid('enc'), name, level, count: 1, kind, creature, adjust: null, playerVisible: false });
   });
 }
 
@@ -519,7 +528,8 @@ export function sendToCombat() {
           ref: e.creature?.id ? { kind: 'creature', id: e.creature.id } : null,
           adjust: e.adjust === 'elite' || e.adjust === 'weak' ? e.adjust : null,
           baseLevel: e.level,
-          isPC: false, side: 'npc', init: null,
+          isPC: false, side: 'npc', init: null, publicVisible: e.playerVisible === true,
+          publicName: e.playerVisible === true ? e.name : null,
           initMod: adjustedModifier(e.creature?.perception, e.adjust),
           hp, maxHp: hp, ac, conditions: []
         });

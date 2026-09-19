@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {
+  encounterEntryIsPlayerVisible,
+  normalizeEncounterEntries,
+  setEncounterEntryVisibility
+} from '../src/encounter-visibility.js';
+
+test('encounter creature visibility defaults closed and ignores non-creatures', () => {
+  const entries = normalizeEncounterEntries([
+    { id: 'creature', kind: 'creature', playerVisible: 'yes' },
+    { id: 'hazard', kind: 'complex', playerVisible: true }
+  ]);
+  assert.equal(encounterEntryIsPlayerVisible(entries[0]), false);
+  assert.equal(entries[0].playerVisible, false);
+  assert.equal(entries[1].playerVisible, false);
+});
+
+test('visibility can be revealed and hidden by stable encounter entry id', () => {
+  const entries = [{ id: 'c-1', kind: 'creature', name: 'Goblin' }];
+  const revealed = setEncounterEntryVisibility(entries, 'c-1', true);
+  assert.equal(encounterEntryIsPlayerVisible(revealed[0]), true);
+  assert.equal(encounterEntryIsPlayerVisible(entries[0]), false);
+  const hidden = setEncounterEntryVisibility(revealed, 'c-1', false);
+  assert.equal(encounterEntryIsPlayerVisible(hidden[0]), false);
+});
+
+test('visibility survives encounter template copies and normalization', () => {
+  const saved = JSON.parse(JSON.stringify({ entries: [{ id: 'c-1', kind: 'creature', playerVisible: true }] }));
+  const loaded = normalizeEncounterEntries(saved.entries);
+  assert.equal(loaded[0].playerVisible, true);
+  assert.equal(JSON.parse(JSON.stringify(loaded))[0].playerVisible, true);
+});

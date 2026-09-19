@@ -72,6 +72,17 @@ test('older valid state gains defaults without dropping device data or condition
   assert.deepEqual(store.state.encounters.saved, []);
 });
 
+test('encounter visibility persists through the GM storage state', async () => {
+  const storage = storageWith(JSON.stringify({
+    encounter: { entries: [{ id: 'c-1', kind: 'creature', name: 'Ogre', playerVisible: true }] }
+  }));
+  const store = await freshStore(storage);
+  assert.equal(store.state.encounter.entries[0].playerVisible, true);
+  assert.equal(store.save(), true);
+  const written = JSON.parse(storage.data.get('pf2e-gm-toolkit/v1'));
+  assert.equal(written.encounter.entries[0].playerVisible, true);
+});
+
 test('current data serializes when storage cannot be accessed', async () => {
   const storage = storageWith();
   storage.getItem = () => { throw new Error('security error'); };

@@ -5,6 +5,7 @@ import { normalizeCombat } from './combat-turn.js';
 import { normalizeExploration } from './exploration.js';
 import { normalizePlayer } from './player-state.js';
 import { adaptPublicCampaignSession, isPublicPhase } from './player-contract.js';
+import { normalizeEncounterEntries } from './encounter-visibility.js';
 
 const KEY = 'pf2e-gm-toolkit/v1';
 
@@ -72,6 +73,7 @@ function merge(base, saved) {
   const out = object(saved) ? { ...clone(base), ...saved } : clone(base);
   out.party = slice(base.party, saved?.party, ['members']);
   out.encounter = slice(base.encounter, saved?.encounter, ['entries']);
+  out.encounter.entries = normalizeEncounterEntries(out.encounter.entries);
   out.encounter.selectedId = typeof out.encounter.selectedId === 'string' ? out.encounter.selectedId : null;
   out.encounter.dirty = Boolean(out.encounter.dirty);
   out.encounters = slice(base.encounters, saved?.encounters, ['saved']);

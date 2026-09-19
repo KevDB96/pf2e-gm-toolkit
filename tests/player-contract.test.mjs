@@ -74,6 +74,22 @@ test('public actors follow initiative order for revealed PCs, allies, and NPCs o
   assert.equal(isPublicCampaignSession(projection), true);
 });
 
+test('encounter visibility fails closed and visible creature projections stay sanitized', () => {
+  const base = {
+    session: { phase: 'combat' },
+    combat: { round: 1, order: ['hidden-creature', 'visible-creature'], activeId: 'visible-creature', combatants: [
+      { id: 'hidden-creature', isPC: false, name: 'Secret Hydra', publicVisible: false, hp: 999, ac: 30 },
+      { id: 'visible-creature', isPC: false, name: 'Ogre', publicVisible: true, publicName: 'The Ogre', hp: 80, ac: 20, source: { id: 'secret-source' } }
+    ] }
+  };
+  const projection = adaptPublicCampaignSession(base);
+  assert.deepEqual(projection.session.actors, [{ id: 'public-1', name: 'The Ogre', active: true, order: 1 }]);
+  assert.deepEqual(projection.session.creatures, []);
+  assert.equal(JSON.stringify(projection).includes('Secret Hydra'), false);
+  assert.equal(JSON.stringify(projection).includes('secret-source'), false);
+  assert.equal(isPublicCampaignSession(projection), true);
+});
+
 test('generated public actor aliases are based only on revealed roster members', () => {
   const input = {
     combat: {

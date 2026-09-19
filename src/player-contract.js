@@ -120,7 +120,10 @@ function publicActors(combat, settings) {
   const activeId = Number.isInteger(combat?.round) && combat.round > 0
     ? combat.activeId : null;
   return ordered.flatMap(combatant => {
-    const setting = settings[combatant?.id];
+    if (combatant?.publicVisible === false) return [];
+    const setting = settings[combatant?.id] || (combatant?.publicVisible === true
+      ? { token: '', name: combatant.publicName || '' }
+      : null);
     if (!setting) return [];
     publicIndex += 1;
     const preferredId = setting.token || `public-${publicIndex}`;
@@ -147,7 +150,10 @@ function publicCombatState(combat, settings) {
 function publicCreatures(combat, settings) {
   const combatants = Array.isArray(combat?.combatants) ? combat.combatants : [];
   return combatants.flatMap((combatant, index) => {
-    const setting = settings[combatant?.id];
+    if (combatant?.publicVisible === false) return [];
+    const setting = settings[combatant?.id] || (combatant?.publicVisible === true
+      ? { token: '', name: combatant.publicName || '' }
+      : null);
     if (!setting || combatant?.isPC === true || setting.conditions !== true) return [];
     const name = setting.name || 'Creature';
     return [{

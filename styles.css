@@ -448,6 +448,7 @@ h2 + .card-group{margin-top:4px}
    standalone control and the app's own mobile-first floor is 44px. */
 .enc-adjust{display:flex;gap:6px;margin-top:6px}
 .enc-adjust .pick{min-height:44px}
+.enc-visibility{font-size:.72rem}
 
 /* One heading per category block in the Library's "All" search results. */
 .group-head{font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.04em;
