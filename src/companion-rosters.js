@@ -9,6 +9,7 @@ import {
   PUBLIC_CHARACTER_VERSION,
   adaptCompanionCharacter
 } from './companion-characters.js';
+import { revisionOf, sameCharacter } from './character-revisions.js';
 
 const EMPTY = Object.freeze({ characters: [], assignments: {}, annotations: {} });
 
@@ -24,7 +25,8 @@ function publicRecord(record) {
   return {
     contract: PUBLIC_CHARACTER_CONTRACT,
     version: PUBLIC_CHARACTER_VERSION,
-    character
+    character,
+    revision: revisionOf(record)
   };
 }
 
@@ -81,11 +83,48 @@ export function assignCompanionCharacter(saved, campaignId, record) {
 
   const next = normalizeCompanionRosterState(saved);
   const index = next.characters.findIndex(item => item.character.id === clean.character.id);
+  const current = index === -1 ? null : next.characters[index];
+  clean.revision = current && sameCharacter(current.character, clean.character)
+    ? current.revision : Math.max(clean.revision, (current?.revision || -1) + 1);
   if (index === -1) next.characters.push(clean);
   else next.characters[index] = clean;
   const links = next.assignments[campaign] || [];
   if (!links.includes(clean.character.id)) next.assignments[campaign] = [...links, clean.character.id];
   return next;
+}
+
+/**
+ * Apply a shared-character refresh only against the revision the GM read.
+ * A conflict returns the untouched normalized state and the newer record so a
+ * caller can refresh and retry without overwriting player-owned changes.
+ */
+export function updateCompanionCharacter(saved, campaignId, record, expectedRevision) {
+  const campaign = id(campaignId);
+  const clean = publicRecord(record);
+  const next = normalizeCompanionRosterState(saved);
+  if (!campaign || !clean) return { ok: false, status: 'invalid', state: next };
+
+  const index = next.characters.findIndex(item => item.character.id === clean.character.id);
+  const current = index === -1 ? null : next.characters[index];
+  const actualRevision = current?.revision ?? 0;
+  if (current && expectedRevision !== actualRevision) {
+    return { ok: false, status: 'conflict', state: next, current, actualRevision };
+  }
+  if (!current && expectedRevision !== undefined && expectedRevision !== 0) {
+    return { ok: false, status: 'conflict', state: next, current: null, actualRevision: 0 };
+  }
+  if (current && sameCharacter(current.character, clean.character)) {
+    const links = next.assignments[campaign] || [];
+    if (!links.includes(clean.character.id)) next.assignments[campaign] = [...links, clean.character.id];
+    return { ok: true, status: 'unchanged', state: next, record: current, revision: actualRevision };
+  }
+
+  clean.revision = Math.max(clean.revision, actualRevision + (current ? 1 : 0));
+  if (index === -1) next.characters.push(clean);
+  else next.characters[index] = clean;
+  const links = next.assignments[campaign] || [];
+  if (!links.includes(clean.character.id)) next.assignments[campaign] = [...links, clean.character.id];
+  return { ok: true, status: current ? 'updated' : 'added', state: next, record: clean, revision: clean.revision };
 }
 
 /** Remove one campaign link without deleting the shared character itself. */

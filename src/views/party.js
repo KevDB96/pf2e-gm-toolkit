@@ -11,6 +11,7 @@ import { characters as loadCharacters, codex as loadCodex } from '../data.js';
 import { fromPathbuilder } from '../pathbuilder.js';
 import { actionIcons, ATTRIBUTES, featsByLevel, skillList } from '../pf2e.js';
 import { companionAnnotation, companionCharactersByCampaign } from '../companion-rosters.js';
+import { mergeCharacterImport } from '../character-revisions.js';
 
 const ALL = '__all__';
 
@@ -567,8 +568,8 @@ function importSheet(root) {
           : e.message;
         return;
       }
-      state.characters.extra = state.characters.extra.filter(x => x.id !== character.id);
-      state.characters.extra.push(character);
+      const merged = mergeCharacterImport({ characters: state.characters.extra }, character);
+      state.characters.extra = merged.file.characters;
       save();
       close();
       draw(root);

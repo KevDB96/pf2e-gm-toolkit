@@ -15,6 +15,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fromPathbuilder } from '../src/pathbuilder.js';
+import { mergeCharacterImport } from '../src/character-revisions.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const FILE = join(ROOT, 'data', 'characters.json');
@@ -81,14 +82,26 @@ if (!file.groups.some(g => g.id === group)) {
   console.log('created group "' + group + '" — edit its label in data/characters.json');
 }
 
+const expectedValue = flag('expected-revision');
+const expectedRevision = expectedValue === null ? undefined : Number(expectedValue);
+if (expectedValue !== null && (!Number.isInteger(expectedRevision) || expectedRevision < 0)) {
+  console.error('--expected-revision must be a non-negative integer.');
+  process.exit(1);
+}
+
+const merged = mergeCharacterImport(file, character, { expectedRevision });
+if (!merged.ok) {
+  console.error('Import conflict: data/characters.json changed since revision ' + expectedRevision +
+    '; refresh the file and retry. Current revision is ' + merged.currentRevision + '.');
+  process.exit(2);
+}
+file = { ...merged.file, characters: [...merged.file.characters] };
 const at = file.characters.findIndex(c => c.id === character.id);
-if (at === -1) file.characters.push(character);
-else file.characters[at] = character;
 
 file.characters.sort((a, b) => a.group.localeCompare(b.group) || a.name.localeCompare(b.name));
-await writeFile(FILE, JSON.stringify(file, null, 2) + '\n', 'utf8');
+if (merged.status !== 'unchanged') await writeFile(FILE, JSON.stringify(file, null, 2) + '\n', 'utf8');
 
-console.log((at === -1 ? 'added ' : 'updated ') + character.name +
+console.log((merged.status === 'unchanged' ? 'unchanged ' : at === -1 ? 'added ' : 'updated ') + character.name +
   ' (' + character.class + ' ' + character.level + ') in group "' + group + '"');
 console.log('  AC ' + character.ac + ' · HP ' + character.hp +
   ' · Perception +' + character.perception +
