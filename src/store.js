@@ -7,6 +7,7 @@ import { normalizePlayer } from './player-state.js';
 import { adaptPublicCampaignSession, isPublicPhase } from './player-contract.js';
 import { normalizeEncounterEntries } from './encounter-visibility.js';
 import { normalizeCompanionRosterState } from './companion-rosters.js';
+import { normalizeDowntime } from './downtime-events.js';
 
 const KEY = 'pf2e-gm-toolkit/v1';
 
@@ -22,6 +23,7 @@ const DEFAULTS = {
   characters: { extra: [] },      // PCs pasted in on this device; the repo roster is
                                   // data/characters.json
   companion: { characters: [], assignments: {}, annotations: {} },
+  downtime: { records: [] },
   exploration: { elapsedMinutes: 0, activities: {}, timers: [], events: [] },
   session: { phase: 'downtime', revision: 0 },
   player: { entries: {} },
@@ -87,6 +89,7 @@ function merge(base, saved) {
   out.sound.url = typeof out.sound.url === 'string' ? out.sound.url : '';
   out.characters = slice(base.characters, saved?.characters, ['extra']);
   out.companion = normalizeCompanionRosterState(saved?.companion);
+  out.downtime = normalizeDowntime(saved?.downtime);
   out.exploration = normalizeExploration(saved?.exploration);
   out.session = normalizeSession(saved?.session);
   out.player = normalizePlayer(saved?.player);
@@ -141,6 +144,7 @@ function publicFingerprint(value) {
     encounter: value.encounter,
     characters: value.characters?.extra,
     notes: value.notes?.entries,
+    downtimeRecords: value.downtime?.records,
     player: value.player,
     session: value.session,
     revision: 0

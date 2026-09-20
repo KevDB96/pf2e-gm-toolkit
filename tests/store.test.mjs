@@ -73,6 +73,18 @@ test('older valid state gains defaults without dropping device data or condition
   assert.deepEqual(store.state.encounters.saved, []);
 });
 
+test('downtime records normalize into the persisted live state without importing private fields', async () => {
+  const storage = storageWith(JSON.stringify({ downtime: { records: [
+    { id: 'activity-1', kind: 'activity', title: 'Earn Income', published: true, revision: 1,
+      dc: 20, gmNotes: 'private' }
+  ] } }));
+  const store = await freshStore(storage);
+  assert.deepEqual(store.state.downtime.records, [{
+    id: 'activity-1', kind: 'activity', title: 'Earn Income', published: true, revision: 1
+  }]);
+  assert.equal(JSON.stringify(store.state.downtime).includes('gmNotes'), false);
+});
+
 test('encounter visibility persists through the GM storage state', async () => {
   const storage = storageWith(JSON.stringify({
     encounter: { entries: [{ id: 'c-1', kind: 'creature', name: 'Ogre', playerVisible: true }] }

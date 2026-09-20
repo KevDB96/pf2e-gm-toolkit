@@ -332,6 +332,43 @@ test('published exploration events project as safe revisions while private event
   assert.equal(isPublicCampaignSession(projection), true);
 });
 
+test('published downtime records integrate as safe public events with explicit result text only', () => {
+  const projection = adaptPublicCampaignSession({
+    session: { phase: 'downtime' },
+    downtimeRecords: [
+      { id: 'activity-1', kind: 'activity', title: 'Earn Income', text: 'Work for the day.', published: true, revision: 2,
+        privateDC: 20, gmNotes: 'secret', timer: { dueAt: 999 } },
+      { id: 'opportunity-1', type: 'opportunity', publicTitle: 'A favor', published: true, revision: 1,
+        outcome: { text: 'Hidden outcome' }, sourceId: 'internal-source' },
+      { id: 'result-1', kind: 'result', title: 'Resolved', publicResultText: 'The favor is complete.', published: true, revision: 3,
+        dc: 30, mechanics: { hidden: true } },
+      { id: 'private-1', kind: 'result', title: 'GM-only result', published: false, revision: 4 }
+    ]
+  });
+  assert.deepEqual(projection.session.events, [
+    { id: 'activity-1', kind: 'activity', title: 'Earn Income', text: 'Work for the day.', revision: 2 },
+    { id: 'opportunity-1', kind: 'opportunity', title: 'A favor', revision: 1 },
+    { id: 'result-1', kind: 'result', title: 'Resolved', resultText: 'The favor is complete.', revision: 3 }
+  ]);
+  assert.equal(JSON.stringify(projection).includes('Hidden outcome'), false);
+  assert.equal(JSON.stringify(projection).includes('internal-source'), false);
+  assert.equal(JSON.stringify(projection).includes('privateDC'), false);
+  assert.equal(isPublicCampaignSession(projection), true);
+});
+
+test('strict public contract validation rejects unknown downtime fields and malformed result text', () => {
+  const projection = adaptPublicCampaignSession({ downtimeRecords: [
+    { id: 'result-1', kind: 'result', title: 'Resolved', publicResultText: 'Done', published: true, revision: 1 }
+  ] });
+  assert.equal(isPublicCampaignSession(projection), true);
+  assert.equal(isPublicCampaignSession({ ...projection, session: {
+    ...projection.session, events: [{ ...projection.session.events[0], dc: 15 }]
+  } }), false);
+  assert.equal(isPublicCampaignSession({ ...projection, session: {
+    ...projection.session, events: [{ ...projection.session.events[0], resultText: 15 }]
+  } }), false);
+});
+
 test('public contract validation fails closed when an unknown field is added', () => {
   const projection = adaptPublicCampaignSession();
   assert.equal(isPublicCampaignSession({ ...projection, session: { ...projection.session, secret: true } }), false);

@@ -15,6 +15,7 @@ function snapshot() {
       characters: state.characters?.extra,
       notes: state.notes?.entries,
       explorationEvents: state.exploration?.events,
+      downtimeRecords: state.downtime?.records,
       player: state.player,
       session: state.session
     }));

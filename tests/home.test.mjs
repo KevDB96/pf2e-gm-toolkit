@@ -32,5 +32,5 @@ test('Home artwork is listed in the shell precache', () => {
   for (const [, icon] of homeMappings) {
     assert.match(worker, new RegExp(`['"]\.\/assets\/icons\/home\/${icon}['"]`));
   }
-  assert.match(worker, /pf2e-gm-shell-v86/);
+  assert.match(worker, /pf2e-gm-shell-v87/);
 });

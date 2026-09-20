@@ -12,6 +12,7 @@ import {
 } from './companion-characters.js';
 import { SESSION_PHASES } from './session-phase.js';
 import { publicExplorationEvents } from './exploration-events.js';
+import { publicDowntimeRecords } from './downtime-events.js';
 
 export { adaptCompanionCharacter, resolveCompanionCharacter } from './companion-characters.js';
 
@@ -133,15 +134,19 @@ function publicNotes(notes) {
   }).slice(0, 50);
 }
 
-function publicEvents(events, explorationEvents) {
+function publicEvents(events, explorationEvents, downtimeRecords) {
   const values = [
     ...(Array.isArray(events) ? events : []),
-    ...publicExplorationEvents(explorationEvents)
+    ...publicExplorationEvents(explorationEvents),
+    ...publicDowntimeRecords(downtimeRecords)
   ];
   return values.flatMap(event => {
     if (event?.kind && typeof event.id === 'string') {
       return [{ id: event.id, kind: event.kind, title: event.title,
-        ...(event.description ? { description: event.description } : {}), revision: event.revision }];
+        ...(event.text ? { text: event.text } : {}),
+        ...(event.description ? { description: event.description } : {}),
+        ...(event.resultText ? { resultText: event.resultText } : {}),
+        revision: event.revision }];
     }
     if (!object(event) || event.public !== true) return [];
     const message = publicText(event.message ?? event.title, 240);
@@ -244,7 +249,8 @@ function publicImage(value) {
  * Only explicitly allowlisted fields are copied; unknown GM fields are ignored.
  */
 export function adaptPublicCampaignSession({ campaign, combat, player, session, revision,
-  encounter, characters, companionCharacters, notes, events, explorationEvents } = {}) {
+  encounter, characters, companionCharacters, notes, events, explorationEvents,
+  downtime, downtimeRecords, downtimeEvents } = {}) {
   const settings = publicPlayerSettings(player);
   const publicCombat = publicCombatState(combat, settings);
   const characterRecords = [
@@ -266,7 +272,7 @@ export function adaptPublicCampaignSession({ campaign, combat, player, session, 
       characters: publicCharacters(characterRecords),
       creatures: publicCreatures(combat, settings),
       notes: publicNotes(notes),
-      events: publicEvents(events, explorationEvents),
+      events: publicEvents(events, explorationEvents, downtimeRecords ?? downtimeEvents ?? downtime),
       actors: publicCombat.actors
     }
   };
@@ -309,10 +315,13 @@ export function isPublicCampaignSession(value) {
       Array.isArray(reveal.labels) && reveal.labels.every(label => typeof label === 'string')))));
   const validMessages = (messages, key) => Array.isArray(messages) && messages.every(message => {
     if (key === 'events' && message?.kind) {
-      return exactKeys(message, ['id', 'kind', 'title', 'description', 'revision']) &&
+      return allowedKeys(message, ['id', 'kind', 'title', 'text', 'description', 'resultText', 'revision']) &&
+        ['id', 'kind', 'title', 'revision'].every(field => Object.prototype.hasOwnProperty.call(message, field)) &&
         typeof message.id === 'string' && typeof message.kind === 'string' &&
         typeof message.title === 'string' &&
+        (message.text === undefined || typeof message.text === 'string') &&
         (message.description === undefined || typeof message.description === 'string') &&
+        (message.resultText === undefined || typeof message.resultText === 'string') &&
         Number.isInteger(message.revision) && message.revision >= 1;
     }
     return exactKeys(message, key === 'notes' ? ['title', 'body'] : ['message']) &&
