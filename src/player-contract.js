@@ -10,12 +10,14 @@ import {
   adaptCompanionCharacter,
   resolveCompanionCharacter
 } from './companion-characters.js';
+import { SESSION_PHASES } from './session-phase.js';
 
 export { adaptCompanionCharacter, resolveCompanionCharacter } from './companion-characters.js';
 
 export const PUBLIC_CONTRACT = 'pf2e-companion/public-campaign-session';
 export const PUBLIC_CONTRACT_VERSION = 2;
-export const PUBLIC_PHASES = Object.freeze(['downtime', 'exploration', 'combat']);
+// The public contract and the GM control must not grow separate phase lists.
+export const PUBLIC_PHASES = SESSION_PHASES;
 
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
 
