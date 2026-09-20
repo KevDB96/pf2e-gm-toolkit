@@ -11,6 +11,7 @@ import {
   resolveCompanionCharacter
 } from './companion-characters.js';
 import { SESSION_PHASES } from './session-phase.js';
+import { publicExplorationEvents } from './exploration-events.js';
 
 export { adaptCompanionCharacter, resolveCompanionCharacter } from './companion-characters.js';
 
@@ -132,9 +133,16 @@ function publicNotes(notes) {
   }).slice(0, 50);
 }
 
-function publicEvents(events) {
-  if (!Array.isArray(events)) return [];
-  return events.flatMap(event => {
+function publicEvents(events, explorationEvents) {
+  const values = [
+    ...(Array.isArray(events) ? events : []),
+    ...publicExplorationEvents(explorationEvents)
+  ];
+  return values.flatMap(event => {
+    if (event?.kind && typeof event.id === 'string') {
+      return [{ id: event.id, kind: event.kind, title: event.title,
+        ...(event.description ? { description: event.description } : {}), revision: event.revision }];
+    }
     if (!object(event) || event.public !== true) return [];
     const message = publicText(event.message ?? event.title, 240);
     return message ? [{ message }] : [];
@@ -236,7 +244,7 @@ function publicImage(value) {
  * Only explicitly allowlisted fields are copied; unknown GM fields are ignored.
  */
 export function adaptPublicCampaignSession({ campaign, combat, player, session, revision,
-  encounter, characters, companionCharacters, notes, events } = {}) {
+  encounter, characters, companionCharacters, notes, events, explorationEvents } = {}) {
   const settings = publicPlayerSettings(player);
   const publicCombat = publicCombatState(combat, settings);
   const characterRecords = [
@@ -258,7 +266,7 @@ export function adaptPublicCampaignSession({ campaign, combat, player, session, 
       characters: publicCharacters(characterRecords),
       creatures: publicCreatures(combat, settings),
       notes: publicNotes(notes),
-      events: publicEvents(events),
+      events: publicEvents(events, explorationEvents),
       actors: publicCombat.actors
     }
   };
@@ -299,9 +307,17 @@ export function isPublicCampaignSession(value) {
     (creature.reveals === undefined || (Array.isArray(creature.reveals) && creature.reveals.every(reveal =>
       exactKeys(reveal, ['category', 'labels']) && isRevealCategory(reveal.category) &&
       Array.isArray(reveal.labels) && reveal.labels.every(label => typeof label === 'string')))));
-  const validMessages = (messages, key) => Array.isArray(messages) && messages.every(message =>
-    exactKeys(message, key === 'notes' ? ['title', 'body'] : ['message']) &&
-    Object.values(message).every(value => typeof value === 'string'));
+  const validMessages = (messages, key) => Array.isArray(messages) && messages.every(message => {
+    if (key === 'events' && message?.kind) {
+      return exactKeys(message, ['id', 'kind', 'title', 'description', 'revision']) &&
+        typeof message.id === 'string' && typeof message.kind === 'string' &&
+        typeof message.title === 'string' &&
+        (message.description === undefined || typeof message.description === 'string') &&
+        Number.isInteger(message.revision) && message.revision >= 1;
+    }
+    return exactKeys(message, key === 'notes' ? ['title', 'body'] : ['message']) &&
+      Object.values(message).every(value => typeof value === 'string');
+  });
   return exactKeys(value, ['contract', 'version', 'revision', 'campaign', 'session']) &&
     value.contract === PUBLIC_CONTRACT && value.version === PUBLIC_CONTRACT_VERSION &&
     Number.isInteger(value.revision) && value.revision >= 0 &&

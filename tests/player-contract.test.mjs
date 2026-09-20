@@ -314,6 +314,24 @@ test('the public boundary projects only explicitly public sections and strips GM
   assert.equal(forbiddenValues.includes('gm-only'), false);
 });
 
+test('published exploration events project as safe revisions while private events stay in GM state', () => {
+  const projection = adaptPublicCampaignSession({
+    session: { phase: 'exploration' },
+    explorationEvents: [
+      { id: 'ruins', kind: 'location', title: 'Sunken Ruins', description: 'A stairway descends.',
+        published: true, revision: 2, sourceId: 'gm-source', gmNotes: 'secret route' },
+      { id: 'secret-objective', kind: 'objective', title: 'Find the sealed vault', description: 'Do not reveal this yet.',
+        published: false, revision: 1 }
+    ]
+  });
+  assert.deepEqual(projection.session.events, [{ id: 'ruins', kind: 'location', title: 'Sunken Ruins',
+    description: 'A stairway descends.', revision: 2 }]);
+  assert.equal(JSON.stringify(projection).includes('secret-objective'), false);
+  assert.equal(JSON.stringify(projection).includes('gm-source'), false);
+  assert.equal(JSON.stringify(projection).includes('sealed vault'), false);
+  assert.equal(isPublicCampaignSession(projection), true);
+});
+
 test('public contract validation fails closed when an unknown field is added', () => {
   const projection = adaptPublicCampaignSession();
   assert.equal(isPublicCampaignSession({ ...projection, session: { ...projection.session, secret: true } }), false);

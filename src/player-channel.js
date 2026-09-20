@@ -14,6 +14,7 @@ function snapshot() {
       encounter: state.encounter,
       characters: state.characters?.extra,
       notes: state.notes?.entries,
+      explorationEvents: state.exploration?.events,
       player: state.player,
       session: state.session
     }));

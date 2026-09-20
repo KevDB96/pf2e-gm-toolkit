@@ -22,7 +22,7 @@ const DEFAULTS = {
   characters: { extra: [] },      // PCs pasted in on this device; the repo roster is
                                   // data/characters.json
   companion: { characters: [], assignments: {}, annotations: {} },
-  exploration: { elapsedMinutes: 0, activities: {}, timers: [] },
+  exploration: { elapsedMinutes: 0, activities: {}, timers: [], events: [] },
   session: { phase: 'downtime', revision: 0 },
   player: { entries: {} },
   ui: { group: { run: 'encounters', table: 'party' }, recent: [], pins: [] },

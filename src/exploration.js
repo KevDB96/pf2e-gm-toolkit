@@ -1,7 +1,9 @@
 // Pure exploration-clock state transitions. Fictional time advances only when the GM
 // calls advance(); it deliberately has no relationship to wall-clock time.
+import { normalizeExplorationEvents } from './exploration-events.js';
+
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
-export const DEFAULT_EXPLORATION = { elapsedMinutes: 0, activities: {}, timers: [] };
+export const DEFAULT_EXPLORATION = { elapsedMinutes: 0, activities: {}, timers: [], events: [] };
 
 export function normalizeExploration(saved) {
   const source = object(saved) ? saved : {};
@@ -18,7 +20,7 @@ export function normalizeExploration(saved) {
       targetId: typeof timer.targetId === 'string' ? timer.targetId : null,
       source: typeof timer.source === 'string' ? timer.source : null, status }];
   }) : [];
-  return { elapsedMinutes, activities, timers };
+  return { elapsedMinutes, activities, timers, events: normalizeExplorationEvents(source.events) };
 }
 
 export function advanceExploration(exploration, minutes) {

@@ -23,5 +23,5 @@ test('normalization is safe across reloads and does not use wall-clock time', ()
 });
 
 test('invalid minutes and missing optional fields are tolerated', () => {
-  assert.deepEqual(normalizeExploration({ elapsedMinutes: -5, activities: [], timers: [{}] }), { elapsedMinutes: 0, activities: {}, timers: [] });
+  assert.deepEqual(normalizeExploration({ elapsedMinutes: -5, activities: [], timers: [{}] }), { elapsedMinutes: 0, activities: {}, timers: [], events: [] });
 });
