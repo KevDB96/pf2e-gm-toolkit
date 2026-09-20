@@ -49,6 +49,7 @@ export function mount(root) {
   });
   on(root, 'click', '[data-completed]', () => { completedOpen = !completedOpen; draw(root); });
   on(root, 'click', '[data-add-note]', () => editNote(null));
+  on(root, 'click', '[data-edit-recap]', () => editRecap());
   on(root, 'click', '[data-edit-note]', (e, el) => editNote(el.dataset.editNote));
   on(root, 'click', '[data-del-note]', (e, el) => {
     const note = state.notes.entries.find(n => n.id === el.dataset.delNote);
@@ -162,6 +163,8 @@ function session() {
 
     ${exploration()}
 
+    ${recap()}
+
     <div class="row spread">
       <h2 style="font-size:0.82rem;text-transform:uppercase;color:var(--muted)">Session notes</h2>
       <button data-add-note>+ Note</button>
@@ -171,6 +174,18 @@ function session() {
         ? [...visibleNotes].reverse().map(noteRow).join('')
         : '<div class="empty">No notes yet.<br>Anything you add here stays on this device.</div>'
     }</div>`;
+}
+
+function recap() {
+  const value = state.session.recap;
+  const hasContent = value.status !== 'empty';
+  return `<div class="card">
+    <div class="row spread"><h2>Public session recap</h2><button data-edit-recap>${hasContent ? 'Edit' : 'Publish'}</button></div>
+    ${hasContent
+      ? `<div class="name">${esc(value.title || 'Session recap')}</div><div class="sub" style="white-space:pre-wrap">${esc(value.body)}</div><div class="muted" style="margin-top:6px">${esc(value.status)} · revision ${value.revision}</div>`
+      : '<div class="muted">Nothing is published to the player view.</div>'}
+    <div class="muted" style="margin-top:6px">Only this title and recap text leave the GM Toolkit.</div>
+  </div>`;
 }
 
 function characterName(id) {
@@ -301,6 +316,35 @@ function editNote(id) {
         : addPin(state.ui.pins, { id: uid('pin'), target, label: existing.title || 'Untitled note' });
       save();
       button.textContent = existingPin ? 'Pin to session' : 'Unpin from session';
+    });
+  });
+}
+
+function editRecap() {
+  const existing = state.session.recap;
+  const body = `
+    <label class="field">Title<input type="text" id="recap-title"
+      value="${esc(existing.title)}" placeholder="After the bridge"></label>
+    <label class="field">Recap<textarea id="recap-body" rows="8"
+      placeholder="What players should remember or know">${esc(existing.body)}</textarea></label>
+    <button class="primary" id="recap-save">${existing.status === 'empty' ? 'Publish' : 'Save update'}</button>`;
+
+  sheet(existing.status === 'empty' ? 'Publish session recap' : 'Edit public recap', body, (node, close) => {
+    qs('#recap-save', node).addEventListener('click', () => {
+      const title = qs('#recap-title', node).value.trim();
+      const text = qs('#recap-body', node).value.trim();
+      const changed = title !== existing.title || text !== existing.body;
+      if (!changed) return close();
+      const hasContent = Boolean(title || text);
+      state.session.recap = {
+        version: existing.version,
+        status: hasContent ? (existing.status === 'empty' ? 'published' : 'updated') : 'empty',
+        revision: existing.revision + 1,
+        title,
+        body: text
+      };
+      save();
+      close();
     });
   });
 }

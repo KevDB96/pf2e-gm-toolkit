@@ -8,6 +8,7 @@ import { adaptPublicCampaignSession, isPublicPhase } from './player-contract.js'
 import { normalizeEncounterEntries } from './encounter-visibility.js';
 import { normalizeCompanionRosterState } from './companion-rosters.js';
 import { normalizeDowntime } from './downtime-events.js';
+import { normalizeSessionRecap } from './session-recap.js';
 
 const KEY = 'pf2e-gm-toolkit/v1';
 
@@ -25,7 +26,7 @@ const DEFAULTS = {
   companion: { characters: [], assignments: {}, annotations: {} },
   downtime: { records: [] },
   exploration: { elapsedMinutes: 0, activities: {}, timers: [], events: [] },
-  session: { phase: 'downtime', revision: 0 },
+  session: { phase: 'downtime', revision: 0, recap: normalizeSessionRecap() },
   player: { entries: {} },
   ui: { group: { run: 'encounters', table: 'party' }, recent: [], pins: [] },
   // group: last sub-screen used in each group. recent: the Library's last 12 opened
@@ -42,7 +43,8 @@ function normalizeSession(saved) {
     phase: isPublicPhase(candidate.phase) ? candidate.phase : DEFAULTS.session.phase,
     revision: Number.isInteger(candidate.revision) && candidate.revision >= 0
       ? candidate.revision
-      : DEFAULTS.session.revision
+      : DEFAULTS.session.revision,
+    recap: normalizeSessionRecap(candidate.recap)
   };
 }
 
@@ -147,7 +149,8 @@ function publicFingerprint(value) {
     downtimeRecords: value.downtime?.records,
     player: value.player,
     session: value.session,
-    revision: 0
+    revision: 0,
+    recap: value.session?.recap
   });
   return JSON.stringify(projection);
 }

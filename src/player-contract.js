@@ -13,6 +13,7 @@ import {
 import { SESSION_PHASES } from './session-phase.js';
 import { publicExplorationEvents } from './exploration-events.js';
 import { publicDowntimeRecords } from './downtime-events.js';
+import { isSessionRecap, normalizeSessionRecap } from './session-recap.js';
 
 export { adaptCompanionCharacter, resolveCompanionCharacter } from './companion-characters.js';
 
@@ -98,6 +99,10 @@ function publicEncounter(encounter) {
     title: publicText(encounter.title ?? encounter.name),
     status
   };
+}
+
+function publicRecap(recap) {
+  return normalizeSessionRecap(recap);
 }
 
 function publicCharacters(characters) {
@@ -283,7 +288,7 @@ function publicImage(value) {
  */
 export function adaptPublicCampaignSession({ campaign, combat, player, session, revision,
   encounter, characters, companionCharacters, notes, events, explorationEvents,
-  downtime, downtimeRecords, downtimeEvents } = {}) {
+  downtime, downtimeRecords, downtimeEvents, recap } = {}) {
   const settings = publicPlayerSettings(player);
   const publicCombat = publicCombatState(combat, settings);
   const characterRecords = [
@@ -302,6 +307,7 @@ export function adaptPublicCampaignSession({ campaign, combat, player, session, 
       round: publicCombat.round,
       currentTurnId: publicCombat.currentTurnId,
       encounter: publicEncounter(encounter),
+      recap: publicRecap(recap ?? session?.recap),
       characters: publicCharacters(characterRecords),
       creatures: publicCreatures(combat, settings),
       notes: publicNotes(notes),
@@ -381,13 +387,14 @@ export function isPublicCampaignSession(value) {
     value.contract === PUBLIC_CONTRACT && value.version === PUBLIC_CONTRACT_VERSION &&
     Number.isInteger(value.revision) && value.revision >= 0 &&
     exactKeys(value.campaign, ['title']) && typeof value.campaign.title === 'string' &&
-    exactKeys(session, ['phase', 'round', 'currentTurnId', 'encounter', 'characters', 'creatures', 'notes', 'events', 'actors']) &&
+    exactKeys(session, ['phase', 'round', 'currentTurnId', 'encounter', 'recap', 'characters', 'creatures', 'notes', 'events', 'actors']) &&
     isPublicPhase(session.phase) && Number.isInteger(session.round) && session.round >= 0 &&
     (session.currentTurnId === null || typeof session.currentTurnId === 'string') &&
     Array.isArray(session.actors) &&
     session.actors.every(actor => actor?.active === (session.currentTurnId !== null && actor?.id === session.currentTurnId)) &&
     exactKeys(session.encounter, ['title', 'status']) && typeof session.encounter.title === 'string' &&
     PUBLIC_STATUSES.includes(session.encounter.status) &&
+    isSessionRecap(session.recap) &&
     validCharacters(session.characters) && validCreatures(session.creatures) &&
     validNotes(session.notes) && validMessages(session.events, 'events') &&
     validActors(session.actors);

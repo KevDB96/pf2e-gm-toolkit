@@ -4,6 +4,7 @@ import { acceptPlayerSnapshot, createPlayerRequest } from './player-transport.js
 
 const status = document.querySelector('[data-player-status]');
 const actors = document.querySelector('[data-player-actors]');
+const recap = document.querySelector('[data-player-recap]');
 let timer;
 let poller;
 let liveChannel = null;
@@ -29,6 +30,17 @@ function render(message) {
     ? projection.session
     : projection;
   status.textContent = session.round > 0 ? `Round ${session.round}` : 'Waiting for combat to begin';
+  recap.replaceChildren();
+  if (session.recap?.status !== 'empty') {
+    const heading = document.createElement('h2');
+    heading.textContent = session.recap.title || 'Session recap';
+    const body = document.createElement('p');
+    body.textContent = session.recap.body;
+    recap.append(heading, body);
+    recap.hidden = false;
+  } else {
+    recap.hidden = true;
+  }
   actors.replaceChildren();
   if (!session.actors.length) {
     const empty = document.createElement('p');

@@ -107,17 +107,18 @@ test('current data serializes when storage cannot be accessed', async () => {
 test('GM session phases are allowlisted and revisions increase monotonically', async () => {
   const storage = storageWith();
   const store = await freshStore(storage);
-  assert.deepEqual(store.state.session, { phase: 'downtime', revision: 0 });
+  const emptyRecap = { version: 1, status: 'empty', revision: 0, title: '', body: '' };
+  assert.deepEqual(store.state.session, { phase: 'downtime', revision: 0, recap: emptyRecap });
 
   assert.equal(store.setSessionPhase('exploration'), true);
-  assert.deepEqual(store.state.session, { phase: 'exploration', revision: 1 });
+  assert.deepEqual(store.state.session, { phase: 'exploration', revision: 1, recap: emptyRecap });
   assert.equal(store.setSessionPhase('combat'), true);
-  assert.deepEqual(store.state.session, { phase: 'combat', revision: 2 });
+  assert.deepEqual(store.state.session, { phase: 'combat', revision: 2, recap: emptyRecap });
   assert.equal(store.setSessionPhase('combat'), true);
-  assert.deepEqual(store.state.session, { phase: 'combat', revision: 2 });
+  assert.deepEqual(store.state.session, { phase: 'combat', revision: 2, recap: emptyRecap });
 
   assert.equal(store.setSessionPhase('rest'), false);
   assert.equal(store.setSessionPhase('Combat'), false);
-  assert.deepEqual(store.state.session, { phase: 'combat', revision: 2 });
+  assert.deepEqual(store.state.session, { phase: 'combat', revision: 2, recap: emptyRecap });
   assert.match(storage.data.get('pf2e-gm-toolkit/v1'), /"phase":"combat"/);
 });

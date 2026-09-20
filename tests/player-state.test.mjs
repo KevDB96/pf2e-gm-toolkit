@@ -25,6 +25,7 @@ test('player projection is an allowlisted public snapshot', () => {
     round: 3,
     currentTurnId: null,
     encounter: { title: '', status: 'planned' },
+    recap: { version: 1, status: 'empty', revision: 0, title: '', body: '' },
     characters: [],
     creatures: [],
     notes: [],
@@ -77,7 +78,9 @@ function snapshot(revision, phase = 'downtime') {
     version: 2,
     revision,
     campaign: { title: '' },
-    session: { phase, round: 0, currentTurnId: null, encounter: { title: '', status: 'planned' }, characters: [], creatures: [], notes: [], events: [], actors: [] }
+    session: { phase, round: 0, currentTurnId: null, encounter: { title: '', status: 'planned' },
+      recap: { version: 1, status: 'empty', revision: 0, title: '', body: '' },
+      characters: [], creatures: [], notes: [], events: [], actors: [] }
   });
 }
 
