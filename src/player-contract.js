@@ -173,14 +173,20 @@ function publicNotes(notes) {
   }).slice(0, 50);
 }
 
-function publicEvents(events, explorationEvents, downtimeRecords) {
+function publicEvents(events, explorationEvents, downtimeRecords, campaignId) {
   const values = [
-    ...(Array.isArray(events) ? events : []),
-    ...publicExplorationEvents(explorationEvents),
-    ...publicDowntimeRecords(downtimeRecords)
+    ...(Array.isArray(events) ? events.filter(event =>
+      !object(event) || !Object.prototype.hasOwnProperty.call(event, 'campaignId') ||
+      publicText(event.campaignId, 120) === publicText(campaignId, 120)) : []),
+    ...publicExplorationEvents(explorationEvents).map(event => ({ ...event, __publicProjection: true })),
+    ...publicDowntimeRecords(downtimeRecords).map(event => ({ ...event, __publicProjection: true }))
   ];
   return values.flatMap(event => {
-    if (event?.kind && typeof event.id === 'string') {
+    // Legacy event records have no normalizer of their own. Require the
+    // explicit public marker before copying their richer event shape; without
+    // this, a private record with `kind` could bypass the other projections.
+    if ((event?.public === true || event?.__publicProjection === true) &&
+        event?.kind && typeof event.id === 'string') {
       return [{ id: event.id, kind: event.kind, title: event.title,
         ...(event.text ? { text: event.text } : {}),
         ...(event.description ? { description: event.description } : {}),
@@ -316,7 +322,8 @@ export function adaptPublicCampaignSession({ campaign, combat, player, session, 
       characters: publicCharacters(characterRecords),
       creatures: publicCreatures(combat, settings),
       notes: publicNotes(notes),
-      events: publicEvents(events, explorationEvents, downtimeRecords ?? downtimeEvents ?? downtime),
+      events: publicEvents(events, explorationEvents, downtimeRecords ?? downtimeEvents ?? downtime,
+        campaign?.id),
       announcements: publicNoticeList(announcements, campaign?.id),
       actors: publicCombat.actors
     }
