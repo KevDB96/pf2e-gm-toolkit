@@ -30,6 +30,7 @@ test('player projection is an allowlisted public snapshot', () => {
     creatures: [],
     notes: [],
     events: [],
+    announcements: [],
     actors: [{ id: 'p-a', name: 'Goblin A', active: false, order: 1 }]
   });
   assert.equal(JSON.stringify(snapshot).includes('hp'), false);
@@ -80,7 +81,7 @@ function snapshot(revision, phase = 'downtime') {
     campaign: { title: '' },
     session: { phase, round: 0, currentTurnId: null, encounter: { title: '', status: 'planned' },
       recap: { version: 1, status: 'empty', revision: 0, title: '', body: '' },
-      characters: [], creatures: [], notes: [], events: [], actors: [] }
+      characters: [], creatures: [], notes: [], events: [], announcements: [], actors: [] }
   });
 }
 

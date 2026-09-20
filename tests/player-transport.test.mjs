@@ -12,7 +12,7 @@ function projection(revision, phase = 'downtime') {
     campaign: { title: '' },
     session: { phase, round: 0, currentTurnId: null, encounter: { title: '', status: 'planned' },
       recap: { version: 1, status: 'empty', revision: 0, title: '', body: '' },
-      characters: [], creatures: [], notes: [], events: [], actors: [] }
+      characters: [], creatures: [], notes: [], events: [], announcements: [], actors: [] }
   };
 }
 

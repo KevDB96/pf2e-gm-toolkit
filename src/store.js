@@ -9,6 +9,7 @@ import { normalizeEncounterEntries } from './encounter-visibility.js';
 import { normalizeCompanionRosterState } from './companion-rosters.js';
 import { normalizeDowntime } from './downtime-events.js';
 import { normalizeSessionRecap } from './session-recap.js';
+import { normalizeAnnouncementState } from './announcements.js';
 
 const KEY = 'pf2e-gm-toolkit/v1';
 
@@ -27,6 +28,7 @@ const DEFAULTS = {
   downtime: { records: [] },
   exploration: { elapsedMinutes: 0, activities: {}, timers: [], events: [] },
   session: { phase: 'downtime', revision: 0, recap: normalizeSessionRecap() },
+  announcements: { items: [] },
   player: { entries: {} },
   ui: { group: { run: 'encounters', table: 'party' }, recent: [], pins: [] },
   // group: last sub-screen used in each group. recent: the Library's last 12 opened
@@ -94,6 +96,7 @@ function merge(base, saved) {
   out.downtime = normalizeDowntime(saved?.downtime);
   out.exploration = normalizeExploration(saved?.exploration);
   out.session = normalizeSession(saved?.session);
+  out.announcements = normalizeAnnouncementState(saved?.announcements);
   out.player = normalizePlayer(saved?.player);
   out.ui = slice(base.ui, saved?.ui, ['recent', 'pins']);
   out.ui.group = object(out.ui.group) ? { ...base.ui.group, ...out.ui.group } : clone(base.ui.group);
@@ -149,6 +152,7 @@ function publicFingerprint(value) {
     downtimeRecords: value.downtime?.records,
     player: value.player,
     session: value.session,
+    announcements: value.announcements?.items,
     revision: 0,
     recap: value.session?.recap
   });

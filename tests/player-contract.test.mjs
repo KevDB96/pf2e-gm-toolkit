@@ -30,7 +30,7 @@ test('legacy GM state maps deterministically to the versioned public contract', 
       phase: 'downtime', round: 4, currentTurnId: null,
       encounter: { title: '', status: 'planned' },
       recap: { version: 1, status: 'empty', revision: 0, title: '', body: '' },
-      characters: [], creatures: [], notes: [], events: [],
+      characters: [], creatures: [], notes: [], events: [], announcements: [],
       actors: [{ id: 'ari', name: 'Ari', active: false, order: 1 }]
     }
   };
@@ -246,7 +246,7 @@ test('serialized projection contains no GM-private fields or internal ids', () =
   }
   assert.equal(isPublicCampaignSession(parsed), true);
   assert.deepEqual(Object.keys(parsed), ['contract', 'version', 'revision', 'campaign', 'session']);
-  assert.deepEqual(Object.keys(parsed.session), ['phase', 'round', 'currentTurnId', 'encounter', 'recap', 'characters', 'creatures', 'notes', 'events', 'actors']);
+  assert.deepEqual(Object.keys(parsed.session), ['phase', 'round', 'currentTurnId', 'encounter', 'recap', 'characters', 'creatures', 'notes', 'events', 'announcements', 'actors']);
   assert.deepEqual(Object.keys(parsed.session.actors[0]), ['id', 'name', 'active', 'order']);
 });
 
@@ -273,7 +273,7 @@ test('public revisions are non-negative integers and phase/session data stays al
   assert.equal(isPublicCampaignSession(projection), true);
   assert.equal(isPublicCampaignSession({ ...projection, revision: -1 }), false);
   assert.equal(isPublicCampaignSession({ ...projection, session: { ...projection.session, phase: 'rest' } }), false);
-  assert.deepEqual(Object.keys(projection.session), ['phase', 'round', 'currentTurnId', 'encounter', 'recap', 'characters', 'creatures', 'notes', 'events', 'actors']);
+  assert.deepEqual(Object.keys(projection.session), ['phase', 'round', 'currentTurnId', 'encounter', 'recap', 'characters', 'creatures', 'notes', 'events', 'announcements', 'actors']);
 });
 
 test('the public boundary projects only explicitly public sections and strips GM mechanics', () => {

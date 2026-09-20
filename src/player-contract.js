@@ -14,6 +14,7 @@ import { SESSION_PHASES } from './session-phase.js';
 import { publicExplorationEvents } from './exploration-events.js';
 import { publicDowntimeRecords } from './downtime-events.js';
 import { isSessionRecap, normalizeSessionRecap } from './session-recap.js';
+import { publicAnnouncements } from './announcements.js';
 
 export { adaptCompanionCharacter, resolveCompanionCharacter } from './companion-characters.js';
 
@@ -192,6 +193,10 @@ function publicEvents(events, explorationEvents, downtimeRecords) {
   }).slice(0, 50);
 }
 
+function publicNoticeList(announcements, campaignId) {
+  return publicAnnouncements(announcements, campaignId);
+}
+
 function publicActors(combat, settings) {
   const combatants = Array.isArray(combat?.combatants) ? combat.combatants : [];
   const byId = new Map(combatants.filter(c => typeof c?.id === 'string').map(c => [c.id, c]));
@@ -288,7 +293,7 @@ function publicImage(value) {
  */
 export function adaptPublicCampaignSession({ campaign, combat, player, session, revision,
   encounter, characters, companionCharacters, notes, events, explorationEvents,
-  downtime, downtimeRecords, downtimeEvents, recap } = {}) {
+  downtime, downtimeRecords, downtimeEvents, recap, announcements } = {}) {
   const settings = publicPlayerSettings(player);
   const publicCombat = publicCombatState(combat, settings);
   const characterRecords = [
@@ -312,6 +317,7 @@ export function adaptPublicCampaignSession({ campaign, combat, player, session, 
       creatures: publicCreatures(combat, settings),
       notes: publicNotes(notes),
       events: publicEvents(events, explorationEvents, downtimeRecords ?? downtimeEvents ?? downtime),
+      announcements: publicNoticeList(announcements, campaign?.id),
       actors: publicCombat.actors
     }
   };
@@ -383,11 +389,20 @@ export function isPublicCampaignSession(value) {
     return exactKeys(message, ['message']) &&
       Object.values(message).every(value => typeof value === 'string');
   });
+  const validAnnouncements = announcements => Array.isArray(announcements) && announcements.every(announcement =>
+    allowedKeys(announcement, ['id', 'title', 'message', 'revision', 'createdAt', 'updatedAt', 'expiresAt']) &&
+    ['id', 'title', 'message', 'revision'].every(field =>
+      Object.prototype.hasOwnProperty.call(announcement, field)) &&
+    typeof announcement.id === 'string' && announcement.id.length > 0 &&
+    typeof announcement.title === 'string' && typeof announcement.message === 'string' &&
+    Number.isInteger(announcement.revision) && announcement.revision >= 1 &&
+    ['createdAt', 'updatedAt', 'expiresAt'].every(field =>
+      announcement[field] === undefined || (Number.isInteger(announcement[field]) && announcement[field] >= 0)));
   return exactKeys(value, ['contract', 'version', 'revision', 'campaign', 'session']) &&
     value.contract === PUBLIC_CONTRACT && value.version === PUBLIC_CONTRACT_VERSION &&
     Number.isInteger(value.revision) && value.revision >= 0 &&
     exactKeys(value.campaign, ['title']) && typeof value.campaign.title === 'string' &&
-    exactKeys(session, ['phase', 'round', 'currentTurnId', 'encounter', 'recap', 'characters', 'creatures', 'notes', 'events', 'actors']) &&
+    exactKeys(session, ['phase', 'round', 'currentTurnId', 'encounter', 'recap', 'characters', 'creatures', 'notes', 'events', 'announcements', 'actors']) &&
     isPublicPhase(session.phase) && Number.isInteger(session.round) && session.round >= 0 &&
     (session.currentTurnId === null || typeof session.currentTurnId === 'string') &&
     Array.isArray(session.actors) &&
@@ -396,6 +411,6 @@ export function isPublicCampaignSession(value) {
     PUBLIC_STATUSES.includes(session.encounter.status) &&
     isSessionRecap(session.recap) &&
     validCharacters(session.characters) && validCreatures(session.creatures) &&
-    validNotes(session.notes) && validMessages(session.events, 'events') &&
+    validNotes(session.notes) && validMessages(session.events, 'events') && validAnnouncements(session.announcements) &&
     validActors(session.actors);
 }
