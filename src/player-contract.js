@@ -126,11 +126,44 @@ function publicCharacters(characters) {
 function publicNotes(notes) {
   if (!Array.isArray(notes)) return [];
   return notes.flatMap(note => {
-    if (!object(note) || note.public !== true) return [];
+    if (!object(note) || (note.public !== true && note.shared !== true)) return [];
+    const hasRevision = Object.prototype.hasOwnProperty.call(note, 'revision')
+      || Object.prototype.hasOwnProperty.call(note, 'version');
+    const rawRevision = Object.prototype.hasOwnProperty.call(note, 'revision')
+      ? note.revision : note.version;
+    if (hasRevision && !Number.isInteger(rawRevision)) return [];
+    if (hasRevision && rawRevision < 0) return [];
+
+    const publicIdProvided = Object.prototype.hasOwnProperty.call(note, 'publicId');
+    const publicId = publicText(note.publicId, 120);
+    if (publicIdProvided && (typeof note.publicId !== 'string' || !publicId)) return [];
+    if (note.shared === true && !publicId) return [];
+    const authorProvided = Object.prototype.hasOwnProperty.call(note, 'publicAuthor');
+    if (authorProvided && typeof note.publicAuthor !== 'string') return [];
+    const author = authorProvided ? publicText(note.publicAuthor, 80) : '';
     const title = publicText(note.title, 120);
     const body = publicText(note.body, 500);
+    if (note.public === true && !publicId && note.deleted !== true) {
+      if (!title && !body) return [];
+      return [{ title, body }];
+    }
+    const modern = Boolean(publicId || hasRevision || authorProvided || note.deleted === true);
+    if (note.deleted === true) {
+      // A local note id is never a safe fallback: tombstones need an explicit
+      // public identity so the Companion can remove the right shared record.
+      if (!publicId) return [];
+      return [{ id: publicId, revision: publicRevision(rawRevision), deleted: true }];
+    }
     if (!title && !body) return [];
-    return [{ title, body }];
+    if (!modern) return [{ title, body }];
+    if (!publicId) return [];
+    return [{
+      id: publicId,
+      title,
+      body,
+      ...(author ? { author } : {}),
+      revision: publicRevision(rawRevision)
+    }];
   }).slice(0, 50);
 }
 
@@ -313,6 +346,23 @@ export function isPublicCampaignSession(value) {
     (creature.reveals === undefined || (Array.isArray(creature.reveals) && creature.reveals.every(reveal =>
       exactKeys(reveal, ['category', 'labels']) && isRevealCategory(reveal.category) &&
       Array.isArray(reveal.labels) && reveal.labels.every(label => typeof label === 'string')))));
+  const validNotes = notes => Array.isArray(notes) && notes.every(note => {
+    if (exactKeys(note, ['title', 'body'])) {
+      return typeof note.title === 'string' && typeof note.body === 'string';
+    }
+    if (note?.deleted === true) {
+      return exactKeys(note, ['id', 'revision', 'deleted']) &&
+        typeof note.id === 'string' && note.id.length > 0 &&
+        Number.isInteger(note.revision) && note.revision >= 0;
+    }
+    return allowedKeys(note, ['id', 'title', 'body', 'author', 'revision']) &&
+      ['id', 'title', 'body', 'revision'].every(field =>
+        Object.prototype.hasOwnProperty.call(note, field)) &&
+      typeof note.id === 'string' && note.id.length > 0 &&
+      typeof note.title === 'string' && typeof note.body === 'string' &&
+      (note.author === undefined || typeof note.author === 'string') &&
+      Number.isInteger(note.revision) && note.revision >= 0;
+  });
   const validMessages = (messages, key) => Array.isArray(messages) && messages.every(message => {
     if (key === 'events' && message?.kind) {
       return allowedKeys(message, ['id', 'kind', 'title', 'text', 'description', 'resultText', 'revision']) &&
@@ -324,7 +374,7 @@ export function isPublicCampaignSession(value) {
         (message.resultText === undefined || typeof message.resultText === 'string') &&
         Number.isInteger(message.revision) && message.revision >= 1;
     }
-    return exactKeys(message, key === 'notes' ? ['title', 'body'] : ['message']) &&
+    return exactKeys(message, ['message']) &&
       Object.values(message).every(value => typeof value === 'string');
   });
   return exactKeys(value, ['contract', 'version', 'revision', 'campaign', 'session']) &&
@@ -339,6 +389,6 @@ export function isPublicCampaignSession(value) {
     exactKeys(session.encounter, ['title', 'status']) && typeof session.encounter.title === 'string' &&
     PUBLIC_STATUSES.includes(session.encounter.status) &&
     validCharacters(session.characters) && validCreatures(session.creatures) &&
-    validMessages(session.notes, 'notes') && validMessages(session.events, 'events') &&
+    validNotes(session.notes) && validMessages(session.events, 'events') &&
     validActors(session.actors);
 }

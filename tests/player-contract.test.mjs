@@ -314,6 +314,92 @@ test('the public boundary projects only explicitly public sections and strips GM
   assert.equal(forbiddenValues.includes('gm-only'), false);
 });
 
+test('campaign notes omit private structure and never fall back to local ids', () => {
+  const projection = adaptPublicCampaignSession({ notes: [
+    { id: 'private-id', title: 'Secret title', body: 'Secret body', at: 'secret time',
+      authorId: 'secret-author', gmOnly: true, revision: 99 },
+    { id: 'legacy-local-id', public: true, title: 'Shared legacy', body: 'Safe text',
+      at: 'private time', authorId: 'private-author' },
+    { id: 'shared-local-id', public: true, publicId: 'shared-public-id', title: 'Shared',
+      body: 'Visible', at: 'private time', authorId: 'private-author', gmNotes: 'secret',
+      revision: 2 }
+  ] });
+  assert.deepEqual(projection.session.notes, [
+    { title: 'Shared legacy', body: 'Safe text' },
+    { id: 'shared-public-id', title: 'Shared', body: 'Visible', revision: 2 }
+  ]);
+  const serialized = JSON.stringify(projection);
+  for (const secret of ['private-id', 'Secret title', 'Secret body', 'secret time',
+    'secret-author', 'shared-local-id', 'private-author', 'secret']) {
+    assert.equal(serialized.includes(secret), false, `leaked ${secret}`);
+  }
+  assert.equal(isPublicCampaignSession(projection), true);
+});
+
+test('shared notes preserve source order, safe authorship, and non-negative revisions', () => {
+  const projection = adaptPublicCampaignSession({ notes: [
+    { public: true, publicId: 'first', title: 'First', body: 'One', version: 4,
+      publicAuthor: 'GM', authorId: 'hidden-author' },
+    { shared: true, publicId: 'second', title: 'Second', body: 'Two', revision: 0,
+      publicAuthor: 'Players', author: { id: 'hidden', name: 'Do not copy' } }
+  ] });
+  assert.deepEqual(projection.session.notes, [
+    { id: 'first', title: 'First', body: 'One', author: 'GM', revision: 4 },
+    { id: 'second', title: 'Second', body: 'Two', author: 'Players', revision: 0 }
+  ]);
+  assert.equal(isPublicCampaignSession(projection), true);
+});
+
+test('edited shared note state carries its newer public revision', () => {
+  const edited = adaptPublicCampaignSession({ notes: [{
+    id: 'local-note', public: true, publicId: 'shared-note', title: 'Updated', body: 'New text', revision: 3
+  }] });
+  assert.deepEqual(edited.session.notes, [{
+    id: 'shared-note', title: 'Updated', body: 'New text', revision: 3
+  }]);
+  assert.equal(isPublicCampaignSession(edited), true);
+});
+
+test('modern shared notes without a public id fail closed while legacy public notes remain compatible', () => {
+  const projection = adaptPublicCampaignSession({ notes: [
+    { id: 'shared-local', shared: true, title: 'Must stay private', body: 'No public id' },
+    { id: 'legacy-local', public: true, title: 'Legacy shared', body: 'Still supported', revision: 7 }
+  ] });
+  assert.deepEqual(projection.session.notes, [{ title: 'Legacy shared', body: 'Still supported' }]);
+});
+
+test('shared deletions become public tombstones while private deletions disappear', () => {
+  const projection = adaptPublicCampaignSession({ notes: [
+    { id: 'private-delete', public: false, deleted: true, revision: 8, title: 'secret', body: 'secret' },
+    { id: 'shared-delete', public: true, publicId: 'public-delete', deleted: true,
+      revision: 3, title: 'must not leak', body: 'must not leak', authorId: 'private' }
+  ] });
+  assert.deepEqual(projection.session.notes, [
+    { id: 'public-delete', revision: 3, deleted: true }
+  ]);
+  assert.equal(JSON.stringify(projection).includes('shared-delete'), false);
+  assert.equal(JSON.stringify(projection).includes('must not leak'), false);
+  assert.equal(isPublicCampaignSession(projection), true);
+});
+
+test('note envelope validation rejects unknown fields and malformed shared values', () => {
+  const projection = adaptPublicCampaignSession({ notes: [
+    { public: true, publicId: 'note', title: 'Shared', body: 'Text', revision: 1 }
+  ] });
+  assert.equal(isPublicCampaignSession(projection), true);
+  for (const notes of [
+    [{ ...projection.session.notes[0], gmNotes: 'secret' }],
+    [{ ...projection.session.notes[0], revision: -1 }],
+    [{ ...projection.session.notes[0], author: { id: 'secret' } }],
+    [{ id: 'note', revision: 1, deleted: true, title: 'not allowed' }],
+    [{ id: 4, title: 'Shared', body: 'Text', revision: 1 }]
+  ]) {
+    assert.equal(isPublicCampaignSession({ ...projection, session: {
+      ...projection.session, notes
+    } }), false);
+  }
+});
+
 test('published exploration events project as safe revisions while private events stay in GM state', () => {
   const projection = adaptPublicCampaignSession({
     session: { phase: 'exploration' },

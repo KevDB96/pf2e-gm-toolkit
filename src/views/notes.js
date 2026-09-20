@@ -51,7 +51,17 @@ export function mount(root) {
   on(root, 'click', '[data-add-note]', () => editNote(null));
   on(root, 'click', '[data-edit-note]', (e, el) => editNote(el.dataset.editNote));
   on(root, 'click', '[data-del-note]', (e, el) => {
-    state.notes.entries = state.notes.entries.filter(n => n.id !== el.dataset.delNote);
+    const note = state.notes.entries.find(n => n.id === el.dataset.delNote);
+    if (!note) return;
+    if (note.public === true || note.shared === true) {
+      const priorRevision = Number.isInteger(note.revision) && note.revision >= 0
+        ? note.revision
+        : Number.isInteger(note.version) && note.version >= 0 ? note.version : 0;
+      note.deleted = true;
+      note.revision = priorRevision + 1;
+    } else {
+      state.notes.entries = state.notes.entries.filter(n => n.id !== el.dataset.delNote);
+    }
     save();
   });
   on(root, 'click', '[data-apply-party]', () => {
@@ -130,6 +140,7 @@ function session() {
   const p = data.party || {};
   const matches = p.level === state.party.level && p.size === state.party.size;
 
+  const visibleNotes = state.notes.entries.filter(note => note?.deleted !== true);
   return `
     <div class="card">
       <h2>${esc(data.title || 'Campaign')}</h2>
@@ -156,8 +167,8 @@ function session() {
       <button data-add-note>+ Note</button>
     </div>
     <div class="list">${
-      state.notes.entries.length
-        ? [...state.notes.entries].reverse().map(noteRow).join('')
+      visibleNotes.length
+        ? [...visibleNotes].reverse().map(noteRow).join('')
         : '<div class="empty">No notes yet.<br>Anything you add here stays on this device.</div>'
     }</div>`;
 }
@@ -240,6 +251,7 @@ function noteRow(n) {
 
 function editNote(id) {
   const existing = state.notes.entries.find(n => n.id === id);
+  if (existing?.deleted === true) return;
   const target = existing ? { type: 'note', id: existing.id } : null;
   const pinned = target && hasPin(state.ui.pins, target);
   const body = `
@@ -258,6 +270,19 @@ function editNote(id) {
       if (existing) {
         existing.title = title;
         existing.body = text;
+        if (existing.public === true || existing.shared === true) {
+          const currentRevision = Number.isInteger(existing.revision) && existing.revision >= 0
+            ? existing.revision
+            : Number.isInteger(existing.version) && existing.version >= 0 ? existing.version : 0;
+          const nextRevision = currentRevision + 1;
+          if (Number.isInteger(existing.revision) && existing.revision >= 0) {
+            existing.revision = nextRevision;
+          } else if (Number.isInteger(existing.version) && existing.version >= 0) {
+            existing.version = nextRevision;
+          } else {
+            existing.revision = nextRevision;
+          }
+        }
       } else {
         state.notes.entries.push({
           id: uid('note'),
@@ -282,7 +307,7 @@ function editNote(id) {
 
 /** Open a device note by its stable ID; a deleted note never falls back to its title. */
 export function openById(id) {
-  if (!state.notes.entries.some(note => note.id === id)) return false;
+  if (!state.notes.entries.some(note => note.id === id && note.deleted !== true)) return false;
   editNote(id);
   return true;
 }
