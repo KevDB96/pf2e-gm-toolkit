@@ -5,6 +5,7 @@ import { qs, qsa, installTips } from './dom.js';
 import { keepAwake } from './wake.js';
 import { bindPlayerBroadcast } from './player-channel.js';
 import { phaseControlMarkup, SESSION_PHASES } from './session-phase.js';
+import { bindPfpcControl } from './pfpc-control-ui.js';
 import * as home from './views/home.js';
 import * as encounters from './views/encounters.js';
 import * as combat from './views/combat.js';
@@ -210,6 +211,7 @@ subscribe(() => {
 bindParty();
 bindPersistence();
 bindSessionPhase();
+bindPfpcControl(qs('#pfpc-control'));
 bindPlayerBroadcast();
 installTips();
 render();

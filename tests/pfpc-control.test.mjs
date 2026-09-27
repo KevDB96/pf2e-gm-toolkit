@@ -139,7 +139,8 @@ test('module import and app lifecycle have no path to a control write', async ()
   const store = await readFile(new URL('../src/store.js', import.meta.url), 'utf8');
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const clientSource = await readFile(new URL('../src/pfpc-control.js', import.meta.url), 'utf8');
-  assert.doesNotMatch(app, /pfpc-control|\.start\(|\.stop\(/);
+  assert.match(app, /bindPfpcControl/);
+  assert.doesNotMatch(app, /\.start\(|\.stop\(/);
   assert.doesNotMatch(store, /pfpc-control|\.start\(|\.stop\(/);
   assert.match(html, /src\/app\.js/);
   assert.doesNotMatch(clientSource, /railway|keepalive|extend/i);
