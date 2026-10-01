@@ -499,6 +499,367 @@
       ]
     },
     {
+      "id": "gummo",
+      "group": "mists-of-zalazar",
+      "name": "Gummo",
+      "player": null,
+      "level": 7,
+      "class": "Fighter",
+      "dualClass": null,
+      "ancestry": "Goblin",
+      "heritage": "Unbreakable Goblin",
+      "background": "Field Medic",
+      "deity": "Gitler",
+      "size": "Small",
+      "gender": "racist",
+      "age": "20",
+      "keyAbility": "str",
+      "languages": [
+        "Common",
+        "Goblin"
+      ],
+      "abilities": {
+        "str": 19,
+        "dex": 16,
+        "con": 16,
+        "int": 10,
+        "wis": 12,
+        "cha": 12
+      },
+      "mods": {
+        "str": 4,
+        "dex": 3,
+        "con": 3,
+        "int": 0,
+        "wis": 1,
+        "cha": 1
+      },
+      "ac": 26,
+      "shieldBonus": null,
+      "hp": 105,
+      "speed": 20,
+      "perception": 14,
+      "perceptionRank": "master",
+      "saves": {
+        "fort": 14,
+        "ref": 14,
+        "will": 12
+      },
+      "saveRanks": {
+        "fort": "expert",
+        "ref": "expert",
+        "will": "expert"
+      },
+      "classDC": 23,
+      "skills": [
+        {
+          "name": "acrobatics",
+          "rank": "trained",
+          "bonus": 12
+        },
+        {
+          "name": "arcana",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "athletics",
+          "rank": "expert",
+          "bonus": 15
+        },
+        {
+          "name": "crafting",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "deception",
+          "rank": "expert",
+          "bonus": 12
+        },
+        {
+          "name": "diplomacy",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "intimidation",
+          "rank": "trained",
+          "bonus": 10
+        },
+        {
+          "name": "medicine",
+          "rank": "master",
+          "bonus": 15
+        },
+        {
+          "name": "nature",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "occultism",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "performance",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "religion",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "society",
+          "rank": "untrained",
+          "bonus": 0
+        },
+        {
+          "name": "stealth",
+          "rank": "untrained",
+          "bonus": 3
+        },
+        {
+          "name": "survival",
+          "rank": "untrained",
+          "bonus": 1
+        },
+        {
+          "name": "thievery",
+          "rank": "untrained",
+          "bonus": 3
+        }
+      ],
+      "lores": [
+        {
+          "name": "Warfare",
+          "rank": "trained",
+          "bonus": 9
+        }
+      ],
+      "feats": [
+        {
+          "name": "Shield Block",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Battle Medicine",
+          "choice": null,
+          "type": "Awarded Feat",
+          "level": 1
+        },
+        {
+          "name": "Unbreakable Goblin",
+          "choice": null,
+          "type": "Heritage",
+          "level": 1
+        },
+        {
+          "name": "Vicious Swing",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 1
+        },
+        {
+          "name": "Goblin Scuttle",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 1
+        },
+        {
+          "name": "Godless Healing",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 2
+        },
+        {
+          "name": "Sudden Charge",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 2
+        },
+        {
+          "name": "Medic Dedication",
+          "choice": null,
+          "type": "Archetype Feat",
+          "level": 2
+        },
+        {
+          "name": "Assurance",
+          "choice": "Medicine",
+          "type": "General Feat",
+          "level": 3
+        },
+        {
+          "name": "Mortal Healing",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 4
+        },
+        {
+          "name": "Exacting Strike",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 4
+        },
+        {
+          "name": "Doctor's Visitation",
+          "choice": null,
+          "type": "Archetype Feat",
+          "level": 4
+        },
+        {
+          "name": "Goblin Weapon Familiarity",
+          "choice": null,
+          "type": "Ancestry Feat",
+          "level": 5
+        },
+        {
+          "name": "Continual Recovery",
+          "choice": null,
+          "type": "Skill Feat",
+          "level": 6
+        },
+        {
+          "name": "Lunge",
+          "choice": null,
+          "type": "Class Feat",
+          "level": 6
+        },
+        {
+          "name": "Robust Health",
+          "choice": null,
+          "type": "General Feat",
+          "level": 7
+        }
+      ],
+      "specials": [
+        "Reactive Strike",
+        "Darkvision",
+        "Bravery",
+        "Sword",
+        "Battlefield Surveyor",
+        "Weapon Specialization",
+        "Unbreakable Goblin"
+      ],
+      "weapons": [
+        {
+          "name": "+1 Striking Greatsword",
+          "base": "Greatsword",
+          "proficiency": "martial",
+          "damage": "d12 S",
+          "striking": "striking",
+          "extraDamage": [],
+          "potency": 1,
+          "runes": []
+        }
+      ],
+      "armor": [
+        {
+          "name": "+1 Swallow-Spike Full Plate",
+          "base": "Full Plate",
+          "proficiency": "heavy",
+          "worn": true,
+          "potency": 1,
+          "resilient": null,
+          "runes": [
+            "Swallow-Spike"
+          ]
+        }
+      ],
+      "spellcasting": [],
+      "focusSpells": [],
+      "specificProficiencies": [
+        {
+          "name": "Greatsword",
+          "rank": "master"
+        }
+      ],
+      "resistances": [],
+      "formulas": [],
+      "familiars": [],
+      "pets": [],
+      "focusPoints": 0,
+      "money": {
+        "cp": 0,
+        "sp": 0,
+        "gp": 95,
+        "pp": 0
+      },
+      "equipment": [
+        {
+          "name": "Goberade",
+          "qty": 1
+        },
+        {
+          "name": "Goberade",
+          "qty": 1
+        },
+        {
+          "name": "amphetamine",
+          "qty": 1
+        },
+        {
+          "name": "healing aids",
+          "qty": 1
+        },
+        {
+          "name": "Healer's Gloves",
+          "qty": 1
+        },
+        {
+          "name": "amphetamine",
+          "qty": 1
+        },
+        {
+          "name": "Iron Cube",
+          "qty": 1
+        },
+        {
+          "name": "Juggernaut Mutagen (Moderate)",
+          "qty": 1
+        },
+        {
+          "name": "Healing Potion (Lesser)",
+          "qty": 4
+        },
+        {
+          "name": "Goberade",
+          "qty": 1
+        },
+        {
+          "name": "Healer's Toolkit (Expanded)",
+          "qty": 1
+        },
+        {
+          "name": "healing aids",
+          "qty": 1
+        },
+        {
+          "name": "healing aids",
+          "qty": 1
+        },
+        {
+          "name": "Belt of Good Health",
+          "qty": 1
+        },
+        {
+          "name": "amphetamine",
+          "qty": 1
+        },
+        {
+          "name": "healing aids",
+          "qty": 1
+        }
+      ],
+      "revision": 0
+    },
+    {
       "id": "priscilla-cybin",
       "group": "mists-of-zalazar",
       "name": "Priscilla Cybin",
