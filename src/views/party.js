@@ -422,19 +422,114 @@ function openSheet(id) {
   ].join('');
   characterSheet.insertBefore(quick, qs('.card', characterSheet));
 
+  const tabGroups = [
+    { id: 'overview', label: 'Overview', sections: ['Defences', 'Attributes'] },
+    { id: 'skills', label: 'Skills', sections: ['Skills'] },
+    { id: 'magic', label: 'Magic', sections: ['Spellcasting', 'Formula book'] },
+    { id: 'features', label: 'Features', sections: ['Class features', 'Notable'] },
+    { id: 'feats', label: 'Feats', sections: ['Feats'] },
+    { id: 'gear', label: 'Gear', sections: ['Gear in hand', 'Carried', 'Languages'] }
+  ];
+  const metadata = document.createElement('div');
+  metadata.className = 'character-meta';
+  while (quick.previousElementSibling && quick.previousElementSibling !== characterSheet.firstElementChild) {
+    metadata.prepend(quick.previousElementSibling);
+  }
+  if (metadata.childElementCount) characterSheet.insertBefore(metadata, quick);
+
   qsa('.card', characterSheet).forEach(card => {
     const heading = qs('h2', card);
     if (!heading) return;
     const title = heading.textContent;
     heading.remove();
     const section = document.createElement('details');
-    section.className = 'sheet-section';
-    section.open = title === 'Defences';
+    section.className = 'sheet-section character-section';
+    section.open = true;
+    section.dataset.section = title;
     const summary = document.createElement('summary');
     summary.textContent = title;
     card.before(section);
     section.append(summary, card);
   });
+
+  const sections = qsa('.character-section', characterSheet);
+  const tabs = document.createElement('div');
+  tabs.className = 'character-tabs';
+  tabs.setAttribute('role', 'tablist');
+  tabs.setAttribute('aria-label', 'Character sheet sections');
+  const content = document.createElement('div');
+  content.className = 'character-content';
+  const tail = document.createElement('div');
+  tail.className = 'character-tail';
+  const groupsWithContent = new Set();
+
+  for (const group of tabGroups) {
+    const panel = document.createElement('div');
+    panel.className = 'character-tab-panel';
+    panel.id = `character-panel-${group.id}`;
+    panel.setAttribute('role', 'tabpanel');
+    panel.setAttribute('aria-labelledby', `character-tab-${group.id}`);
+    panel.hidden = group.id !== 'overview';
+    for (const section of sections) {
+      if (!group.sections.includes(section.dataset.section)) continue;
+      section.querySelector('summary')?.remove();
+      panel.append(section);
+      groupsWithContent.add(group.id);
+    }
+    content.append(panel);
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'character-tab';
+    button.id = `character-tab-${group.id}`;
+    button.dataset.characterTab = group.id;
+    button.setAttribute('role', 'tab');
+    button.setAttribute('aria-controls', panel.id);
+    button.setAttribute('aria-selected', String(group.id === 'overview'));
+    button.tabIndex = group.id === 'overview' ? 0 : -1;
+    button.disabled = !groupsWithContent.has(group.id);
+    button.textContent = group.label;
+    tabs.append(button);
+  }
+
+  // Keep any future section that has not been assigned to a tab visible at the end
+  // instead of silently dropping it from the sheet.
+  sections.filter(section => !section.parentElement?.classList.contains('character-tab-panel'))
+    .forEach(section => { section.querySelector('summary')?.remove(); tail.append(section); });
+  for (const child of [...characterSheet.children]) {
+    if (child === characterSheet.firstElementChild || child === metadata || child === quick) continue;
+    tail.append(child);
+  }
+  if (tail.childElementCount) content.append(tail);
+  characterSheet.append(tabs, content);
+
+  const activateTab = (id, focus = false) => {
+    const selected = qs(`[data-character-tab="${id}"]`, tabs);
+    if (!selected) return;
+    qsa('[data-character-tab]', tabs).forEach(button => {
+      const active = button === selected;
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+    });
+    qsa('.character-tab-panel', content).forEach(panel => {
+      panel.hidden = panel.id !== selected.getAttribute('aria-controls');
+    });
+    if (focus) selected.focus({ preventScroll: true });
+  };
+  on(node, 'click', '[data-character-tab]', (e, el) => activateTab(el.dataset.characterTab));
+  node.addEventListener('keydown', e => {
+    const current = e.target.closest?.('[data-character-tab]');
+    if (!current || !tabs.contains(current)) return;
+    const buttons = qsa('[data-character-tab]', tabs).filter(button => !button.disabled);
+    const index = buttons.indexOf(current);
+    const next = e.key === 'ArrowRight' ? (index + 1) % buttons.length
+      : e.key === 'ArrowLeft' ? (index - 1 + buttons.length) % buttons.length
+        : e.key === 'Home' ? 0 : e.key === 'End' ? buttons.length - 1 : -1;
+    if (next < 0) return;
+    e.preventDefault();
+    activateTab(buttons[next].dataset.characterTab, true);
+  });
+
   on(node, 'click', '[data-remove]', () => close());
   on(node, 'click', '[data-codex]', (e, el) => openEntry(el.dataset.codex));
   on(node, 'click', '[data-pool]', (e, el) => openPool(el.dataset.pool));

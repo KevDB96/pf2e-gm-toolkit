@@ -358,18 +358,32 @@ button.share:active{background:var(--panel-2)}
 button.share .go{flex:0 0 auto;margin-left:8px;color:var(--accent);font-size:1rem}
 
 /* ---------- character sheets ---------- */
-/* A complete character sheet can be hundreds of rows long. The opening view keeps the
-   numbers a GM needs in initiative visible, while native disclosures put every category
-   one tap away without a second screen or nested modal. */
+/* A complete character sheet can be hundreds of rows long. Keep its section tabs and
+   combat numbers fixed while the selected section scrolls independently. A fixed grid
+   gives every tab the same position and width, so labels do not shift when content changes. */
+.modal .sheet.character-sheet{height:90vh;max-height:90vh;min-height:0;overflow:hidden}
+.character-sheet .character-meta{flex:0 0 auto;display:grid;gap:2px}
 .character-sheet .character-quick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:0;border:1px solid var(--accent-edge);border-radius:var(--radius);overflow:hidden;
+  flex:0 0 auto;gap:0;border:1px solid var(--accent-edge);border-radius:var(--radius);overflow:hidden;
   background:var(--accent-soft)}
 .character-sheet .character-quick .share{display:flex;flex-direction:column;justify-content:center;
   align-items:center;gap:2px;min-height:62px;padding:8px 4px;border:0;border-right:1px solid var(--accent-edge)}
 .character-sheet .character-quick .share:last-child{border-right:0}
 .character-sheet .character-quick .muted{font-size:0.63rem;text-transform:uppercase;letter-spacing:0.04em}
 .character-sheet .character-quick b{margin:0;font-size:1rem;text-align:center;white-space:nowrap}
+.character-tabs{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;
+  position:sticky;top:0;z-index:2;padding:4px 0;background:var(--bg-2)}
+.character-tab{min-width:0;min-height:44px;padding:4px 6px;border-radius:9px;font-size:0.72rem;
+  line-height:1.15;white-space:normal;background:var(--panel);color:var(--muted)}
+.character-tab[aria-selected="true"]{background:var(--accent-soft);border-color:var(--accent-edge);color:var(--accent);font-weight:700}
+.character-tab:disabled{opacity:0.42;cursor:default}
+.character-content{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:10px}
+.character-tab-panel{display:flex;flex-direction:column;gap:10px}
+.character-tab-panel[hidden]{display:none}
+.character-tail{display:grid;gap:10px}
 .sheet-section{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.character-section{flex:0 0 auto}
 .sheet-section > summary{display:flex;align-items:center;min-height:52px;padding:0 14px;cursor:pointer;
   list-style:none;font-family:'Cinzel',Georgia,serif;font-size:0.82rem;text-transform:uppercase;
   letter-spacing:0.02em;color:var(--ink)}
