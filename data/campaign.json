@@ -205,6 +205,20 @@
         "Three teams, three flags, one wilderness, one week.",
         "Zuni remains hidden until the party reaches the Pyramid. Moments before they arrive at the throne room, he assassinates King Zalazar the Thirty-First alone at the summit."
       ],
+      "race": {
+        "title": "Wargames — Race to Kir'gora",
+        "phase": "Phase 1",
+        "scope": "A permissive race of approximately two in-game weeks from the King's Throne at the Pyramid summit to Kir'gora. This happens before the secret cooking competition and later three-team skirmish; racers do not know those events are coming.",
+        "teams": ["Mists of Zalazar", "The Alliance", "The Royal Guard"],
+        "legs": [
+          { "name": "Pyramid Escape", "guidance": "Start at the very top near the King's Throne. The normal route uses the Pyramid's portal and transport infrastructure down to ground level. The Royal Guard immediately demonstrates that creative traversal is legal by using magic and mobility to leap from the kilometers-high Pyramid toward the first checkpoint at its foot. Accept any justified route: portal, internal transit, stairs, exterior structures, climbing, mitigated falls, or mobility magic." },
+          { "name": "Village Leg", "guidance": "A woefully unprepared civilian village sits just outside the Pyramid, and racers charge straight through. Keep the chaos comedic, never cruel: markets, carts, livestock, laundry, alleys, homes, and local traffic become obstacles. The King will overly compensate residents afterward for race-related damage. Helping people can cost time; shortcuts or forcing a path can gain it." },
+          { "name": "Dinosaur Plains", "guidance": "Flat tracks cross open plains where raw movement speed matters. The huge competitor stampede agitates roaming dinosaurs. Treat dinosaurs and stampedes primarily as moving race hazards, not stand-and-fight encounters. Racers can evade, redirect, calm, outrun, exploit, or get caught in the chaos." },
+          { "name": "Mountain Area", "guidance": "A major route choice: go around the mountain on a longer, safer route, or climb and jump over its substantial vertical terrain. Henza uses Earth Kinesis to burrow through the mountain, creating a third route. Other racers may notice, follow, or exploit the tunnel as circumstances allow." },
+          { "name": "Jungle Area", "guidance": "The longest wilderness-feeling stretch: dense foliage, navigation pressure, survival hazards, and jungle monsters. Encounters usually pressure racers to keep moving rather than stop for standard combat. Racers can cross paths, help each other, shadow others, or split routes." },
+          { "name": "Final Stretch", "guidance": "A final paved road into Kir'gora. No special trick or puzzle: remaining speed, mobility resources, fatigue, conditions, and current race position matter. Scattered racers converge so the finish plays as a visible race rather than an abstract final roll." }
+        ]
+      },
       "detail": {
         "Rules": [
           "Each team has 20 tags, split among its 6 members however they choose, plus 1 flag.",

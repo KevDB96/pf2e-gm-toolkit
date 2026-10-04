@@ -1010,6 +1010,45 @@
           "url": "https://www.youtube.com/watch?v=0ZS1sJHsBFQ"
         }
       ]
+    },
+    {
+      "key": "race",
+      "label": "Race",
+      "random": false,
+      "tracks": [
+        {
+          "label": "Race #1",
+          "url": "https://www.youtube.com/watch?v=o6AWxpUlkn8&list=RDo6AWxpUlkn8"
+        },
+        {
+          "label": "Race #2",
+          "url": "https://www.youtube.com/watch?v=8297dMX9isQ&list=RD8297dMX9isQ"
+        },
+        {
+          "label": "Race Start",
+          "url": "https://www.youtube.com/watch?v=HnRyik7au9E&list=RDHnRyik7au9E"
+        },
+        {
+          "label": "Village Leg",
+          "url": "https://www.youtube.com/watch?v=FV85V13bcog&list=RDFV85V13bcog"
+        },
+        {
+          "label": "Stampede",
+          "url": "https://www.youtube.com/watch?v=sOJixyIhAx8&list=RDsOJixyIhAx8"
+        },
+        {
+          "label": "Mountain Area",
+          "url": "https://www.youtube.com/watch?v=UeizZVg5T8c&list=RDUeizZVg5T8c"
+        },
+        {
+          "label": "Jungle Area",
+          "url": "https://www.youtube.com/watch?v=NzF_uHgycVo&list=RDNzF_uHgycVo"
+        },
+        {
+          "label": "Final Stretch",
+          "url": "https://www.youtube.com/watch?v=BC-SCz07SHQ&list=RDBC-SCz07SHQ"
+        }
+      ]
     }
   ]
 }

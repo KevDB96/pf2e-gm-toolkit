@@ -14,6 +14,7 @@ import { advanceExploration, formatElapsed } from '../exploration.js';
 const TABS = [
   { id: 'session', label: 'Session' },
   { id: 'arcs', label: 'Arcs' },
+  { id: 'race', label: 'Race' },
   { id: 'npcs', label: 'NPCs' },
   { id: 'reference', label: 'Reference' }
 ];
@@ -31,6 +32,7 @@ let npcQuery = '';
 let openArc = null;
 let completedOpen = false;
 let roster = [];
+let characterGroups = [];
 let explorationUndo = [];
 registerResetHook(() => { explorationUndo = []; });
 
@@ -49,6 +51,12 @@ export function mount(root) {
   });
   on(root, 'click', '[data-completed]', () => { completedOpen = !completedOpen; draw(root); });
   on(root, 'click', '[data-add-note]', () => editNote(null));
+  on(root, 'click', '[data-add-race-entry]', () => addRaceEntry(root));
+  on(root, 'click', '[data-delete-race-entry]', (e, el) => {
+    state.race.entries = state.race.entries.filter(entry => entry.id !== el.dataset.deleteRaceEntry);
+    save();
+    draw(root);
+  });
   on(root, 'click', '[data-edit-recap]', () => editRecap());
   on(root, 'click', '[data-edit-note]', (e, el) => editNote(el.dataset.editNote));
   on(root, 'click', '[data-del-note]', (e, el) => {
@@ -109,6 +117,7 @@ export function mount(root) {
   Promise.all([campaign(), loadCharacters()]).then(([c, file]) => {
     data = c;
     roster = [...(file?.characters || []), ...state.characters.extra];
+    characterGroups = file?.groups || [];
     if (!openArc) openArc = c?.current?.arc || null;
     draw(root);
   });
@@ -129,6 +138,7 @@ function draw(root) {
   panel.innerHTML =
     tab === 'session' ? session()
     : tab === 'arcs' ? arcs()
+    : tab === 'race' ? race()
     : tab === 'npcs' ? npcs()
     : reference();
 }
@@ -174,6 +184,64 @@ function session() {
         ? [...visibleNotes].reverse().map(noteRow).join('')
         : '<div class="empty">No notes yet.<br>Anything you add here stays on this device.</div>'
     }</div>`;
+}
+
+// --- wargames race --------------------------------------------------------
+
+function race() {
+  const arc = data.arcs?.find(item => item.id === 'wargame');
+  const plan = arc?.race;
+  if (!plan) return '<div class="empty">No Wargames race plan.</div>';
+  const groupNames = ['Mists of Zalazar', 'The Alliance', 'The Royal Guard'];
+  const groups = characterGroups.filter(group => groupNames.includes(group.label));
+  const suggestions = roster.map(character => `<option value="${esc(character.name)}">`).join('');
+  const entries = state.race.entries || [];
+  return `<div class="card">
+    <span class="badge now">${esc(plan.phase)}</span><h2>${esc(plan.title)}</h2>
+    <div class="muted">${esc(plan.scope)}</div>
+    <div class="sub" style="margin-top:8px">Teams: ${groups.map(group => esc(group.label)).join(' · ')}</div>
+  </div>
+  <div class="list">${(plan.legs || []).map((leg, index) => `<div class="card">
+    <h2>${index + 1}. ${esc(leg.name)}</h2><div class="muted">${esc(leg.guidance)}</div>
+  </div>`).join('')}</div>
+  <div class="card">
+    <h2>Race tracker</h2>
+    <div class="muted">Track each racer or small group independently. Splitting up, helping others, temporary pairings, and pushing ahead are all valid.</div>
+    <div class="exploration-form" style="margin-top:10px">
+      <select data-race-team aria-label="Team">${groups.map(group => `<option value="${esc(group.label)}">${esc(group.label)}</option>`).join('')}<option value="Other">Other</option></select>
+      <input data-race-racers list="race-roster" placeholder="Racer or small group" aria-label="Racer or small group">
+      <datalist id="race-roster">${suggestions}</datalist>
+      <select data-race-leg aria-label="Current leg">${(plan.legs || []).map((leg, i) => `<option value="${i}">${i + 1}. ${esc(leg.name)}</option>`).join('')}</select>
+      <input data-race-placement placeholder="Placement" aria-label="Placement">
+      <input data-race-route placeholder="Route choice" aria-label="Route choice">
+      <input data-race-delay placeholder="Delays / conditions" aria-label="Delays or conditions">
+      <input data-race-moments placeholder="Help / rivalry" aria-label="Help or rivalry moments">
+      <input data-race-notes placeholder="Notes" aria-label="Freeform notes">
+      <button type="button" data-add-race-entry>Add racer</button>
+    </div>
+    <div class="list" style="margin-top:12px">${entries.length ? entries.map(entry => `<div class="item" style="align-items:flex-start">
+      <div class="grow"><div class="name">${esc(entry.racers)} <span class="tag">${esc(entry.team)}</span></div>
+      <div class="sub">${esc((plan.legs || [])[entry.leg]?.name || 'Pyramid Escape')}${entry.placement ? ` · ${esc(entry.placement)}` : ''}${entry.route ? ` · ${esc(entry.route)}` : ''}</div>
+      ${[entry.delay, entry.moments, entry.notes].filter(Boolean).map(value => `<div class="sub">${esc(value)}</div>`).join('')}</div>
+      <button class="icon ghost danger" type="button" data-delete-race-entry="${esc(entry.id)}" aria-label="Remove ${esc(entry.racers)}">&#10005;</button>
+    </div>`).join('') : '<div class="empty">No racers recorded.</div>'}</div>
+  </div>`;
+}
+
+function addRaceEntry(root) {
+  const racers = qs('[data-race-racers]', root).value.trim();
+  if (!racers) return;
+  state.race.entries.push({
+    id: uid('race'), team: qs('[data-race-team]', root).value, racers,
+    leg: Number(qs('[data-race-leg]', root).value),
+    placement: qs('[data-race-placement]', root).value.trim(),
+    route: qs('[data-race-route]', root).value.trim(),
+    delay: qs('[data-race-delay]', root).value.trim(),
+    moments: qs('[data-race-moments]', root).value.trim(),
+    notes: qs('[data-race-notes]', root).value.trim()
+  });
+  save();
+  draw(root);
 }
 
 function recap() {

@@ -24,6 +24,7 @@ const DEFAULTS = {
   sound: { url: '', saved: [] },  // Last YouTube URL and named links on this device
   characters: { extra: [] },      // PCs pasted in on this device; the repo roster is
                                   // data/characters.json
+  race: { entries: [] },
   companion: { characters: [], assignments: {}, annotations: {} },
   downtime: { records: [] },
   exploration: { elapsedMinutes: 0, activities: {}, timers: [], events: [] },
@@ -92,6 +93,8 @@ function merge(base, saved) {
   out.sound = slice(base.sound, saved?.sound, ['saved']);
   out.sound.url = typeof out.sound.url === 'string' ? out.sound.url : '';
   out.characters = slice(base.characters, saved?.characters, ['extra']);
+  out.race = slice(base.race, saved?.race, ['entries']);
+  out.race.entries = out.race.entries.filter(entry => entry && typeof entry === 'object' && !Array.isArray(entry));
   out.companion = normalizeCompanionRosterState(saved?.companion);
   out.downtime = normalizeDowntime(saved?.downtime);
   out.exploration = normalizeExploration(saved?.exploration);
