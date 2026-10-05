@@ -28,7 +28,7 @@ const DEFAULTS = {
   companion: { characters: [], assignments: {}, annotations: {} },
   downtime: { records: [] },
   exploration: { elapsedMinutes: 0, activities: {}, timers: [], events: [] },
-  session: { phase: 'downtime', revision: 0, recap: normalizeSessionRecap() },
+  session: { phase: 'combat', revision: 0, recap: normalizeSessionRecap() },
   announcements: { items: [] },
   player: { entries: {} },
   ui: { group: { run: 'encounters', table: 'party' }, recent: [], pins: [] },
@@ -163,7 +163,7 @@ function publicFingerprint(value) {
 }
 
 function preparePublication() {
-  if (!isPublicPhase(state.session.phase)) state.session.phase = 'downtime';
+  if (!isPublicPhase(state.session.phase)) state.session.phase = 'combat';
   const fingerprint = publicFingerprint(state);
   if (fingerprint !== lastPublicFingerprint) publicationRevision += 1;
   state.session.revision = publicationRevision;

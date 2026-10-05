@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { phaseControlMarkup, phaseLabel, SESSION_PHASES } from '../src/session-phase.js';
 
 test('session phase control is an allowlisted, keyboard-native three-button control', () => {
-  assert.deepEqual(SESSION_PHASES, ['downtime', 'exploration', 'combat']);
+  assert.deepEqual(SESSION_PHASES, ['combat', 'exploration', 'downtime']);
   const markup = phaseControlMarkup('combat');
   assert.equal((markup.match(/data-session-phase=/g) || []).length, 3);
   assert.match(markup, /data-session-phase="combat"[^>]*aria-pressed="true"/);
@@ -11,9 +11,9 @@ test('session phase control is an allowlisted, keyboard-native three-button cont
   assert.doesNotMatch(markup, /rest|secret|gm/);
 });
 
-test('invalid phase values fail closed to downtime', () => {
+test('invalid phase values fall back to Combat', () => {
   assert.equal(phaseLabel('exploration'), 'Exploration');
-  assert.equal(phaseLabel('invalid'), 'Downtime');
+  assert.equal(phaseLabel('invalid'), 'Combat');
   const markup = phaseControlMarkup('invalid');
-  assert.match(markup, /data-session-phase="downtime"[^>]*aria-pressed="true"/);
+  assert.match(markup, /data-session-phase="combat"[^>]*aria-pressed="true"/);
 });

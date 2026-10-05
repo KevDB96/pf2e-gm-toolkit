@@ -36,7 +36,7 @@ export function isPublicPhase(value) {
 }
 
 function publicPhase(value) {
-  return isPublicPhase(value) ? value : PUBLIC_PHASES[0];
+  return isPublicPhase(value) ? value : 'combat';
 }
 
 function publicRevision(value) {

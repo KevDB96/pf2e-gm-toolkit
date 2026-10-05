@@ -1,6 +1,6 @@
 // Shared GM control for the public session phase.
 
-export const SESSION_PHASES = Object.freeze(['downtime', 'exploration', 'combat']);
+export const SESSION_PHASES = Object.freeze(['combat', 'exploration', 'downtime']);
 
 const LABELS = Object.freeze({
   downtime: 'Downtime',
@@ -9,7 +9,7 @@ const LABELS = Object.freeze({
 });
 
 export function phaseLabel(phase) {
-  return LABELS[phase] || LABELS.downtime;
+  return LABELS[phase] || LABELS.combat;
 }
 
 export function phaseControlMarkup(current) {

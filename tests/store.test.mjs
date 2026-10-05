@@ -108,7 +108,7 @@ test('GM session phases are allowlisted and revisions increase monotonically', a
   const storage = storageWith();
   const store = await freshStore(storage);
   const emptyRecap = { version: 1, status: 'empty', revision: 0, title: '', body: '' };
-  assert.deepEqual(store.state.session, { phase: 'downtime', revision: 0, recap: emptyRecap });
+  assert.deepEqual(store.state.session, { phase: 'combat', revision: 0, recap: emptyRecap });
 
   assert.equal(store.setSessionPhase('exploration'), true);
   assert.deepEqual(store.state.session, { phase: 'exploration', revision: 1, recap: emptyRecap });
@@ -121,4 +121,17 @@ test('GM session phases are allowlisted and revisions increase monotonically', a
   assert.equal(store.setSessionPhase('Combat'), false);
   assert.deepEqual(store.state.session, { phase: 'combat', revision: 2, recap: emptyRecap });
   assert.match(storage.data.get('pf2e-gm-toolkit/v1'), /"phase":"combat"/);
+});
+
+test('explicit session phases survive reload and campaign/header state changes', async () => {
+  for (const phase of ['exploration', 'downtime']) {
+    const storage = storageWith(JSON.stringify({ session: { phase } }));
+    const store = await freshStore(storage);
+    assert.equal(store.state.session.phase, phase);
+
+    store.state.party.level = 8;
+    store.save();
+    const reloaded = await freshStore(storage);
+    assert.equal(reloaded.state.session.phase, phase);
+  }
 });

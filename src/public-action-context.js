@@ -4,15 +4,15 @@
 import { SESSION_PHASES } from './session-phase.js';
 
 export const COMPANION_PUBLIC_ACTION_CONTEXTS = Object.freeze([
-  'downtime',
+  'combat',
   'exploration',
-  'combat'
+  'downtime'
 ]);
 
 export const PHASE_ACTION_CONTEXTS = Object.freeze({
-  downtime: 'downtime',
+  combat: 'combat',
   exploration: 'exploration',
-  combat: 'combat'
+  downtime: 'downtime'
 });
 
 export function actionContextForPhase(phase) {

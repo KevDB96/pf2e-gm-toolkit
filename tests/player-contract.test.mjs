@@ -27,7 +27,7 @@ test('legacy GM state maps deterministically to the versioned public contract', 
     revision: 0,
     campaign: { title: 'Mists' },
     session: {
-      phase: 'downtime', round: 4, currentTurnId: null,
+      phase: 'combat', round: 4, currentTurnId: null,
       encounter: { title: '', status: 'planned' },
       recap: { version: 1, status: 'empty', revision: 0, title: '', body: '' },
       characters: [], creatures: [], notes: [], events: [], announcements: [],
@@ -251,14 +251,14 @@ test('serialized projection contains no GM-private fields or internal ids', () =
 });
 
 test('only the three public session phases are accepted', () => {
-  assert.deepEqual(PUBLIC_PHASES, ['downtime', 'exploration', 'combat']);
+  assert.deepEqual(PUBLIC_PHASES, ['combat', 'exploration', 'downtime']);
   for (const phase of PUBLIC_PHASES) {
     assert.equal(isPublicPhase(phase), true);
     assert.equal(adaptPublicCampaignSession({ session: { phase } }).session.phase, phase);
   }
   for (const phase of ['rest', '', null, 4, 'Combat']) {
     assert.equal(isPublicPhase(phase), false);
-    assert.equal(adaptPublicCampaignSession({ session: { phase } }).session.phase, 'downtime');
+    assert.equal(adaptPublicCampaignSession({ session: { phase } }).session.phase, 'combat');
   }
 });
 

@@ -21,7 +21,7 @@ test('player projection is an allowlisted public snapshot', () => {
   assert.deepEqual(snapshot, {
     version: 2,
     revision: 0,
-    phase: 'downtime',
+    phase: 'combat',
     round: 3,
     currentTurnId: null,
     encounter: { title: '', status: 'planned' },
