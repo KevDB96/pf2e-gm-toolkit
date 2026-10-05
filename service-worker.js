@@ -8,7 +8,7 @@ const METADATA_FILE = 'cache-metadata.json';
 const METADATA_URL = new URL('./data/' + METADATA_FILE, self.location).href;
 
 const OFFLINE_URLS = [
-  './', './index.html', './styles.css', './manifest.json', './src/app.js', './src/store.js', './src/pfpc-control.js', './src/pfpc-control-ui.js', './src/campaign-map.js', './src/views/exploration-gm.js',
+  './', './index.html', './styles.css', './manifest.json', './src/app.js', './src/store.js', './src/pfpc-control.js', './src/pfpc-control-ui.js', './src/campaign-map.js', './src/views/exploration-gm.js', './src/views/downtime-gm.js', './src/downtime-history.js',
   './src/pf2e.js', './src/wake.js', './src/dom.js', './src/data.js', './src/offline.js', './src/pathbuilder.js',
   './src/facets.js', './src/records.js', './src/youtube.js', './src/search.js', './src/library-filter.js', './src/library-icons.js', './src/saved-encounters.js', './src/encounter-visibility.js', './src/creature-visibility.js', './src/pins.js',
   './src/combat-details.js', './src/backup.js', './src/combat-turn.js', './src/combat-history.js', './src/exploration.js', './src/gm-reference.js',

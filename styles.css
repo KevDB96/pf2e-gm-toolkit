@@ -692,6 +692,12 @@ h2 + .card-group{margin-top:4px}
 .gm-map-visibility { display:flex; flex-wrap:wrap; gap:10px 18px; }
 .gm-map-visibility input { min-width:auto; }
 .gm-map-revision, .gm-sync { color:var(--muted,#aaa); font-size:.86rem; margin:0; }
+.downtime-period, .downtime-actions { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.gm-downtime .gm-activity-control { display:grid; gap:10px; }
+.gm-downtime .gm-activity-control label { align-items:flex-start; flex-direction:column; }
+.gm-downtime input, .gm-downtime textarea { width:min(100%, 34rem); }
+.downtime-history { display:grid; gap:8px; }
+.downtime-archive pre { white-space:pre-wrap; font:inherit; padding:10px; margin:8px 0; }
 @media (max-width:600px) {
   .gm-exploration > header { align-items:flex-start; flex-direction:column; }
   .gm-exploration-character summary { align-items:flex-start; flex-direction:column; }
