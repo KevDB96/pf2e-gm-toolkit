@@ -21,7 +21,7 @@ test('Wargames race plan keeps the six canon legs in order and separates phase o
   for (const phrase of ['King\'s Throne', 'portal', 'comedic', 'overly compensate', 'stampede', 'Henza', 'Earth Kinesis', 'third route', 'visible race']) {
     assert.ok(canon.toLowerCase().includes(phrase.toLowerCase()), `missing ${phrase}`);
   }
-  assert.match(race.scope, /before the secret cooking competition/i);
+  assert.match(race.scope, /not revealed in advance/i);
   assert.doesNotMatch(canon, /ingredients|food gathering/i);
 });
 
