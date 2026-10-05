@@ -1,6 +1,6 @@
 // The shell rotates on each release. Reference data intentionally does not: a shell-only
 // deploy must not evict several megabytes the GM has already chosen to download.
-const SHELL_CACHE = 'pf2e-gm-shell-v91';
+const SHELL_CACHE = 'pf2e-gm-shell-v92';
 const REFERENCE_CACHE = 'pf2e-gm-reference-v1';
 const LEGACY_CACHES = ['pf2e-gm-v62'];
 const BASE = new URL('./', self.location).pathname;
@@ -8,7 +8,7 @@ const METADATA_FILE = 'cache-metadata.json';
 const METADATA_URL = new URL('./data/' + METADATA_FILE, self.location).href;
 
 const OFFLINE_URLS = [
-  './', './index.html', './styles.css', './manifest.json', './src/app.js', './src/store.js', './src/pfpc-control.js', './src/pfpc-control-ui.js',
+  './', './index.html', './styles.css', './manifest.json', './src/app.js', './src/store.js', './src/pfpc-control.js', './src/pfpc-control-ui.js', './src/campaign-map.js', './src/views/exploration-gm.js',
   './src/pf2e.js', './src/wake.js', './src/dom.js', './src/data.js', './src/offline.js', './src/pathbuilder.js',
   './src/facets.js', './src/records.js', './src/youtube.js', './src/search.js', './src/library-filter.js', './src/library-icons.js', './src/saved-encounters.js', './src/encounter-visibility.js', './src/creature-visibility.js', './src/pins.js',
   './src/combat-details.js', './src/backup.js', './src/combat-turn.js', './src/combat-history.js', './src/exploration.js', './src/gm-reference.js',
@@ -31,7 +31,7 @@ const OFFLINE_URLS = [
   './assets/icons/home/campaign-tile.png', './assets/icons/home/encounters-tile.png',
   './assets/icons/home/combat-tile.png', './assets/icons/home/party-tile.png',
   './assets/icons/home/library-tile.png', './assets/icons/home/loot-tile.png',
-  './assets/icons/home/bgm-tile.png'
+  './assets/icons/home/bgm-tile.png', './assets/maps/maguuma-jungle-hex-map.png', './assets/maps/nav-party.png', './assets/maps/flag-red.png', './assets/maps/flag-yellow.png', './assets/maps/flag-blue.png', './assets/maps/marker-enemy.svg'
   // The four launcher icons are deliberately not listed. Nothing in the app draws them —
   // the browser and the OS fetch them from the manifest when the app is installed — and
   // they are the heaviest files in the project, so precaching them charged every install

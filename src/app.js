@@ -14,6 +14,7 @@ import * as loot from './views/loot.js';
 import * as notes from './views/notes.js';
 import * as party from './views/party.js';
 import * as sound from './views/sound.js';
+import * as explorationGm from './views/exploration-gm.js';
 
 const VIEWS = {
   home:       { title: 'PF2e GM',    mod: home },
@@ -23,6 +24,7 @@ const VIEWS = {
   loot:       { title: 'Loot',       mod: loot },
   notes:      { title: 'Campaign',   mod: notes },
   party:      { title: 'Party',      mod: party },
+  exploration:{ title: 'Exploration',mod: explorationGm },
   sound:      { title: 'BGM',        mod: sound }
 };
 
@@ -30,7 +32,7 @@ const VIEWS = {
 // its members. `views` order is the order the sub-strip renders in.
 const GROUPS = {
   run:   { title: 'Run',   views: ['encounters', 'combat'] },
-  table: { title: 'Table', views: ['party', 'loot', 'notes'] }
+  table: { title: 'Table', views: ['party', 'loot', 'notes', 'exploration'] }
 };
 
 /** The group id holding a view, or null if the view has its own tab. */

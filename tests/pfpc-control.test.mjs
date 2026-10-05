@@ -139,6 +139,7 @@ test('workflow client serializes typed session, workflow, map and narrow conditi
   await f.client.setCondition('campaign/a', 4, 'hero', { id: 'frightened', name: 'Frightened', value: 2 });
   await f.client.removeCondition('campaign/a', 5, 'hero', 'frightened');
   await f.client.setExploration('campaign/a', 6, 'hero', 'scout');
+  await f.client.setExploration('campaign/a', 7, 'hero', null);
   await f.client.setDowntime('campaign/a', 7, 'hero', null);
   await f.client.advanceMonth('campaign/a', 3, 'advance-0001');
   await f.client.getCampaignMap('campaign/a');
@@ -149,9 +150,10 @@ test('workflow client serializes typed session, workflow, map and narrow conditi
   assert.deepEqual(JSON.parse(f.calls[3].options.body), { revision: 4, action: 'condition-set', characterId: 'hero', condition: { id: 'frightened', name: 'Frightened', value: 2 } });
   assert.deepEqual(JSON.parse(f.calls[4].options.body), { revision: 5, action: 'condition-remove', characterId: 'hero', conditionId: 'frightened' });
   assert.deepEqual(JSON.parse(f.calls[5].options.body), { revision: 6, action: 'exploration-set', characterId: 'hero', activityId: 'scout' });
-  assert.deepEqual(JSON.parse(f.calls[6].options.body), { revision: 7, action: 'downtime-set', characterId: 'hero', choice: null });
-  assert.deepEqual(JSON.parse(f.calls[7].options.body), { action: 'advance-month', expectedMonth: 3, operationId: 'advance-0001' });
-  assert.deepEqual(JSON.parse(f.calls[9].options.body), { revision: 8, map: { party: null, flags: {}, enemies: [] } });
+  assert.deepEqual(JSON.parse(f.calls[6].options.body), { revision: 7, action: 'exploration-set', characterId: 'hero', activityId: null });
+  assert.deepEqual(JSON.parse(f.calls[7].options.body), { revision: 7, action: 'downtime-set', characterId: 'hero', choice: null });
+  assert.deepEqual(JSON.parse(f.calls[8].options.body), { action: 'advance-month', expectedMonth: 3, operationId: 'advance-0001' });
+  assert.deepEqual(JSON.parse(f.calls[10].options.body), { revision: 8, map: { party: null, flags: {}, enemies: [] } });
 });
 
 test('workflow auth expiry and stale writes are explicit; read retry never starts PFPC', async () => {
