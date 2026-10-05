@@ -1,10 +1,13 @@
 {
   "_note": "HAND-AUTHORED campaign notes. This file is NOT generated and is never touched by tools/fetch-aon.mjs. Edit it directly, or edit session notes in the app (those live in localStorage, not here).",
   "title": "Mists of Zalazar",
-  "party": { "level": 7, "size": 5 },
+  "party": {
+    "level": 7,
+    "size": 6
+  },
   "current": {
     "arc": "wargame",
-    "note": "The Circus and return to the Pyramid are resolved. The party is now at the jungle training outpost for the week-long three-team Wargames."
+    "note": "Next session: short Amber Hall RP, six months of downtime RP, the party reconvenes at the Pyramid where Amber warns them to BE READY FOR ANYTHING, then King Zalazar abruptly launches the first Wargames event: a two-week race from the Pyramid to Kir'gora."
   },
   "arcs": [
     {
@@ -185,38 +188,130 @@
     },
     {
       "id": "pre-wargames",
-      "title": "Pre-Wargames — Return to the Pyramid",
-      "status": "done",
-      "summary": "The new player character delivers a missive after the Circus, bringing the party back to the Pyramid where the Eye of Zalazar is first mentioned.",
+      "title": "Pre-Wargames — Six Months of Downtime",
+      "status": "current",
+      "summary": "Six months after the Circus: character-focused downtime, deliberate contact with future Wargames rivals, then a reunion at the Pyramid immediately before the race.",
       "beats": [
-        "The new PC arrives only after the Circus and shrine have been resolved, carrying the missive that calls the party back to the Pyramid.",
-        "The return introduces the new character and gives the Circus aftermath room to land before the next threat is raised.",
-        "The Eye of Zalazar is mentioned here for the first time, not during the Circus.",
-        "The royal and military preparations lead directly into the week-long three-team Wargames."
-      ]
+        "Session order: 1) short Amber Hall RP, 2) six months of downtime RP, 3) everyone reconvenes at the Pyramid and Amber warns them to 'BE READY FOR ANYTHING', 4) the race begins abruptly.",
+        "By the time everyone returns to the Pyramid, the full party has seen every important Wargames adversary and collectively has useful information on all twelve NPCs. The Royal Guard and Alliance have likewise seen, heard about, or interacted with the party.",
+        "Keep relationship depth asymmetric: some NPCs are friends or rivals, some were only briefly met, and some were only observed."
+      ],
+      "detail": {
+        "Queek": [
+          "Spends five months spreading pro-ratfolk propaganda among the Zalazari; keeps month six free to see what the rest of the party does.",
+          "His rolls and time spent in each region create stronger or weaker anti-Zuni hotspots there for the later Reclamation arc.",
+          "Pyramid: meets Aegon. Also sees Jericho, Mithri and Poppy; Jericho has already heard plenty of the ratfolk pitch, while the others do not particularly care or understand why Queek is so invested.",
+          "Kilika: meets Kali. Sees Ti'shan and Zalazi without meeting Zalazi; sees Henza and To'reno, who do not initially look especially remarkable; has a brief conversation with Musta.",
+          "Bitania: meets Ba'vala.",
+          "Also sees Tandrun and may briefly meet him."
+        ],
+        "Femur": [
+          "Spends all six months in Kilika retraining most of his chosen feats.",
+          "Regularly meets Ti'shan and Zalazi. Ti'shan is less cocky, more mature and grounded; he is training Zalazi in melee combat while clearly going easy on her.",
+          "Zalazi is terrible at melee, extremely proud, the first daughter of the Zalazar lineage in over 30,000 years, and pleased she is not 'bound to the Pyramid like a dog'.",
+          "Meets Kali and spars with her once. Resolve the whole spar with a single roll; Kali has a +2 edge.",
+          "Notices To'reno training once or twice and learns that he is an absolute madlad with a bow.",
+          "Hears about Queek and Musta."
+        ],
+        "Vulpia": [
+          "Pilgrimage between Kilika and the Pyramid to learn about herself as both Kitsune and Sylph while practicing new Kinesis techniques.",
+          "Meets Henza and gets along with him extremely well.",
+          "Meets Mithri, who thinks Vulpia's tails are fluffy, thinks she is nice, and shares treats with her to become friends.",
+          "Briefly talks with Kali. She does not conveniently see the rest of the Wargames cast.",
+          "Research: Kitsune appear intermittently in old Zalazari history and seem unusually associated with planar travel; this points toward the Realms Beyond, an interplanetary transit demiplane threaded with portals that routes teleportation and planar travel to the correct destination.",
+          "Research: her Sylph heritage is an elemental Air inheritance layered onto her Kitsune lineage.",
+          "Training breakthrough: she learns to create Cold and real ice through Fire + Air Kinesis by using Air for moisture/pressure/shaping and Fire in reverse to remove heat. This is not Water Kinesis.",
+          "Do not reveal the full truth of Faunus, Aurae or the Feywild catastrophe yet."
+        ],
+        "Gummo": [
+          "Full-sends the Undermine for the entire downtime.",
+          "Founds a goblin-led anti-goblin political movement meant to atone for Gazlow's crimes: a deeply self-loathing movement built around goblins policing goblins harder than anyone else.",
+          "Meets Tandrun only, and Tandrun's only meaningful pre-Games PC connection is Gummo."
+        ],
+        "Rhea": [
+          "Spends roughly one or two months learning soapmaking, then sells homemade soap in markets around Zalazar, mostly in the Pyramid.",
+          "This is deliberately outside her usual Guardian skillset: she is spreading her wings.",
+          "Meets Poppy, Zalazi and Jericho.",
+          "Meets Mithri when Mithri mistakes Rhea's soap for candy.",
+          "Sees Aegon."
+        ],
+        "Priscilla": [
+          "Drifts between the Pyramid and Kilika, keeping up with what the other party members are doing.",
+          "Let her player personally choose which Wargames NPCs she approaches, questions or spends time with.",
+          "She receives the broadest social familiarity / RP benefit of the party rather than a pre-scripted fixed contact list."
+        ],
+        "Session checklist": [
+          "Amber Hall RP.",
+          "Downtime RP for all six PCs.",
+          "Reconcile at the Pyramid; Amber: 'BE READY FOR ANYTHING.'",
+          "Abrupt race start."
+        ]
+      }
     },
     {
       "id": "wargame",
-      "title": "The Wargame Arc — Wilderness Capture the Flag",
+      "title": "The Wargames Arc",
       "status": "current",
-      "summary": "A week-long three-team wargame at the jungle training outpost. The last calm before the Vanguard marches — and the moment Zuni has been waiting for.",
+      "summary": "A multi-stage national spectacle: a two-week race from the Pyramid to Kir'gora, a surprise five-day cooking competition in pairs, then qualification and team formation for the final three-team wilderness skirmish.",
       "beats": [
-        "Every important faction gathers at the jungle training outpost, ostensibly to coordinate against the undead threat from the west.",
-        "Three teams, three flags, one wilderness, one week.",
-        "Zuni remains hidden until the party reaches the Pyramid. Moments before they arrive at the throne room, he assassinates King Zalazar the Thirty-First alone at the summit."
+        "The Games begin at the top of the Pyramid near the King's Throne and are magically broadcast for all Zalazari trolls to behold.",
+        "Phase 1: approximately two weeks racing from the Pyramid to Kir'gora. Racers may split up, help one another, help rivals, or push ahead alone.",
+        "Royal Emissary Vol'tika secretly awards extra credit for heroism during the race. Competitors are not told this beforehand.",
+        "Phase 2 is revealed only after the race: teams of two have up to five days to hand a dish to the jury. Faster is better, more delicious and original is better; judge mainly by vibes, creativity and rolls rather than rigid scoring.",
+        "After Race + Cooking, the Top 9 contestants are guaranteed places in the final event. They must form three teams of six (18 total); the other nine slots may be filled by anyone.",
+        "Expected but not forced outcome: Party vs Royal Guard vs Alliance in the final skirmish."
       ],
       "race": {
         "title": "Wargames — Race to Kir'gora",
         "phase": "Phase 1",
-        "scope": "A permissive race of approximately two in-game weeks from the King's Throne at the Pyramid summit to Kir'gora. This happens before the secret cooking competition and later three-team skirmish; racers do not know those events are coming.",
-        "teams": ["Mists of Zalazar", "The Alliance", "The Royal Guard"],
+        "scope": "Approximately two in-game weeks from the King's Throne at the Pyramid summit to Kir'gora. Racers can split, cooperate, help rivals, or race solo. The later cooking contest and skirmish are not revealed in advance.",
+        "teams": [
+          "Mists of Zalazar",
+          "The Alliance",
+          "The Royal Guard"
+        ],
         "legs": [
-          { "name": "Pyramid Escape", "guidance": "Start at the very top near the King's Throne. The normal route uses the Pyramid's portal and transport infrastructure down to ground level. The Royal Guard immediately demonstrates that creative traversal is legal by using magic and mobility to leap from the kilometers-high Pyramid toward the first checkpoint at its foot. Accept any justified route: portal, internal transit, stairs, exterior structures, climbing, mitigated falls, or mobility magic." },
-          { "name": "Village Leg", "guidance": "A woefully unprepared civilian village sits just outside the Pyramid, and racers charge straight through. Keep the chaos comedic, never cruel: markets, carts, livestock, laundry, alleys, homes, and local traffic become obstacles. The King will overly compensate residents afterward for race-related damage. Helping people can cost time; shortcuts or forcing a path can gain it." },
-          { "name": "Dinosaur Plains", "guidance": "Flat tracks cross open plains where raw movement speed matters. The huge competitor stampede agitates roaming dinosaurs. Treat dinosaurs and stampedes primarily as moving race hazards, not stand-and-fight encounters. Racers can evade, redirect, calm, outrun, exploit, or get caught in the chaos." },
-          { "name": "Mountain Area", "guidance": "A major route choice: go around the mountain on a longer, safer route, or climb and jump over its substantial vertical terrain. Henza uses Earth Kinesis to burrow through the mountain, creating a third route. Other racers may notice, follow, or exploit the tunnel as circumstances allow." },
-          { "name": "Jungle Area", "guidance": "The longest wilderness-feeling stretch: dense foliage, navigation pressure, survival hazards, and jungle monsters. Encounters usually pressure racers to keep moving rather than stop for standard combat. Racers can cross paths, help each other, shadow others, or split routes." },
-          { "name": "Final Stretch", "guidance": "A final paved road into Kir'gora. No special trick or puzzle: remaining speed, mobility resources, fatigue, conditions, and current race position matter. Scattered racers converge so the finish plays as a visible race rather than an abstract final roll." }
+          {
+            "name": "Pyramid Escape",
+            "guidance": "Start at the very top near the King's Throne. The normal route uses the Pyramid's portal and transport infrastructure down to ground level. The Royal Guard immediately demonstrates that creative traversal is legal by using magic and mobility to leap from the kilometers-high Pyramid toward the first checkpoint at its foot. Accept any justified route: portal, internal transit, stairs, exterior structures, climbing, mitigated falls, or mobility magic."
+          },
+          {
+            "name": "Village Leg",
+            "guidance": "A woefully unprepared civilian village sits just outside the Pyramid, and racers charge straight through. Keep the chaos comedic, never cruel: markets, carts, livestock, laundry, alleys, homes, and local traffic become obstacles. The King will overly compensate residents afterward for race-related damage. Helping people can cost time; shortcuts or forcing a path can gain it."
+          },
+          {
+            "name": "Dinosaur Plains",
+            "guidance": "Flat tracks cross open plains where raw movement speed matters. The huge competitor stampede agitates roaming dinosaurs. Treat dinosaurs and stampedes primarily as moving race hazards, not stand-and-fight encounters. Racers can evade, redirect, calm, outrun, exploit, or get caught in the chaos."
+          },
+          {
+            "name": "Mountain Area",
+            "guidance": "A major route choice: go around the mountain on a longer, safer route, or climb and jump over its substantial vertical terrain. Henza uses Earth Kinesis to burrow through the mountain, creating a third route. Other racers may notice, follow, or exploit the tunnel as circumstances allow."
+          },
+          {
+            "name": "Jungle Area",
+            "guidance": "The longest wilderness-feeling stretch: dense foliage, navigation pressure, survival hazards, and jungle monsters. Encounters usually pressure racers to keep moving rather than stop for standard combat. Racers can cross paths, help each other, shadow others, or split routes."
+          },
+          {
+            "name": "Final Stretch",
+            "guidance": "A final paved road into Kir'gora. No special trick or puzzle: remaining speed, mobility resources, fatigue, conditions, and current race position matter. Scattered racers converge so the finish plays as a visible race rather than an abstract final roll."
+          }
+        ],
+        "checkpoints": [
+          "Checkpoint 1: bottom of the Pyramid.",
+          "Checkpoint 2: near the mountain to the west.",
+          "Checkpoint 3: at the jungle entrance.",
+          "Final checkpoint: the gates of Kir'gora."
+        ],
+        "opening": [
+          "King Zalazar: 'Thank you for coming. These Wargames will be broadcast magically for all trolls to behold.'",
+          "'The first part of the Games is a race. There are checkpoints for you to go through: the first is at the bottom of the Pyramid, the second is near the mountain to the west, the third as you enter the jungle, and the last is at the gates of Kir'gora.'",
+          "'The race starts now.'",
+          "Immediately demonstrate the tone by having the Royal Guard use magic/mobility to jump from the kilometers-high Pyramid rather than taking the normal portal route."
+        ],
+        "hiddenJudging": [
+          "Vol'tika, not the King, assesses the race.",
+          "Heroism secretly improves a racer's overall result: helping civilians, rescuing competitors, protecting others from stampedes or monsters, and similar acts.",
+          "Competitors do not know heroism is worth anything until after the race."
         ]
       },
       "detail": {
@@ -240,9 +335,9 @@
         "Alliance": [
           "Kali, Barbarian — 4 tags",
           "Mithri, Rogue — 5 tags",
-          "Aegen, Sorcerer — 3 tags",
+          "Aegon, Sorcerer — 3 tags",
           "Jericho, Commander — 2 tags",
-          "Thardrun, Runesmith — 3 tags",
+          "Tandrun, Runesmith — 3 tags",
           "Poppy, Bard — 3 tags",
           "The Alliance are newly arrived from another continent, friendly with the Zalazari trolls. Warm but competitive with the party — rivals, not enemies."
         ],
@@ -253,6 +348,37 @@
           "Alliance: tags spread fairly evenly, leaning slightly toward Mithri as their most mobile member.",
           "Alliance: 2 defence / 3 attack, but adaptive — likely the team most responsive to the actual state of play."
         ]
+      },
+      "cooking": {
+        "title": "Wargames — Surprise Cooking Competition",
+        "phase": "Phase 2",
+        "reveal": "Immediately after the race: 'Between now and five days from now, as a team of two, hand in a dish for the jury to eat. The faster the better, the more delicious the better.'",
+        "rules": [
+          "Contestants form teams of two however they like; 'chef + hunter' is obvious but not mandatory.",
+          "They have at most five days to submit one dish.",
+          "Submission speed matters, but so do taste, originality, ingredient quality, creativity and the actual rolls.",
+          "Judge on vibes rather than a rigid numerical score.",
+          "There are many additional background competitors beyond the Party, Royal Guard and Alliance; most are there to make the event feel large and do not have a realistic chance of winning.",
+          "The cooking competition is not foreshadowed during the race. Any useful ingredients gathered beforehand must have been collected naturally for some other reason."
+        ]
+      },
+      "qualification": {
+        "format": [
+          "Combine the Race and Cooking performance into an overall Top 9.",
+          "All Top 9 must participate in the final skirmish.",
+          "The contestants then form exactly three teams of six, for 18 total competitors.",
+          "The remaining nine slots may be filled by anyone.",
+          "How teams form is up to the contestants. Party vs Royal Guard vs Alliance is heavily expected but not mandated if the table chooses otherwise."
+        ],
+        "npcBackbone": [
+          "1. Kali",
+          "2. Ti'shan",
+          "3. Zalazi",
+          "4. Aegon",
+          "5. Mithri",
+          "6. Musta"
+        ],
+        "partyInsertion": "Insert the three best-performing PCs into the six-NPC placeholder ranking wherever their Race + hidden heroism + Cooking performance and rolls feel appropriate."
       }
     },
     {
@@ -382,63 +508,283 @@
     }
   ],
   "kings": [
-    { "n": 1, "title": "The Honored One, The Sun King, The Golden Lion", "note": "Exemplar. United the Zalazari trolls and led the near-total defeat of the Ogre overlords. An Exemplar like Femur — a detail that raises eyebrows." },
-    { "n": 2, "title": "The Radiant", "note": "Great mage. Sacrificed his eye. Became the Lich." },
-    { "n": 3, "title": "The Oracle", "note": "Creator of the Mists." },
-    { "n": 4, "title": "The Teacher", "note": "Rewrote all Zalazari history to conceal his forefather's descent into 'madness' — erasing the true purpose of the Eye and the true nature of the Lich." },
-    { "n": 5, "title": "The Laborer", "note": "Agriculture, construction." },
-    { "n": 6, "title": "The Warlord", "note": "Tactics, strategies, armory." },
-    { "n": 7, "title": "The Shaman", "note": "Elemental communication." },
-    { "n": 8, "title": "The Druid", "note": "Terraforming." },
-    { "n": 9, "title": "The Scientist", "note": "Through extremely cruel experiments." },
-    { "n": 10, "title": "The Democrat", "note": "Wanted a council to rule." },
-    { "n": 11, "title": "The Warden", "note": "Not of royal blood. Protector of animals and the weak. Ranger. (Vir'kala)" },
-    { "n": 12, "title": "The Crone", "note": "Not of royal blood. Occult magic. Witch. (Ba'vira)" },
-    { "n": 13, "title": "The Humble", "note": "Not of royal blood. Divine magic. Cleric. (Taz'riya)" },
-    { "n": 14, "title": "The Insane", "note": "Not of royal blood. Psychic. (Zun'hak) — THIS IS ZUNI. Nobody knows." },
-    { "n": 15, "title": "The Reconciler", "note": "Communal ideas." },
-    { "n": 16, "title": "The Commander", "note": "Created the Vanguard." },
-    { "n": 17, "title": "The Indomitable", "note": "Went to fight on the frontlines many times." },
-    { "n": 18, "title": "The Immortal", "note": "Alchemy." },
-    { "n": 19, "title": "The Runeseer", "note": "Runecarving." },
-    { "n": 20, "title": "The Strategist", "note": "" },
-    { "n": 21, "title": "The Overseer", "note": "" },
-    { "n": 22, "title": "The Unyielding", "note": "" },
-    { "n": 23, "title": "The Pious", "note": "Tried to introduce religion." },
-    { "n": 24, "title": "The Zealot", "note": "" },
-    { "n": 25, "title": "The General", "note": "" },
-    { "n": 26, "title": "The Warlock", "note": "" },
-    { "n": 27, "title": "The Paranoid", "note": "" },
-    { "n": 28, "title": "The Unifier", "note": "" },
-    { "n": 29, "title": "The Hopeful", "note": "" },
-    { "n": 30, "title": "The Vanguard", "note": "" },
-    { "n": 31, "title": "The Steadfast", "note": "Current king. Murdered by Zuni." },
-    { "n": null, "title": "The Lunatic", "note": "" }
+    {
+      "n": 1,
+      "title": "The Honored One, The Sun King, The Golden Lion",
+      "note": "Exemplar. United the Zalazari trolls and led the near-total defeat of the Ogre overlords. An Exemplar like Femur — a detail that raises eyebrows."
+    },
+    {
+      "n": 2,
+      "title": "The Radiant",
+      "note": "Great mage. Sacrificed his eye. Became the Lich."
+    },
+    {
+      "n": 3,
+      "title": "The Oracle",
+      "note": "Creator of the Mists."
+    },
+    {
+      "n": 4,
+      "title": "The Teacher",
+      "note": "Rewrote all Zalazari history to conceal his forefather's descent into 'madness' — erasing the true purpose of the Eye and the true nature of the Lich."
+    },
+    {
+      "n": 5,
+      "title": "The Laborer",
+      "note": "Agriculture, construction."
+    },
+    {
+      "n": 6,
+      "title": "The Warlord",
+      "note": "Tactics, strategies, armory."
+    },
+    {
+      "n": 7,
+      "title": "The Shaman",
+      "note": "Elemental communication."
+    },
+    {
+      "n": 8,
+      "title": "The Druid",
+      "note": "Terraforming."
+    },
+    {
+      "n": 9,
+      "title": "The Scientist",
+      "note": "Through extremely cruel experiments."
+    },
+    {
+      "n": 10,
+      "title": "The Democrat",
+      "note": "Wanted a council to rule."
+    },
+    {
+      "n": 11,
+      "title": "The Warden",
+      "note": "Not of royal blood. Protector of animals and the weak. Ranger. (Vir'kala)"
+    },
+    {
+      "n": 12,
+      "title": "The Crone",
+      "note": "Not of royal blood. Occult magic. Witch. (Ba'vira)"
+    },
+    {
+      "n": 13,
+      "title": "The Humble",
+      "note": "Not of royal blood. Divine magic. Cleric. (Taz'riya)"
+    },
+    {
+      "n": 14,
+      "title": "The Insane",
+      "note": "Not of royal blood. Psychic. (Zun'hak) — THIS IS ZUNI. Nobody knows."
+    },
+    {
+      "n": 15,
+      "title": "The Reconciler",
+      "note": "Communal ideas."
+    },
+    {
+      "n": 16,
+      "title": "The Commander",
+      "note": "Created the Vanguard."
+    },
+    {
+      "n": 17,
+      "title": "The Indomitable",
+      "note": "Went to fight on the frontlines many times."
+    },
+    {
+      "n": 18,
+      "title": "The Immortal",
+      "note": "Alchemy."
+    },
+    {
+      "n": 19,
+      "title": "The Runeseer",
+      "note": "Runecarving."
+    },
+    {
+      "n": 20,
+      "title": "The Strategist",
+      "note": ""
+    },
+    {
+      "n": 21,
+      "title": "The Overseer",
+      "note": ""
+    },
+    {
+      "n": 22,
+      "title": "The Unyielding",
+      "note": ""
+    },
+    {
+      "n": 23,
+      "title": "The Pious",
+      "note": "Tried to introduce religion."
+    },
+    {
+      "n": 24,
+      "title": "The Zealot",
+      "note": ""
+    },
+    {
+      "n": 25,
+      "title": "The General",
+      "note": ""
+    },
+    {
+      "n": 26,
+      "title": "The Warlock",
+      "note": ""
+    },
+    {
+      "n": 27,
+      "title": "The Paranoid",
+      "note": ""
+    },
+    {
+      "n": 28,
+      "title": "The Unifier",
+      "note": ""
+    },
+    {
+      "n": 29,
+      "title": "The Hopeful",
+      "note": ""
+    },
+    {
+      "n": 30,
+      "title": "The Vanguard",
+      "note": ""
+    },
+    {
+      "n": 31,
+      "title": "The Steadfast",
+      "note": "Current king. Murdered by Zuni."
+    },
+    {
+      "n": null,
+      "title": "The Lunatic",
+      "note": ""
+    }
   ],
   "npcs": [
-    { "name": "Ti'vola", "group": "Trolls", "role": "Royal Emissary, diplomat, messenger" },
-    { "name": "Mu'zala", "group": "Trolls", "role": "General of the Zalazari army. Old, stoic, loyal." },
-    { "name": "Ti'shan", "group": "Trolls", "role": "Prodigal warrior from Kilika. Once hotheaded and arrogant; six months of humbling travel later he is calm, grounded and genuinely heroic. Will sacrifice everything for the party before this is over." },
-    { "name": "Vol'tika", "group": "Trolls", "role": "Representative for Kilika, sister to Ti'vola. (32 Diplomacy)" },
-    { "name": "Ma'rimo", "group": "Trolls", "role": "Archdruid of Kilika, protector of the forest" },
-    { "name": "Ti'kala", "group": "Trolls", "role": "Sister to Ti'shan" },
-    { "name": "Ba'vira", "group": "Trolls", "role": "The Swamp Hag. Also known as Zalazar the Twelfth, 'The Crone.'" },
-    { "name": "Wen'kaji", "group": "Trolls", "role": "Merchant guild" },
-    { "name": "Amber Hall", "group": "Trolls", "role": "Vanguard Commander. Mother of the Alliance's Commander. Rose to the top of the Zalazari military through exceptional ability, navigating a deeply patriarchal system her whole career. Reaches Level 15 by the Vanguard arc. Will die protecting the crown princess." },
-    { "name": "Jericho Hall", "group": "Trolls", "role": "Son of Amber Hall. Vanguard Commander at Forward Camp Amberhall." },
-    { "name": "Lo'paal", "group": "Trolls", "role": "High-ranking administration officer, de facto leader of the Unmasked — manipulated by Zuni, who supplies the masks." },
-    { "name": "Minor trolls", "group": "Trolls", "role": "Ku'dana, Po'goro, Ki'kara, Di'tola, Vol'tola, Ku'taal, He'doro, Ni'kala, Gabrodi, Da'toga, To'rara — general store owner, emissaries, foremen, fishers and so on." },
-    { "name": "Lukas Brightheart", "group": "Alliance", "role": "Skilled craftsman escorted from Port Suna. Survives the Vanguard March." },
-    { "name": "Mabra Cypherbloom", "group": "Alliance", "role": "Met at Woodfall alongside Forward Commander Hall." },
-    { "name": "Captain Morgan", "group": "Alliance", "role": "Alliance general the party once stopped from conquering Zalazar. Goes rogue and joins Zuni with his corrupted fleet." },
-    { "name": "Jared", "group": "Alliance", "role": "Marches with the Vanguard. Dies." },
-    { "name": "Gazlow", "group": "Undermine", "role": "Big Boss of the Undermine. Took the Anvil Fortress as his castle; built the mech powered by the Eye." },
-    { "name": "Queek", "group": "Undermine", "role": "Has struck a bargain with Amber Hall to protect the ratfolk." },
-    { "name": "Musta the Russari", "group": "Other", "role": "From the beach resort. Provides his compass to the Mist-cast Morass." },
-    { "name": "Faunus", "group": "Feywild", "role": "Vulpia's father. Merged with the creature he made trying to bring back his wife and daughter; contained by the Feywild's inhabitants." },
-    { "name": "Aurae", "group": "Feywild", "role": "Vulpia's mother. Died in the catastrophic incident where they also lost their daughter." },
-    { "name": "Dimari-diji", "group": "Feywild", "role": "Locked Faunus up to stop the chaotic rift energies leaking further." },
-    { "name": "The Rat King", "group": "Feywild", "role": "A Glimmerling who never came back." }
+    {
+      "name": "Ti'vola",
+      "group": "Trolls",
+      "role": "Royal Emissary, diplomat, messenger"
+    },
+    {
+      "name": "Mu'zala",
+      "group": "Trolls",
+      "role": "General of the Zalazari army. Old, stoic, loyal."
+    },
+    {
+      "name": "Ti'shan",
+      "group": "Trolls",
+      "role": "Prodigal warrior from Kilika. Once hotheaded and arrogant; six months of humbling travel later he is calm, grounded and genuinely heroic. Will sacrifice everything for the party before this is over."
+    },
+    {
+      "name": "Vol'tika",
+      "group": "Trolls",
+      "role": "Representative for Kilika, sister to Ti'vola. (32 Diplomacy)"
+    },
+    {
+      "name": "Ma'rimo",
+      "group": "Trolls",
+      "role": "Archdruid of Kilika, protector of the forest"
+    },
+    {
+      "name": "Ti'kala",
+      "group": "Trolls",
+      "role": "Sister to Ti'shan"
+    },
+    {
+      "name": "Ba'vira",
+      "group": "Trolls",
+      "role": "The Swamp Hag. Also known as Zalazar the Twelfth, 'The Crone.'"
+    },
+    {
+      "name": "Wen'kaji",
+      "group": "Trolls",
+      "role": "Merchant guild"
+    },
+    {
+      "name": "Amber Hall",
+      "group": "Trolls",
+      "role": "Vanguard Commander. Mother of the Alliance's Commander. Rose to the top of the Zalazari military through exceptional ability, navigating a deeply patriarchal system her whole career. Reaches Level 15 by the Vanguard arc. Will die protecting the crown princess."
+    },
+    {
+      "name": "Jericho Hall",
+      "group": "Trolls",
+      "role": "Son of Amber Hall. Vanguard Commander at Forward Camp Amberhall."
+    },
+    {
+      "name": "Lo'paal",
+      "group": "Trolls",
+      "role": "High-ranking administration officer, de facto leader of the Unmasked — manipulated by Zuni, who supplies the masks."
+    },
+    {
+      "name": "Minor trolls",
+      "group": "Trolls",
+      "role": "Ku'dana, Po'goro, Ki'kara, Di'tola, Vol'tola, Ku'taal, He'doro, Ni'kala, Gabrodi, Da'toga, To'rara — general store owner, emissaries, foremen, fishers and so on."
+    },
+    {
+      "name": "Lukas Brightheart",
+      "group": "Alliance",
+      "role": "Skilled craftsman escorted from Port Suna. Survives the Vanguard March."
+    },
+    {
+      "name": "Mabra Cypherbloom",
+      "group": "Alliance",
+      "role": "Met at Woodfall alongside Forward Commander Hall."
+    },
+    {
+      "name": "Captain Morgan",
+      "group": "Alliance",
+      "role": "Alliance general the party once stopped from conquering Zalazar. Goes rogue and joins Zuni with his corrupted fleet."
+    },
+    {
+      "name": "Jared",
+      "group": "Alliance",
+      "role": "Marches with the Vanguard. Dies."
+    },
+    {
+      "name": "Gazlow",
+      "group": "Undermine",
+      "role": "Big Boss of the Undermine. Took the Anvil Fortress as his castle; built the mech powered by the Eye."
+    },
+    {
+      "name": "Queek",
+      "group": "Undermine",
+      "role": "Has struck a bargain with Amber Hall to protect the ratfolk."
+    },
+    {
+      "name": "Musta the Russari",
+      "group": "Other",
+      "role": "From the beach resort. Provides his compass to the Mist-cast Morass."
+    },
+    {
+      "name": "Faunus",
+      "group": "Feywild",
+      "role": "Vulpia's father. Merged with the creature he made trying to bring back his wife and daughter; contained by the Feywild's inhabitants."
+    },
+    {
+      "name": "Aurae",
+      "group": "Feywild",
+      "role": "Vulpia's mother. Died in the catastrophic incident where they also lost their daughter."
+    },
+    {
+      "name": "Dimari-diji",
+      "group": "Feywild",
+      "role": "Locked Faunus up to stop the chaotic rift energies leaking further."
+    },
+    {
+      "name": "The Rat King",
+      "group": "Feywild",
+      "role": "A Glimmerling who never came back."
+    }
   ],
   "ideas": [
     "Femur's tribe was created by the corruption of the Bloodless One. The gift he received from Sarenrae, Goddess of Light and Healing, is what saved him from being as corrupted as his clansmen.",
@@ -450,23 +796,74 @@
   "lootTable": {
     "level": 6,
     "items": [
-      { "name": "Chime of Opening", "gp": 235 },
-      { "name": "Skeptic's Elixir (Moderate)", "gp": 50 },
-      { "name": "Everair Mask (Moderate)", "gp": 35 },
-      { "name": "Liquid Gold", "gp": 40 },
-      { "name": "Giant Scorpion Venom", "gp": 40 },
-      { "name": "Peachwood Talisman", "gp": 40 },
-      { "name": "Creeping Death", "gp": 45 },
-      { "name": "Binding Coil", "gp": 50 },
-      { "name": "Oil of Swiftness", "gp": 50 },
-      { "name": "Iron Cube", "gp": 50 },
-      { "name": "Potion of Retaliation (Moderate)", "gp": 50 },
-      { "name": "Swallow-Spike", "gp": 200 },
-      { "name": "Ring of the Ram", "gp": 220 },
-      { "name": "Dread (Lesser)", "gp": 225 },
-      { "name": "Hauling", "gp": 225 },
-      { "name": "Aim-Aiding", "gp": 225 },
-      { "name": "Shifting", "gp": 225 }
+      {
+        "name": "Chime of Opening",
+        "gp": 235
+      },
+      {
+        "name": "Skeptic's Elixir (Moderate)",
+        "gp": 50
+      },
+      {
+        "name": "Everair Mask (Moderate)",
+        "gp": 35
+      },
+      {
+        "name": "Liquid Gold",
+        "gp": 40
+      },
+      {
+        "name": "Giant Scorpion Venom",
+        "gp": 40
+      },
+      {
+        "name": "Peachwood Talisman",
+        "gp": 40
+      },
+      {
+        "name": "Creeping Death",
+        "gp": 45
+      },
+      {
+        "name": "Binding Coil",
+        "gp": 50
+      },
+      {
+        "name": "Oil of Swiftness",
+        "gp": 50
+      },
+      {
+        "name": "Iron Cube",
+        "gp": 50
+      },
+      {
+        "name": "Potion of Retaliation (Moderate)",
+        "gp": 50
+      },
+      {
+        "name": "Swallow-Spike",
+        "gp": 200
+      },
+      {
+        "name": "Ring of the Ram",
+        "gp": 220
+      },
+      {
+        "name": "Dread (Lesser)",
+        "gp": 225
+      },
+      {
+        "name": "Hauling",
+        "gp": 225
+      },
+      {
+        "name": "Aim-Aiding",
+        "gp": 225
+      },
+      {
+        "name": "Shifting",
+        "gp": 225
+      }
     ]
   }
 }
