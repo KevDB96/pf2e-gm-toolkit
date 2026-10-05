@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildDowntimeArchive, downtimeArchiveKey, downtimeOperationId, upsertDowntimeArchive, advanceDowntimeMonth, buildDowntimeChoice } from '../src/downtime-history.js';
 import { downtimeMarkup } from '../src/views/downtime-gm.js';
+import { normalizeState } from '../src/store.js';
 
 const characters = [{ id: 'hero-1', name: 'Kesta' }, { id: 'hero-2', name: 'Orin' }];
 const workflow = { revision: 5, month: 7, characters: [
@@ -35,6 +36,8 @@ test('archive keeps readable month, timestamp, character activities and notes wi
   assert.equal(first.entries.length, 2);
   assert.equal(retry.entries.length, 2);
   assert.equal(retry.entries[1].archive.key, archive.archive.key);
+  const reloaded = normalizeState(JSON.parse(JSON.stringify({ notes: retry })));
+  assert.deepEqual(reloaded.notes.entries.find(note => note.archive?.key === archive.archive.key), archive);
 });
 
 test('dashboard shows current period, populated and missing selections, editable custom text and notes', () => {
