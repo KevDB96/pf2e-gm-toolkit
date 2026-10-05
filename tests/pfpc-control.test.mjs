@@ -130,6 +130,48 @@ test('status retries are GET-only and never invoke Start or Stop', async () => {
   assert.ok(f.calls.every(call => call.url.endsWith('/companion/status') && Object.keys(call.options).length === 0));
 });
 
+test('workflow client serializes typed session, workflow, map and narrow condition mutations', async () => {
+  const f = fixture(async () => response(200, { workflow: { revision: 4 } }));
+  f.client.configureBaseUrl('https://pfpc.example'); authenticate(f);
+  await f.client.getSessionState('campaign/a');
+  await f.client.setSessionState('campaign/a', 2, { phase: 'combat' });
+  await f.client.getWorkflow('campaign/a');
+  await f.client.setCondition('campaign/a', 4, 'hero', { id: 'frightened', name: 'Frightened', value: 2 });
+  await f.client.removeCondition('campaign/a', 5, 'hero', 'frightened');
+  await f.client.setExploration('campaign/a', 6, 'hero', 'scout');
+  await f.client.setDowntime('campaign/a', 7, 'hero', null);
+  await f.client.advanceMonth('campaign/a', 3, 'advance-0001');
+  await f.client.getCampaignMap('campaign/a');
+  await f.client.setCampaignMap('campaign/a', 8, { party: null, flags: {}, enemies: [] });
+  assert.equal(f.calls[0].url, 'https://pfpc.example/gm/campaigns/campaign%2Fa/session-state');
+  assert.equal(f.calls[0].options.headers.Authorization, 'Bearer session-secret');
+  assert.deepEqual(JSON.parse(f.calls[1].options.body), { revision: 2, state: { phase: 'combat' } });
+  assert.deepEqual(JSON.parse(f.calls[3].options.body), { revision: 4, action: 'condition-set', characterId: 'hero', condition: { id: 'frightened', name: 'Frightened', value: 2 } });
+  assert.deepEqual(JSON.parse(f.calls[4].options.body), { revision: 5, action: 'condition-remove', characterId: 'hero', conditionId: 'frightened' });
+  assert.deepEqual(JSON.parse(f.calls[5].options.body), { revision: 6, action: 'exploration-set', characterId: 'hero', activityId: 'scout' });
+  assert.deepEqual(JSON.parse(f.calls[6].options.body), { revision: 7, action: 'downtime-set', characterId: 'hero', choice: null });
+  assert.deepEqual(JSON.parse(f.calls[7].options.body), { action: 'advance-month', expectedMonth: 3, operationId: 'advance-0001' });
+  assert.deepEqual(JSON.parse(f.calls[9].options.body), { revision: 8, map: { party: null, flags: {}, enemies: [] } });
+});
+
+test('workflow auth expiry and stale writes are explicit; read retry never starts PFPC', async () => {
+  const expired = fixture(async () => response(401, {}));
+  expired.client.configureBaseUrl('https://pfpc.example'); authenticate(expired);
+  assert.deepEqual(await expired.client.getWorkflow('campaign'), { state: 'auth-required' });
+  assert.equal(expired.sessionStore.values.size, 0);
+
+  const conflict = fixture(async () => response(409, { code: 'revision_conflict', details: { currentRevision: 12 } }));
+  conflict.client.configureBaseUrl('https://pfpc.example'); authenticate(conflict);
+  assert.deepEqual(await conflict.client.setCondition('campaign', 4, 'hero', { id: 'frightened', name: 'Frightened' }), { state: 'conflict', currentRevision: 12, current: null });
+
+  const retry = fixture(async () => { throw new Error('offline'); });
+  retry.client.configureBaseUrl('https://pfpc.example'); authenticate(retry);
+  assert.deepEqual(await retry.client.getWorkflow('campaign', { retries: 2 }), { state: 'unreachable' });
+  assert.equal(retry.calls.length, 3);
+  assert.ok(retry.calls.every(call => call.url.endsWith('/workflow') && call.options.method === 'GET'));
+  assert.equal(retry.calls.some(call => call.url.endsWith('/start')), false);
+});
+
 test('module import and app lifecycle have no path to a control write', async () => {
   const f = fixture(async () => response(200, { state: 'offline' }));
   f.client.configureBaseUrl('https://pfpc.example');

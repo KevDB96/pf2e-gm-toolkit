@@ -3,6 +3,10 @@
 export const PFPC_BASE_URL_KEY = 'pf2e-gm-toolkit/pfpc-base-url';
 const TOKEN_KEY = 'pf2e-gm-toolkit/pfpc-session-token';
 
+/** @typedef {{revision:number,state:{phase:string,storyEra?:string,storyReveal?:string,encounter?:object,exploration?:object}}} PfpcSessionState */
+/** @typedef {{revision:number,month:number,characters:readonly {characterId:string,conditions:readonly {id:string,name:string,value?:number}[],exploration:{activityId:string,activityName:string}|null,downtime:{activityId:string,activityName:string,notes?:string}|null}[],advances?:readonly object[]}} PfpcWorkflow */
+/** @typedef {{revision:number,map:{party:string|null,flags:object,enemies:readonly object[],factions?:readonly object[]}}} PfpcCampaignMap */
+
 export function normalizePfpcBaseUrl(value, { production = globalThis.location?.protocol !== 'http:' && globalThis.location?.protocol !== 'file:' } = {}) {
   if (typeof value !== 'string' || !value.trim()) throw new TypeError('PFPC base URL is required');
   let url;
@@ -62,6 +66,10 @@ export function createPfpcClient({ fetchImpl = globalThis.fetch, localStore = gl
     if (response.state === 'unreachable' || response.state === 'unconfigured') return response;
     if (response.status === 401) { clearSession(); return { state: 'auth-required' }; }
     if (response.status === 403) return { state: 'admin-required' };
+    if (response.status === 409) {
+      const data = await json(response);
+      return { state: 'conflict', currentRevision: Number.isInteger(data?.details?.currentRevision) ? data.details.currentRevision : null, current: data?.details?.current ?? null };
+    }
     return { state: 'unreachable' };
   }
 
@@ -115,6 +123,40 @@ export function createPfpcClient({ fetchImpl = globalThis.fetch, localStore = gl
     catch { return { state: 'unreachable' }; }
   }
 
+  async function api(path, method = 'GET', body, { retries = 0 } = {}) {
+    if (!baseUrl()) return unavailable();
+    const accessToken = token();
+    if (!accessToken) return { state: 'auth-required' };
+    const attempts = method === 'GET' && Number.isInteger(retries) ? Math.max(0, Math.min(3, retries)) + 1 : 1;
+    let last;
+    for (let index = 0; index < attempts; index += 1) {
+      const options = { method, headers: { Authorization: `Bearer ${accessToken}` } };
+      if (body !== undefined) {
+        options.headers['Content-Type'] = 'application/json';
+        options.body = JSON.stringify(body);
+      }
+      const response = await request(path, options);
+      if (response.state) { last = response; continue; }
+      if (!response.ok) return mappedError(response);
+      try { return { state: 'ok', data: await response.json() }; }
+      catch { return { state: 'unreachable' }; }
+    }
+    return last || { state: 'unreachable' };
+  }
+  const campaignPath = (campaignId, resource) => `/gm/campaigns/${encodeURIComponent(campaignId)}/${resource}`;
+  async function getSessionState(campaignId, options) { return api(campaignPath(campaignId, 'session-state'), 'GET', undefined, options); }
+  async function setSessionState(campaignId, revision, state) { return api(campaignPath(campaignId, 'session-state'), 'PUT', { revision, state }); }
+  async function getWorkflow(campaignId, options) { return api(campaignPath(campaignId, 'workflow'), 'GET', undefined, options); }
+  async function mutateWorkflow(campaignId, mutation) { return api(campaignPath(campaignId, 'workflow'), 'POST', mutation); }
+  async function getCampaignMap(campaignId, options) { return api(campaignPath(campaignId, 'map'), 'GET', undefined, options); }
+  async function setCampaignMap(campaignId, revision, map) { return api(campaignPath(campaignId, 'map'), 'PUT', { revision, map }); }
+
   return Object.freeze({ configureBaseUrl, getBaseUrl: baseUrl, clearSession, getStatus, login,
+    getSessionState, setSessionState, getWorkflow, mutateWorkflow, getCampaignMap, setCampaignMap,
+    setCondition: (campaignId, revision, characterId, condition) => mutateWorkflow(campaignId, { revision, action: 'condition-set', characterId, condition }),
+    removeCondition: (campaignId, revision, characterId, conditionId) => mutateWorkflow(campaignId, { revision, action: 'condition-remove', characterId, conditionId }),
+    setExploration: (campaignId, revision, characterId, activityId) => mutateWorkflow(campaignId, { revision, action: 'exploration-set', characterId, activityId }),
+    setDowntime: (campaignId, revision, characterId, choice) => mutateWorkflow(campaignId, { revision, action: 'downtime-set', characterId, choice }),
+    advanceMonth: (campaignId, expectedMonth, operationId) => mutateWorkflow(campaignId, { action: 'advance-month', expectedMonth, operationId }),
     start: () => write('/admin/companion/start'), stop: () => write('/admin/companion/stop') });
 }
