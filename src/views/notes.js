@@ -9,6 +9,7 @@ import { state, save, uid } from '../store.js';
 import { esc, on, sheet, qs, qsa } from '../dom.js';
 import { campaign, characters as loadCharacters } from '../data.js';
 import { addPin, hasPin, removePin } from '../pins.js';
+import { bindExploration } from './exploration-gm.js';
 
 const TABS = [
   { id: 'session', label: 'Session' },
@@ -35,7 +36,8 @@ let characterGroups = [];
 let workspace = 'general';
 
 export function mount(root) {
-  workspace = location.hash.match(/^#\/?notes\/(general|exploration|downtime)$/)?.[1] || 'general';
+  workspace = location.hash.match(/^#\/?notes\/(general|exploration|downtime)$/)?.[1]
+    || (location.hash.replace(/^#\/?/, '').split('/')[0] === 'exploration' ? 'exploration' : 'general');
   root.innerHTML = `
     <div class="picker" aria-label="Notes workspace">${[['general','General Notes'],['exploration','Exploration'],['downtime','Downtime']].map(([id,label]) => `<button class="pick" data-notes-workspace="${id}" role="tab" aria-selected="${workspace === id}">${label}</button>`).join('')}</div>
     <div class="picker" id="tabs">${TABS
@@ -96,7 +98,11 @@ export function mount(root) {
 }
 
 export function update(root) {
-  if (qs('#panel', root)) { workspace = location.hash.match(/^#\/?notes\/(general|exploration|downtime)$/)?.[1] || 'general'; draw(root); }
+  if (qs('#panel', root)) {
+    workspace = location.hash.match(/^#\/?notes\/(general|exploration|downtime)$/)?.[1]
+      || (location.hash.replace(/^#\/?/, '').split('/')[0] === 'exploration' ? 'exploration' : 'general');
+    draw(root);
+  }
 }
 
 function draw(root) {
@@ -105,7 +111,13 @@ function draw(root) {
   qsa('.pick', root).forEach(el => el.classList.toggle('on', el.dataset.tab === tab));
   const panel = qs('#panel', root);
   if (!panel) return;
-  if (workspace !== 'general') { panel.innerHTML = `<div class="empty">${workspace === 'exploration' ? 'Exploration workspace' : 'Downtime workspace'}</div>`; return; }
+  if (workspace === 'exploration') {
+    if (qs('[data-exploration-root]', panel)) return;
+    panel.innerHTML = '<div data-exploration-root></div>';
+    bindExploration(qs('[data-exploration-root]', panel));
+    return;
+  }
+  if (workspace === 'downtime') { panel.innerHTML = '<div class="empty">Downtime workspace</div>'; return; }
   if (!data) {
     panel.innerHTML = '<div class="empty">No data/campaign.json found.</div>';
     return;

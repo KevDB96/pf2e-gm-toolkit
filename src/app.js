@@ -14,7 +14,6 @@ import * as loot from './views/loot.js';
 import * as notes from './views/notes.js';
 import * as party from './views/party.js';
 import * as sound from './views/sound.js';
-import * as explorationGm from './views/exploration-gm.js';
 import * as downtimeGm from './views/downtime-gm.js';
 
 const VIEWS = {
@@ -25,7 +24,6 @@ const VIEWS = {
   loot:       { title: 'Loot',       mod: loot },
   notes:      { title: 'Campaign',   mod: notes },
   party:      { title: 'Party',      mod: party },
-  exploration:{ title: 'Exploration',mod: explorationGm },
   downtime:   { title: 'Downtime',  mod: downtimeGm },
   sound:      { title: 'BGM',        mod: sound }
 };
@@ -34,7 +32,7 @@ const VIEWS = {
 // its members. `views` order is the order the sub-strip renders in.
 const GROUPS = {
   run:   { title: 'Run',   views: ['encounters', 'combat'] },
-  table: { title: 'Table', views: ['party', 'loot', 'notes', 'exploration', 'downtime'] }
+  table: { title: 'Table', views: ['party', 'loot', 'notes', 'downtime'] }
 };
 
 /** The group id holding a view, or null if the view has its own tab. */
@@ -50,6 +48,10 @@ let current = null;
 
 function viewFromHash() {
   const name = location.hash.replace(/^#\/?/, '').split('/')[0];
+  if (name === 'exploration') {
+    history.replaceState(null, '', '#/notes/exploration');
+    return 'notes';
+  }
   if (VIEWS[name]) return name;
   // A group hash (#/run, #/table) resolves to that group's remembered member — never
   // by reassigning location.hash here, which would fire another hashchange and re-enter
