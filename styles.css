@@ -418,6 +418,15 @@ button.share .go{flex:0 0 auto;margin-left:8px;color:var(--accent);font-size:1re
 h2 + .card-group{margin-top:4px}
 
 /* ---------- encounter planner ---------- */
+/* The encounter-source actions are a fixed responsive grid, not a shrinkable flex row.
+   On phone widths the old generic .row let Bestiary/Hazards collapse under Custom/Saved,
+   so their labels could paint outside their own button borders. Two equal columns keep
+   every label inside its control; wider screens can afford all four on one line. */
+.encounter-source-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.encounter-source-actions button{width:100%;min-width:0;padding:0 10px;text-align:center;
+  white-space:normal;overflow-wrap:anywhere}
+@media (min-width:640px){.encounter-source-actions{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
 .budget-bar{height:12px;border-radius:999px;background:rgba(0,0,0,0.35);overflow:hidden;border:1px solid var(--line)}
 .budget-bar > div{height:100%;transition:width 220ms ease,background 220ms ease}
 

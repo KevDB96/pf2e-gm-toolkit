@@ -58,9 +58,9 @@ function shell() {
       <div class="gauge-scale" id="thresholds"></div>
     </div>
 
-    <div class="row wrap">
-      <button class="primary grow" data-add-bestiary>Bestiary</button>
-      <button class="grow" data-add-hazards>Hazards</button>
+    <div class="encounter-source-actions">
+      <button class="primary" data-add-bestiary>Bestiary</button>
+      <button data-add-hazards>Hazards</button>
       <button data-add-custom>+ Custom</button>
       <button data-templates>Saved</button>
     </div>
