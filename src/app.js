@@ -49,7 +49,7 @@ let root = qs('#view');
 let current = null;
 
 function viewFromHash() {
-  const name = location.hash.replace(/^#\/?/, '');
+  const name = location.hash.replace(/^#\/?/, '').split('/')[0];
   if (VIEWS[name]) return name;
   // A group hash (#/run, #/table) resolves to that group's remembered member — never
   // by reassigning location.hash here, which would fire another hashchange and re-enter

@@ -5,11 +5,10 @@
 // type here lives in `state.notes` and persists to localStorage, so a regenerated
 // campaign.json never clobbers your notes.
 
-import { state, save, uid, registerResetHook } from '../store.js';
+import { state, save, uid } from '../store.js';
 import { esc, on, sheet, qs, qsa } from '../dom.js';
 import { campaign, characters as loadCharacters } from '../data.js';
 import { addPin, hasPin, removePin } from '../pins.js';
-import { advanceExploration, formatElapsed } from '../exploration.js';
 
 const TABS = [
   { id: 'session', label: 'Session' },
@@ -33,17 +32,19 @@ let openArc = null;
 let completedOpen = false;
 let roster = [];
 let characterGroups = [];
-let explorationUndo = [];
-registerResetHook(() => { explorationUndo = []; });
+let workspace = 'general';
 
 export function mount(root) {
+  workspace = location.hash.match(/^#\/?notes\/(general|exploration|downtime)$/)?.[1] || 'general';
   root.innerHTML = `
+    <div class="picker" aria-label="Notes workspace">${[['general','General Notes'],['exploration','Exploration'],['downtime','Downtime']].map(([id,label]) => `<button class="pick" data-notes-workspace="${id}" role="tab" aria-selected="${workspace === id}">${label}</button>`).join('')}</div>
     <div class="picker" id="tabs">${TABS
       .map(t => `<button class="pick" data-tab="${t.id}">${esc(t.label)}</button>`)
       .join('')}</div>
     <div id="panel"><div class="empty">Loading campaign&hellip;</div></div>`;
 
   on(root, 'click', '[data-tab]', (e, el) => { tab = el.dataset.tab; draw(root); });
+  on(root, 'click', '[data-notes-workspace]', (e, el) => { location.hash = `#/notes/${el.dataset.notesWorkspace}`; });
   on(root, 'click', '[data-arc]', (e, el) => {
     openArc = openArc === el.dataset.arc ? null : el.dataset.arc;
     if (data?.arcs?.find(a => a.id === el.dataset.arc)?.status === 'done') completedOpen = true;
@@ -81,35 +82,6 @@ export function mount(root) {
     qs('#party-size').value = data.party.size;
     save();
   });
-  on(root, 'click', '[data-advance]', (e, el) => advanceTime(Number(el.dataset.advance), root));
-  on(root, 'click', '[data-advance-custom]', () => advanceTime(Number(qs('[data-custom-minutes]', root).value), root));
-  on(root, 'click', '[data-undo-exploration]', () => {
-    const previous = explorationUndo.pop();
-    if (!previous) return;
-    state.exploration = previous;
-    save();
-  });
-  on(root, 'click', '[data-start-timer]', () => startTimer(root));
-  on(root, 'click', '[data-ack-timer]', (e, el) => {
-    const timer = state.exploration.timers.find(t => t.id === el.dataset.ackTimer);
-    if (!timer) return;
-    timer.status = 'acknowledged';
-    save();
-  });
-  on(root, 'click', '[data-set-activity]', () => setActivity(root));
-  on(root, 'click', '[data-clear-activity]', (e, el) => {
-    delete state.exploration.activities[el.dataset.clearActivity];
-    save();
-  });
-  root.addEventListener('change', e => {
-    if (e.target.matches('[data-timer-preset]')) {
-      const preset = e.target.selectedOptions[0];
-      if (preset?.dataset.minutes) {
-        qs('[data-timer-label]', root).value = preset.dataset.label || '';
-        qs('[data-timer-minutes]', root).value = preset.dataset.minutes;
-      }
-    }
-  });
   root.addEventListener('input', e => {
     if (e.target.id === 'npc-search') { npcQuery = e.target.value; drawNpcs(root); }
   });
@@ -124,13 +96,16 @@ export function mount(root) {
 }
 
 export function update(root) {
-  if (qs('#panel', root)) draw(root);
+  if (qs('#panel', root)) { workspace = location.hash.match(/^#\/?notes\/(general|exploration|downtime)$/)?.[1] || 'general'; draw(root); }
 }
 
 function draw(root) {
+  qsa('[data-notes-workspace]', root).forEach(el => { el.classList.toggle('on', el.dataset.notesWorkspace === workspace); el.setAttribute('aria-selected', String(el.dataset.notesWorkspace === workspace)); });
+  qs('#tabs', root).hidden = workspace !== 'general';
   qsa('.pick', root).forEach(el => el.classList.toggle('on', el.dataset.tab === tab));
   const panel = qs('#panel', root);
   if (!panel) return;
+  if (workspace !== 'general') { panel.innerHTML = `<div class="empty">${workspace === 'exploration' ? 'Exploration workspace' : 'Downtime workspace'}</div>`; return; }
   if (!data) {
     panel.innerHTML = '<div class="empty">No data/campaign.json found.</div>';
     return;
@@ -170,8 +145,6 @@ function session() {
       ${matches ? '' :
         '<button data-apply-party style="margin-top:10px">Set header to campaign party</button>'}
     </div>
-
-    ${exploration()}
 
     ${recap()}
 
@@ -254,69 +227,6 @@ function recap() {
       : '<div class="muted">Nothing is published to the player view.</div>'}
     <div class="muted" style="margin-top:6px">Only this title and recap text leave the GM Toolkit.</div>
   </div>`;
-}
-
-function characterName(id) {
-  if (!id) return 'Party / no specific character';
-  return roster.find(c => c.id === id)?.name || `Missing character (${id})`;
-}
-
-function exploration() {
-  const clock = state.exploration;
-  const timers = clock.timers || [];
-  const due = timers.filter(t => t.status === 'due');
-  const options = roster.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
-  return `<div class="card exploration-clock">
-    <div class="row spread"><h2>Exploration clock</h2><b>${esc(formatElapsed(clock.elapsedMinutes))}</b></div>
-    <div class="muted">Fictional time only. It advances when you choose an amount.</div>
-    <div class="exploration-actions">
-      <button data-advance="10">+10 min</button>
-      <label class="compact-field">Minutes<input type="number" min="1" step="1" value="20" data-custom-minutes></label>
-      <button data-advance-custom>Advance</button>
-      <button class="ghost" data-undo-exploration ${explorationUndo.length ? '' : 'disabled'}>Undo last</button>
-    </div>
-    <div class="exploration-section"><b>Current activities</b>
-      ${Object.keys(clock.activities).length ? Object.entries(clock.activities).map(([id, a]) =>
-        `<div class="exploration-row"><span>${esc(characterName(id))}: ${esc(a.label)}</span><button class="ghost" data-clear-activity="${esc(id)}">Clear</button></div>`).join('') : '<div class="muted">None recorded.</div>'}
-      <div class="exploration-form"><select data-activity-character><option value="">Party / no specific character</option>${options}</select><input type="text" data-activity-label placeholder="Activity (e.g. Search)"><button data-set-activity>Set</button></div>
-    </div>
-    <div class="exploration-section"><b>Timers</b>
-      ${timers.length ? timers.map(timerRow).join('') : '<div class="muted">No timers.</div>'}
-      <div class="exploration-form"><select data-timer-preset><option>Custom reminder</option><option data-label="Refocus" data-minutes="10">Refocus · 10 min</option><option data-label="Treat Wounds" data-minutes="10">Treat Wounds · 10 min</option><option data-label="Treat Wounds immunity" data-minutes="60">Treat Wounds immunity · 1 hour</option></select><input type="text" data-timer-label placeholder="Reminder label"><input type="number" min="1" step="1" value="10" data-timer-minutes placeholder="Minutes"><select data-timer-target><option value="">No specific character</option>${options}</select><button data-start-timer>Start</button></div>
-      ${due.length ? `<div class="timer-notice">${due.length} reminder${due.length === 1 ? '' : 's'} due</div>` : ''}
-    </div>
-  </div>`;
-}
-
-function timerRow(timer) {
-  const stateLabel = timer.status === 'due' ? 'Due' : timer.status === 'acknowledged' ? 'Acknowledged' : `due in ${Math.max(0, timer.dueAtMinute - state.exploration.elapsedMinutes)}m`;
-  return `<div class="exploration-row"><span>${esc(timer.label)} <small>(${esc(characterName(timer.targetId))}) · ${esc(stateLabel)}</small></span>${timer.status === 'due' ? `<button data-ack-timer="${esc(timer.id)}">Acknowledge</button>` : ''}</div>`;
-}
-
-function advanceTime(minutes, root) {
-  if (!Number.isFinite(minutes) || minutes <= 0) return;
-  explorationUndo.push(JSON.parse(JSON.stringify(state.exploration)));
-  state.exploration = advanceExploration(state.exploration, minutes).exploration;
-  save();
-}
-
-function startTimer(root) {
-  const label = qs('[data-timer-label]', root).value.trim();
-  const minutes = Math.floor(Number(qs('[data-timer-minutes]', root).value));
-  if (!label || !Number.isFinite(minutes) || minutes <= 0) return;
-  const preset = qs('[data-timer-preset]', root).selectedOptions[0];
-  state.exploration.timers.push({ id: uid('timer'), label, startedAtMinute: state.exploration.elapsedMinutes,
-    dueAtMinute: state.exploration.elapsedMinutes + minutes, targetId: qs('[data-timer-target]', root).value || null,
-    source: preset?.dataset.minutes ? `aon:${preset.dataset.label.toLowerCase().replaceAll(' ', '-')}` : null, status: 'active' });
-  save();
-}
-
-function setActivity(root) {
-  const label = qs('[data-activity-label]', root).value.trim();
-  if (!label) return;
-  const id = qs('[data-activity-character]', root).value || '_party';
-  state.exploration.activities[id] = { label, startedAtMinute: state.exploration.elapsedMinutes };
-  save();
 }
 
 function noteRow(n) {
