@@ -556,6 +556,8 @@ export function sendToCombat() {
           publicImage: e.publicImageVisible === true ? (e.creature?.image || e.creature?.imageUrl || null) : null,
           publicImageVisible: e.publicImageVisible === true,
           initMod: adjustedModifier(e.creature?.perception, e.adjust),
+          classDC: adjustedModifier(e.creature?.classDC, e.adjust),
+          spellDC: adjustedModifier(e.creature?.spellDC, e.adjust),
           hp, maxHp: hp, ac, conditions: []
         });
         added += 1;
