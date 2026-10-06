@@ -98,6 +98,7 @@ function render() {
   }
 
   const subnav = qs('#subnav');
+  qs('#session-phase-control').hidden = name !== 'home';
   qs('#pfpc-control').hidden = name !== 'home';
   if (gid) {
     qs('#view-title').textContent = GROUPS[gid].title;

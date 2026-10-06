@@ -9,8 +9,10 @@ const notes = await readFile(new URL('../src/views/notes.js', import.meta.url), 
 const exploration = await readFile(new URL('../src/views/exploration-gm.js', import.meta.url), 'utf8');
 const downtime = await readFile(new URL('../src/views/downtime-gm.js', import.meta.url), 'utf8');
 
-test('PFPC session controls are visible only on Home and no PFPC tab exists', () => {
+test('PFPC controls and session phase selector are visible only on Home', () => {
+  assert.match(app, /qs\('#session-phase-control'\)\.hidden = name !== 'home'/);
   assert.match(app, /qs\('#pfpc-control'\)\.hidden = name !== 'home'/);
+  assert.equal((html.match(/id="session-phase-control"/g) || []).length, 1);
   assert.match(html, /id="pfpc-control"/);
   assert.doesNotMatch(html, /data-view="(?:pfpc|player-companion|companion)"/i);
   assert.doesNotMatch(html, /<span>Player Companion<\/span>/i);
