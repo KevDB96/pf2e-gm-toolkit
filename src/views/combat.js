@@ -4,7 +4,7 @@ import { state, uid, save } from '../store.js';
 import { brief, esc, on, rich, sheet, tip, qs, qsa } from '../dom.js';
 import {
   CONDITIONS, PERSISTENT_DAMAGE_TYPES, impliedConditions, takesValue, conditionName,
-  parseCondition, withConditionValue, endOfTurnConditions, applyDamage,
+  parseCondition, withConditionValue, endOfTurnConditions, applyDamage, adjustHP,
   recoveryResult, DEGREES,
   normalizeConditionEffects, conditionEffects, effectiveConditionEffects, removeConditionEffect,
   durationReminders, normalizePersistentDamage, effectivePersistentEffects, persistentLabel,
@@ -16,8 +16,7 @@ import { advanceTurn, delayCombatant, orderedCombatants, rejoinCombatant, remove
 import { openCombatantSheet } from '../combat-details.js';
 import { openGMReference } from '../gm-reference.js';
 import {
-  beginCombatTransaction, canUndo, combatTransaction, commitCombatTransaction,
-  configureCombatHistory, undoCombat, undoLabel
+  canUndo, combatTransaction, configureCombatHistory, undoCombat, undoLabel
 } from '../combat-history.js';
 
 // What each condition does, keyed by name, for the hover description on a chip. Empty
@@ -38,7 +37,6 @@ let durationPrompts = [];
 // A resolution sheet stages physical rolls outside state. Reloading intentionally cancels
 // this draft; nothing has been applied until its explicit Apply button is pressed.
 let pendingPersistent = null;
-let hpGesture = null;
 
 const historyContext = {
   readMeta: () => ({ report: turnReport, durationPrompts, pendingPersistent }),
@@ -143,9 +141,7 @@ function wire(root) {
   on(root, 'click', '[data-open-player]', openPlayerView);
   on(root, 'click', '[data-delay]', delayActive);
   on(root, 'click', '[data-rejoin]', (e, el) => rejoin(el.dataset.rejoin));
-  on(root, 'click', '[data-ready]', openReadySheet);
-  on(root, 'click', '[data-ready-used]', (e, el) => updateReady(el.dataset.readyUsed, 'used'));
-  on(root, 'click', '[data-ready-clear]', (e, el) => clearReady(el.dataset.readyClear));
+  on(root, 'click', '[data-ready]', (e, el) => toggleReady(el.dataset.ready));
   on(root, 'click', '[data-duration-choice]', (e, el) => {
     const prompt = durationPrompts.find(x => x.id === el.dataset.durationChoice && x.ownerId === el.dataset.owner);
     if (!prompt) return;
@@ -173,21 +169,7 @@ function wire(root) {
   on(root, 'click', '[data-import-enc]', () => sendToCombat());
   on(root, 'click', '[data-end]', endCombat);
   on(root, 'click', '[data-undo]', () => { undoCombat(historyContext); update(root); });
-  on(root, 'change', '[data-hp]', (e, el) => typeHP(el.dataset.hp, el.value));
-  on(root, 'pointerdown', '[data-hp-slide]', (e, el) => {
-    if (e.pointerId !== undefined && el.setPointerCapture) el.setPointerCapture(e.pointerId);
-    hpGesture = beginCombatTransaction('Set HP', historyContext);
-    dragHP(el);
-  });
-  on(root, 'keydown', '[data-hp-slide]', (e, el) => {
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End') {
-      if (!hpGesture) hpGesture = beginCombatTransaction('Set HP', historyContext);
-    }
-  });
-  on(root, 'input', '[data-hp-slide]', (e, el) => { if (!hpGesture) hpGesture = beginCombatTransaction('Set HP', historyContext); dragHP(el); });
-  on(root, 'change', '[data-hp-slide]', () => { commitCombatTransaction(hpGesture); hpGesture = null; });
-  on(root, 'pointerup', '[data-hp-slide]', () => { commitCombatTransaction(hpGesture); hpGesture = null; });
-  on(root, 'pointercancel', '[data-hp-slide]', () => { if (hpGesture) { state.combat = hpGesture.before.combat; turnReport = hpGesture.before.meta; update(root); } hpGesture = null; });
+  on(root, 'click', '[data-hp-apply]', (e, el) => applyHPChange(el.dataset.hpApply, el.dataset.hpMode, el.closest('.combatant')));
   on(root, 'click', '[data-cond]', (e, el) => openConditions(el.dataset.cond));
   on(root, 'click', '[data-open-stats]', (e, el) => {
     const combatant = find(el.dataset.openStats);
@@ -287,12 +269,10 @@ export function update(root) {
   const undo = qs('[data-undo]', root);
   undo.disabled = !canUndo();
   undo.textContent = canUndo() ? `Undo: ${undoLabel()}` : 'Undo';
-  const ready = state.combat.ready || [];
   const delayed = (state.combat.delayedIds || []).map(id => find(id)).filter(Boolean);
-  if (ready.length || delayed.length) {
+  if (delayed.length) {
     report.hidden = false;
-    report.insertAdjacentHTML('beforeend', `<div class="turn-expiry">${ready.map(item => `<span>${esc(trackerName(find(item.ownerId) || { name: item.ownerId }))}: ${esc(item.action)} when ${esc(item.trigger)} · ${esc(item.status)}</span>${item.status === 'armed' ? `<button class="ghost" data-ready-used="${esc(item.id)}">Used</button>` : ''}<button class="ghost" data-ready-clear="${esc(item.id)}">Clear</button>`).join('')}</div>`);
-    if (delayed.length) report.insertAdjacentHTML('beforeend', `<div class="turn-expiry"><span>Delayed: ${delayed.map(c => esc(trackerName(c))).join(', ')}</span>${delayed.map(c => `<button class="ghost" data-rejoin="${esc(c.id)}">Rejoin ${esc(trackerName(c))}</button>`).join('')}</div>`);
+    report.insertAdjacentHTML('beforeend', `<div class="turn-expiry"><span>Delayed: ${delayed.map(c => esc(trackerName(c))).join(', ')}</span>${delayed.map(c => `<button class="ghost" data-rejoin="${esc(c.id)}">Rejoin ${esc(trackerName(c))}</button>`).join('')}</div>`);
   }
 
   // Both sides at once: the party down the left, whatever they are fighting down the
@@ -344,26 +324,24 @@ function column(side, label, list, turnOf) {
 
 function card(c, isTurn) {
   const name = trackerName(c);
-  const pct = hpPct(c);
   const dead = c.maxHp !== null && c.hp <= 0;
   const cls = ['item', 'combatant', isTurn ? 'is-turn' : '',
     sideOf(c) === 'pc' ? 'is-party' : '', dead ? 'is-dead' : '']
     .filter(Boolean).join(' ');
 
-  // HP is one line: the number, and the rest of the width is the bar. The bar doubles as
-  // the control — a range input laid over it, because an 8px bar is nothing to aim at, so
-  // the input's own hit area is the whole strip. Nothing else earns a place on the row: a
-  // pair of ±1/±5 buttons either side of the number left it too wide to read at 390px, and
-  // dragging the bar covers what they did.
+  // Current HP is read-only on the card. Changes are deliberate: type an amount, then
+  // choose Damage or Heal. This keeps the two-column tracker compact and avoids a slider
+  // whose large hit area used most of the row.
   const hpBlock = c.maxHp === null
     ? '<span class="muted">no HP tracked</span>'
-    : `<span class="hp"><input data-hp="${c.id}" type="number" inputmode="numeric" min="0"
-              max="${c.maxHp}" value="${c.hp}" aria-label="Current HP of ${esc(name)}"
-              ><span class="muted">/${c.maxHp}</span></span>
-       <div class="hpwrap">
-         <div class="hpbar ${toneFor(pct)}"><div style="width:${pct}%"></div></div>
-         <input class="hpslide" type="range" min="0" max="${c.maxHp}" step="1"
-                value="${c.hp}" data-hp-slide="${c.id}" aria-label="Set HP of ${esc(name)}">
+    : `<div class="hp-current"><span>HP</span><b>${c.hp}/${c.maxHp}</b></div>
+       <div class="hp-change">
+         <input data-hp-amount="${esc(c.id)}" type="number" inputmode="numeric" min="1" step="1"
+                placeholder="0" aria-label="HP change amount for ${esc(name)}">
+         <button class="ghost" data-hp-apply="${esc(c.id)}" data-hp-mode="damage"
+                 aria-label="Apply damage to ${esc(name)}">Dmg</button>
+         <button class="ghost" data-hp-apply="${esc(c.id)}" data-hp-mode="healing"
+                 aria-label="Heal ${esc(name)}">Heal</button>
        </div>`;
 
   // The card is one column of a two-column board, so a phone gives it ~179px, and three
@@ -392,7 +370,7 @@ function card(c, isTurn) {
         </span>
       </div>
       <div class="hprow">${hpBlock}</div>
-      ${isTurn ? '<div class="combat-quick-actions"><button class="ghost" data-delay>Delay</button><button class="ghost" data-ready>Ready</button></div>' : ''}
+      ${isTurn ? `<div class="combat-quick-actions"><button class="ghost" data-delay>Delay</button><button class="ghost ready-toggle${c.ready ? ' on' : ''}" data-ready="${esc(c.id)}" aria-pressed="${Boolean(c.ready)}">Ready</button></div>` : ''}
       ${conditions.length ? `<div class="chips">
         ${conditions.map(cond => `
           <button class="chip" data-owner="${c.id}" data-condition-detail="${esc(cond)}"${tip(describe(cond))}
@@ -408,50 +386,41 @@ function card(c, isTurn) {
  * No "PC"/"NPC" any more — the column it is drawn in says which side it is on, and the
  * two characters were the difference between the sub-line fitting and wrapping.
  */
+function spellDCs(c) {
+  const values = Array.isArray(c.spellDCs) ? c.spellDCs : [c.spellDC];
+  return [...new Set(values.filter(Number.isFinite))];
+}
+
 function subLine(c) {
+  const spells = spellDCs(c);
   return [
     c.ac ? 'AC ' + c.ac : null,
-    // Initiative is typed at the table, so the modifier to add to the die belongs on the
-    // card rather than on a character sheet two taps away.
-    Number.isFinite(c.initMod) ? `${c.isHazard ? 'Stealth' : 'Perc'} ` + (c.initMod >= 0 ? '+' : '') + c.initMod : null,
+    Number.isFinite(c.classDC) ? 'Class DC ' + c.classDC : null,
+    spells.length ? 'Spell DC ' + spells.join('/') : null,
+    // Hazards still need their Stealth initiative modifier. Perception is intentionally
+    // omitted from normal combatant cards in favour of the save DCs used during combat.
+    c.isHazard && Number.isFinite(c.initMod)
+      ? 'Stealth ' + (c.initMod >= 0 ? '+' : '') + c.initMod : null,
     c.isHazard && c.hazard?.disabled ? 'disabled' : null
   ].filter(Boolean).join(' · ');
 }
 
-const hpPct = c => (c.maxHp ? Math.max(0, Math.min(100, (c.hp / c.maxHp) * 100)) : 0);
-const toneFor = pct => (pct <= 25 ? 'crit' : pct <= 50 ? 'warn' : '');
-const clampHP = (c, n) => Math.max(0, Math.min(c.maxHp, Math.round(n)));
-
-/** A number typed into the HP box. An empty or junk box snaps back rather than zeroing. */
-function typeHP(id, raw) {
-  const n = Number(raw);
-  if (raw === '' || !Number.isFinite(n)) return;
-  combatTransaction('Set HP', combat => {
-    const c = combat.combatants.find(x => x.id === id);
-    if (c && c.maxHp !== null) c.hp = clampHP(c, n);
+function applyHPChange(id, mode, row) {
+  const c = find(id);
+  const input = row ? qs('[data-hp-amount]', row) : null;
+  const raw = input?.value?.trim() || '';
+  const amount = /^\d+$/.test(raw) ? Number(raw) : null;
+  const result = adjustHP(c?.hp, c?.maxHp, amount, mode);
+  if (!c || !result || amount <= 0) {
+    input?.focus();
+    return;
+  }
+  combatTransaction(mode === 'damage' ? 'Apply damage' : 'Apply healing', combat => {
+    const target = combat.combatants.find(item => item.id === id);
+    const next = adjustHP(target?.hp, target?.maxHp, amount, mode);
+    if (target && next) target.hp = next.after;
   }, historyContext);
-  if (n === 0) openZeroHPResolution(id);
-}
-
-/**
- * A drag along the HP bar, painted straight onto the row it belongs to.
- *
- * Deliberately no save() here: save() notifies the view and the whole list is rebuilt,
- * which would replace the slider under the finger halfway through the drag. The `change`
- * event on release does the saving.
- */
-function dragHP(el) {
-  const c = find(el.dataset.hpSlide);
-  const row = el.closest('.combatant');
-  if (!c || c.maxHp === null || !row) return;
-  c.hp = clampHP(c, Number(el.value));
-  const pct = hpPct(c);
-  const bar = qs('.hpbar', row);
-  bar.className = 'hpbar ' + toneFor(pct);
-  bar.firstElementChild.style.width = pct + '%';
-  const box = qs('[data-hp]', row);
-  if (box) box.value = c.hp;
-  row.classList.toggle('is-dead', c.hp <= 0);
+  if (mode === 'damage' && result.after === 0) openZeroHPResolution(id);
 }
 
 /**
@@ -656,34 +625,11 @@ function rejoin(id) {
   }, historyContext);
 }
 
-function updateReady(id, status) {
-  combatTransaction(status === 'used' ? 'Use Ready reminder' : 'Clear Ready reminder', combat => {
-    const item = combat.ready.find(x => x.id === id);
-    if (item) item.status = status;
+function toggleReady(id) {
+  combatTransaction('Toggle Ready', combat => {
+    const c = combat.combatants.find(item => item.id === id);
+    if (c) c.ready = !c.ready;
   }, historyContext);
-}
-
-function clearReady(id) {
-  combatTransaction('Clear Ready reminder', combat => {
-    combat.ready = combat.ready.filter(item => item.id !== id);
-  }, historyContext);
-}
-
-function openReadySheet() {
-  const owner = state.combat.activeId;
-  if (!owner) return;
-  const body = `<label class="field">Action<input data-ready-action placeholder="Strike, Step, Cast a spell"></label><label class="field">Trigger<input data-ready-trigger placeholder="the cultist enters"></label><p class="muted">Ready uses two actions and changes the readied action into a reaction when its trigger occurs. This reminder does not move initiative or detect the trigger.</p><button class="primary" data-ready-save>Save reminder</button>`;
-  const { node, close } = sheet('Ready action', body, sheetNode => {
-    on(sheetNode, 'click', '[data-ready-save]', () => {
-      const action = qs('[data-ready-action]', sheetNode).value.trim();
-      const trigger = qs('[data-ready-trigger]', sheetNode).value.trim();
-      if (!action || !trigger) return;
-      combatTransaction('Set Ready reminder', combat => {
-        combat.ready.push({ id: uid('ready'), ownerId: owner, action, trigger, status: 'armed' });
-      }, historyContext);
-      close();
-    });
-  });
 }
 
 function endCombat() {
@@ -696,8 +642,8 @@ function endCombat() {
 
 /**
  * Pick player characters out of the imported roster: tick as many as you like, or take a
- * whole party in one tap. AC, HP and the Perception modifier come from the sheet, so the
- * only thing left to type is the total the player rolled. Anyone already in the order is
+ * whole party in one tap. AC, HP, class DC and spell save DCs come from the sheet; the
+ * initiative total is still entered at the table. Anyone already in the order is
  * shown as such rather than added twice.
  */
 async function addFromRoster() {
@@ -810,13 +756,14 @@ function addPC(c, side = 'pc') {
     isPC: true,
     side,
     init: null,
-    // Perception is the initiative modifier for the usual case. Kept because the row
-    // prints it: the GM types the total the player rolled, and having the modifier on the
-    // card is the whole point of storing it.
+    // Keep the usual Perception initiative modifier for initiative logic/detail fallback,
+    // but the compact tracker card shows combat DCs instead.
     initMod: Number.isFinite(c.perception) ? c.perception : null,
     hp: c.hp ?? null,
     maxHp: c.hp ?? null,
     ac: c.ac ?? null,
+    classDC: Number.isFinite(c.classDC) ? c.classDC : null,
+    spellDCs: [...new Set((c.spellcasting || []).map(entry => entry?.dc).filter(Number.isFinite))],
     conditions: []
   });
 }
