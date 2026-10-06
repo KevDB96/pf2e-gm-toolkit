@@ -490,7 +490,7 @@ h2 + .card-group{margin-top:4px}
    own — see "CSS is one global namespace" in CLAUDE.md. .pick's own min-height is 38px,
    fine inside a horizontally-scrolling .picker strip, but these two chips are a
    standalone control and the app's own mobile-first floor is 44px. */
-.enc-adjust{display:flex;gap:6px;margin-top:6px}
+.enc-adjust{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-width:0;max-width:100%}
 .enc-adjust .pick{min-height:44px}
 .enc-visibility{font-size:.72rem}
 
