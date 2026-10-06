@@ -4,6 +4,7 @@ import test from 'node:test';
 
 const notes = await readFile(new URL('../src/views/notes.js', import.meta.url), 'utf8');
 const app = await readFile(new URL('../src/app.js', import.meta.url), 'utf8');
+const serviceWorker = await readFile(new URL('../service-worker.js', import.meta.url), 'utf8');
 const exploration = await readFile(new URL('../src/views/exploration-gm.js', import.meta.url), 'utf8');
 const downtime = await readFile(new URL('../src/views/downtime-gm.js', import.meta.url), 'utf8');
 
@@ -62,4 +63,13 @@ test('Notes Downtime preserves the existing edit, clear, archive and retry integ
   assert.match(downtime, /advanceDowntimeMonth\(/);
   assert.match(downtime, /state\.notes = upsertDowntimeArchive\(state\.notes, archive\)/);
   assert.match(downtime, /archiveSaved\(persistenceStatus\(\)\)/);
+});
+
+test('offline shell precaches the Notes, Exploration, Downtime, and archive modules', () => {
+  for (const path of [
+    './src/views/notes.js',
+    './src/views/exploration-gm.js',
+    './src/views/downtime-gm.js',
+    './src/downtime-history.js'
+  ]) assert.ok(serviceWorker.includes(path), `${path} must stay available offline`);
 });

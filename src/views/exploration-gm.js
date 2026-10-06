@@ -1,7 +1,7 @@
 import { createPfpcClient } from '../pfpc-control.js';
 import { state } from '../store.js';
 import { companionCharactersForCampaign } from '../companion-rosters.js';
-import { actions } from '../data.js';
+import { actions as loadActions } from '../data.js';
 import { esc } from '../dom.js';
 import { MAP_WIDTH, MAP_HEIGHT, emptyCampaignMap, sanitizeCampaignMap, hexCenter, nearestVisibleHex, pointerToImagePoint, projectPublicCampaignMap } from '../campaign-map.js';
 
@@ -20,7 +20,7 @@ export function explorationMarkup({campaignId,characters,workflow,activityOption
 import { parseHexId } from '../campaign-map.js';
 function parseHex(value){return parseHexId(value);}
 
-export function bindExploration(root,{client=createPfpcClient(),actions=()=>load('actions'),campaignId=()=>Object.keys(state.companion.assignments||{})[0]||'',notify=()=>{}}={}) {
+export function bindExploration(root,{client=createPfpcClient(),actions=loadActions,campaignId=()=>Object.keys(state.companion.assignments||{})[0]||'',notify=()=>{}}={}) {
   let currentCampaign='', workflow=null, map=emptyCampaignMap(), mapRevision=0, busy=false, placing=false, actionRows=[];
   const draw=(status='Connected state loaded')=>{if(!currentCampaign){root.innerHTML='<section class="gm-exploration"><h2>Exploration</h2><p class="empty">Link player characters to a campaign in Party.</p></section>';return;}root.innerHTML=explorationMarkup({campaignId:currentCampaign,characters:companionCharactersForCampaign(state.companion,currentCampaign),workflow,activityOptions:actionRows.filter(a=>a.traits?.includes('Exploration')),map,revision:mapRevision,status});};
   async function refresh(id=currentCampaign){currentCampaign=id;if(!id){draw();return;}busy=true;draw('Loading campaign…');const [w,m,a]=await Promise.all([client.getWorkflow(id,{retries:1}),client.getCampaignMap(id,{retries:1}),actions()]);actionRows=a||[];if(w.state==='ok'){workflow=w.data.workflow||w.data; }if(m.state==='ok'){const envelope=m.data;map=sanitizeCampaignMap(envelope.map||envelope);mapRevision=envelope.revision||0;}else if(m.state==='unreachable'||m.state==='conflict'){draw(`Map unavailable: ${m.state}`);busy=false;return;}busy=false;draw(w.state==='ok'?'Connected state loaded':`Activities unavailable: ${w.state}`);}
