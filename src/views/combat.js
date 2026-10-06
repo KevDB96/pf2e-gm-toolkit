@@ -370,7 +370,7 @@ function card(c, isTurn) {
         </span>
       </div>
       <div class="hprow">${hpBlock}</div>
-      ${isTurn ? `<div class="combat-quick-actions"><button class="ghost" data-delay>Delay</button><button class="ghost ready-toggle${c.ready ? ' on' : ''}" data-ready="${esc(c.id)}" aria-pressed="${Boolean(c.ready)}">Ready</button></div>` : ''}
+      ${isTurn || c.ready ? `<div class="combat-quick-actions">${isTurn ? '<button class="ghost" data-delay>Delay</button>' : ''}<button class="ghost ready-toggle${c.ready ? ' on' : ''}" data-ready="${esc(c.id)}" aria-pressed="${Boolean(c.ready)}">Ready</button></div>` : ''}
       ${conditions.length ? `<div class="chips">
         ${conditions.map(cond => `
           <button class="chip" data-owner="${c.id}" data-condition-detail="${esc(cond)}"${tip(describe(cond))}
