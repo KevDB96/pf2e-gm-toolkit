@@ -18,3 +18,8 @@ test('encounter source action labels stay inside their button boxes at narrow wi
   assert.match(styles, /\.encounter-source-actions button\{[^}]*width:100%;[^}]*min-width:0;[^}]*white-space:normal;[^}]*overflow-wrap:anywhere/);
   assert.match(styles, /@media \(min-width:640px\)\{\.encounter-source-actions\{grid-template-columns:repeat\(4,minmax\(0,1fr\)\)\}\}/);
 });
+
+
+test('encounter modifier controls wrap before reaching the quantity stepper', () => {
+  assert.match(styles, /\.enc-adjust\{[^}]*display:flex;[^}]*flex-wrap:wrap;[^}]*min-width:0;[^}]*max-width:100%/);
+});
