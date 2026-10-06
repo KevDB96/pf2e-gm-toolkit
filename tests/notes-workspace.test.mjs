@@ -5,6 +5,7 @@ import test from 'node:test';
 const notes = await readFile(new URL('../src/views/notes.js', import.meta.url), 'utf8');
 const app = await readFile(new URL('../src/app.js', import.meta.url), 'utf8');
 const exploration = await readFile(new URL('../src/views/exploration-gm.js', import.meta.url), 'utf8');
+const downtime = await readFile(new URL('../src/views/downtime-gm.js', import.meta.url), 'utf8');
 
 test('Notes provides linkable General, Exploration, and Downtime workspaces', () => {
   for (const id of ['general', 'exploration', 'downtime']) {
@@ -44,4 +45,21 @@ test('Notes reuses canonical activity and map controls, including visibility and
   assert.match(exploration, /hidden-marker/);
   assert.match(notes, /visibleNotes\.length/);
   assert.match(notes, /data-add-note/);
+});
+
+test('Notes Downtime mounts the existing dashboard and legacy route normalizes into it', () => {
+  assert.match(notes, /import \{ bindDowntime \} from '\.\/downtime-gm\.js'/);
+  assert.match(notes, /workspace === 'downtime'[\s\S]*?bindDowntime\(qs\('\[data-downtime-root\]'/);
+  assert.match(app, /name === 'downtime'[\s\S]*?history\.replaceState\(null, '', '#\/notes\/downtime'\)/);
+  assert.doesNotMatch(app, /downtime:\s*\{\s*title:/);
+  assert.doesNotMatch(app, /views: \[[^\]]*'downtime'/);
+});
+
+test('Notes Downtime preserves the existing edit, clear, archive and retry integration', () => {
+  assert.match(downtime, /client\.setDowntime\(currentCampaign, workflow\.revision, id, choice\)/);
+  assert.match(downtime, /data-save-choice/);
+  assert.match(downtime, /data-clear-choice/);
+  assert.match(downtime, /advanceDowntimeMonth\(/);
+  assert.match(downtime, /state\.notes = upsertDowntimeArchive\(state\.notes, archive\)/);
+  assert.match(downtime, /archiveSaved\(persistenceStatus\(\)\)/);
 });

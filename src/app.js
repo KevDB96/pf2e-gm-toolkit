@@ -14,7 +14,6 @@ import * as loot from './views/loot.js';
 import * as notes from './views/notes.js';
 import * as party from './views/party.js';
 import * as sound from './views/sound.js';
-import * as downtimeGm from './views/downtime-gm.js';
 
 const VIEWS = {
   home:       { title: 'PF2e GM',    mod: home },
@@ -24,7 +23,6 @@ const VIEWS = {
   loot:       { title: 'Loot',       mod: loot },
   notes:      { title: 'Campaign',   mod: notes },
   party:      { title: 'Party',      mod: party },
-  downtime:   { title: 'Downtime',  mod: downtimeGm },
   sound:      { title: 'BGM',        mod: sound }
 };
 
@@ -32,7 +30,7 @@ const VIEWS = {
 // its members. `views` order is the order the sub-strip renders in.
 const GROUPS = {
   run:   { title: 'Run',   views: ['encounters', 'combat'] },
-  table: { title: 'Table', views: ['party', 'loot', 'notes', 'downtime'] }
+  table: { title: 'Table', views: ['party', 'loot', 'notes'] }
 };
 
 /** The group id holding a view, or null if the view has its own tab. */
@@ -50,6 +48,10 @@ function viewFromHash() {
   const name = location.hash.replace(/^#\/?/, '').split('/')[0];
   if (name === 'exploration') {
     history.replaceState(null, '', '#/notes/exploration');
+    return 'notes';
+  }
+  if (name === 'downtime') {
+    history.replaceState(null, '', '#/notes/downtime');
     return 'notes';
   }
   if (VIEWS[name]) return name;

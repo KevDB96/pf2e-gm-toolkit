@@ -10,6 +10,7 @@ import { esc, on, sheet, qs, qsa } from '../dom.js';
 import { campaign, characters as loadCharacters } from '../data.js';
 import { addPin, hasPin, removePin } from '../pins.js';
 import { bindExploration } from './exploration-gm.js';
+import { bindDowntime } from './downtime-gm.js';
 
 const TABS = [
   { id: 'session', label: 'Session' },
@@ -117,7 +118,12 @@ function draw(root) {
     bindExploration(qs('[data-exploration-root]', panel));
     return;
   }
-  if (workspace === 'downtime') { panel.innerHTML = '<div class="empty">Downtime workspace</div>'; return; }
+  if (workspace === 'downtime') {
+    if (qs('[data-downtime-root]', panel)) return;
+    panel.innerHTML = '<div data-downtime-root></div>';
+    bindDowntime(qs('[data-downtime-root]', panel));
+    return;
+  }
   if (!data) {
     panel.innerHTML = '<div class="empty">No data/campaign.json found.</div>';
     return;
