@@ -548,47 +548,15 @@ h2 + .card-group{margin-top:4px}
    initiative and removal instead of shrinking those controls below the app's 44px floor. */
 .combatant button.icon{min-width:44px;min-height:44px;font-size:0.72rem}
 .init{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--accent);min-width:1.8em;text-align:center}
-/* HP is one line: the typed number, then the bar taking whatever width is left. No
-   flex-basis here — the card is a flex *column*, where a basis of 100% would be read as a
-   height and the row would stretch down the card. */
-.hprow{display:flex;align-items:center;gap:6px}
-.hp{flex:0 0 auto;display:flex;align-items:center;gap:3px;font-variant-numeric:tabular-nums;
-  font-size:0.8rem}
-/* Sized for the worst case, a three-digit current over a three-digit max ("142/200") in
-   the tracker's two-column board. The number box keeps its compact width, while its 44px
-   height makes it usable without pinching the slider's remaining horizontal room. */
-.hp input{width:3.45em;text-align:center;padding:0;min-height:44px;font-size:0.8rem}
-/* flex:1 1 auto is load-bearing, not decoration: as a bare flex item the bar has no
-   basis, its child is a percentage of a width that is still being resolved, and the whole
-   thing resolves to zero — so the bar was invisible and only the slider's thumb showed,
-   taking the HP colour cue (green/amber/blood) with it. */
-.hpbar{flex:1 1 auto;min-width:0;height:8px;border-radius:999px;background:rgba(0,0,0,0.35);overflow:hidden}
-.hpbar > div{height:100%;background:var(--green);transition:width 200ms ease}
-.hpbar.warn > div{background:var(--amber)}
-.hpbar.crit > div{background:var(--blood)}
-/* The bar doubles as a slider: a range input laid over it, sized to the whole strip so
-   there is something to aim at either side of an 8px bar. Only the thumb is drawn — the
-   track is the bar showing through from underneath.
-   touch-action:pan-y, not none: a horizontal drag belongs to the slider, but a vertical
-   swipe that happens to start here still scrolls the page. */
-.hpwrap{position:relative;display:flex;align-items:center;flex:1 1 auto;min-width:0;min-height:44px}
-.hpslide{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;
-  background:none;border:none;-webkit-appearance:none;appearance:none;cursor:pointer;
-  touch-action:pan-y}
-.hpslide:focus{outline:none}
-.hpslide::-webkit-slider-runnable-track{height:100%;background:none;border:none}
-.hpslide::-moz-range-track{height:100%;background:none;border:none}
-.hpslide::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;
-  border-radius:50%;background:var(--ink);border:2px solid var(--bg);
-  box-shadow:0 1px 4px rgba(0,0,0,0.6)}
-.hpslide::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);
-  border:2px solid var(--bg);box-shadow:0 1px 4px rgba(0,0,0,0.6)}
-.hpslide:focus-visible::-webkit-slider-thumb{border-color:var(--accent)}
-.hpslide:focus-visible::-moz-range-thumb{border-color:var(--accent)}
-/* The fill animates its width, which trails the thumb during a drag. Nothing selects
-   backwards from the slider to the bar before it, hence :has(); where that is
-   unsupported the rule is simply skipped and the fill lags as it did before. */
-.hpwrap:has(.hpslide:active) .hpbar > div{transition:none}
+/* HP changes are amount-first: the current total is readable, then one compact
+   amount field with Damage/Heal choices. No range slider occupies the rest of the card. */
+.hprow{display:grid;gap:4px;min-width:0}
+.hp-current{display:flex;justify-content:space-between;align-items:center;gap:6px;
+  font-size:0.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.hp-current b{color:var(--ink);font-size:0.8rem}
+.hp-change{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:4px;min-width:0}
+.hp-change input{width:100%;min-width:0;min-height:44px;padding:0 6px;text-align:center;font-size:0.8rem}
+.hp-change button{min-width:44px;min-height:44px;padding:0 7px;font-size:0.7rem}
 
 .chips{display:flex;flex-wrap:wrap;gap:4px}
 .chip{display:inline-flex;align-items:center;min-height:44px;font-size:0.66rem;padding:3px 9px;
@@ -619,6 +587,7 @@ h2 + .card-group{margin-top:4px}
 /* 44px, not 40: this pair only shows on the active combatant, which is the one row a GM is
    tapping during someone else's turn — the app's floor is 44 everywhere else. */
 .combat-quick-actions{display:flex;gap:6px;margin-top:7px}.combat-quick-actions button{min-height:44px;padding:0 10px}
+.ready-toggle.on{background:var(--accent-soft);border-color:var(--accent-edge);color:var(--accent);font-weight:700}
 .player-actor-image{width:36px;height:36px;object-fit:cover;border-radius:8px;flex:0 0 auto}
 
 /* ---------- loot ---------- */
