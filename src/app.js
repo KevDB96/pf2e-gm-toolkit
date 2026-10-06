@@ -4,7 +4,7 @@ import { state, save, reset, setSessionPhase, subscribe, subscribePersistence, s
 import { qs, qsa, installTips } from './dom.js';
 import { keepAwake } from './wake.js';
 import { bindPlayerBroadcast } from './player-channel.js';
-import { phaseControlMarkup, SESSION_PHASES } from './session-phase.js';
+import { phaseControlMarkup, SESSION_PHASES, syncSessionPhaseVisibility } from './session-phase.js';
 import { bindPfpcControl } from './pfpc-control-ui.js';
 import * as home from './views/home.js';
 import * as encounters from './views/encounters.js';
@@ -98,8 +98,8 @@ function render() {
   }
 
   const subnav = qs('#subnav');
-  qs('#session-phase-control').hidden = name !== 'home';
   qs('#pfpc-control').hidden = name !== 'home';
+  syncSessionPhaseVisibility(qs('#session-phase-control'), name);
   if (gid) {
     qs('#view-title').textContent = GROUPS[gid].title;
     subnav.innerHTML = GROUPS[gid].views.map(v =>

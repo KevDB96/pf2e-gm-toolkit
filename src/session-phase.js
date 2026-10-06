@@ -2,6 +2,10 @@
 
 export const SESSION_PHASES = Object.freeze(['combat', 'exploration', 'downtime']);
 
+export function syncSessionPhaseVisibility(control, view) {
+  control.hidden = view !== 'home';
+}
+
 const LABELS = Object.freeze({
   downtime: 'Downtime',
   exploration: 'Exploration',

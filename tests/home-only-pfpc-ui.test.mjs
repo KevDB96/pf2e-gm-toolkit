@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { phaseControlMarkup, syncSessionPhaseVisibility } from '../src/session-phase.js';
 
 const app = await readFile(new URL('../src/app.js', import.meta.url), 'utf8');
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
@@ -10,13 +11,22 @@ const exploration = await readFile(new URL('../src/views/exploration-gm.js', imp
 const downtime = await readFile(new URL('../src/views/downtime-gm.js', import.meta.url), 'utf8');
 
 test('PFPC controls and session phase selector are visible only on Home', () => {
-  assert.match(app, /qs\('#session-phase-control'\)\.hidden = name !== 'home'/);
+  assert.match(app, /syncSessionPhaseVisibility\(qs\('#session-phase-control'\), name\)/);
   assert.match(app, /qs\('#pfpc-control'\)\.hidden = name !== 'home'/);
   assert.equal((html.match(/id="session-phase-control"/g) || []).length, 1);
   assert.match(html, /id="pfpc-control"/);
   assert.doesNotMatch(html, /data-view="(?:pfpc|player-companion|companion)"/i);
   assert.doesNotMatch(html, /<span>Player Companion<\/span>/i);
   assert.match(app, /run:\s*\{\s*title: 'Run',\s*views: \['encounters', 'combat'\]\s*\}/);
+});
+
+test('route transitions hide the phase control off Home and preserve its selected phase', () => {
+  const control = { hidden: false, innerHTML: phaseControlMarkup('exploration') };
+  for (const view of ['home', 'notes', 'combat', 'notes', 'home']) {
+    syncSessionPhaseVisibility(control, view);
+    assert.equal(control.hidden, view !== 'home', `${view} visibility`);
+    assert.match(control.innerHTML, /data-session-phase="exploration"[^>]*aria-pressed="true"/);
+  }
 });
 
 test('Party presentation uses GM Toolkit language and preserves the read-only privacy boundary', () => {
