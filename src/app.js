@@ -98,6 +98,7 @@ function render() {
   }
 
   const subnav = qs('#subnav');
+  qs('#pfpc-control').hidden = name !== 'home';
   if (gid) {
     qs('#view-title').textContent = GROUPS[gid].title;
     subnav.innerHTML = GROUPS[gid].views.map(v =>
