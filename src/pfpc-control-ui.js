@@ -15,7 +15,7 @@ export function pfpcControlMarkup(rawModel, now = Date.now()) {
   }
   if (model.state === 'offline' || model.state === 'active') return '<span class="pfpc-state">Player Companion: OFFLINE</span><button class="primary" type="button" data-pfpc-start>Start Player Companion</button>';
   if (model.state === 'unconfigured') return `<span class="pfpc-state">Player Companion: Set service URL</span><form data-pfpc-config class="pfpc-config"><input name="url" type="url" placeholder="https://player-companion.example" aria-label="Player Companion URL" required><button type="submit">Save</button></form>`;
-  if (model.state === 'auth-required') return `<span class="pfpc-state">Player Companion: Sign in to start</span><form data-pfpc-login class="pfpc-config"><input name="username" autocomplete="username" placeholder="Username" aria-label="Username" required><input name="password" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password" required><button type="submit">Sign in</button></form>`;
+  if (model.state === 'auth-required') return `<span class="pfpc-state">Open your private GM access link to connect this browser.</span>${retry}`;
   if (model.state === 'admin-required') return `<span class="pfpc-state">Player Companion: Admin access required</span>${retry}`;
   return `<span class="pfpc-state unavailable">Player Companion unavailable</span>${retry}`;
 }
@@ -53,14 +53,6 @@ export function bindPfpcControl(root, { client = createPfpcClient(), now = Date.
     if (form.matches('[data-pfpc-config]')) {
       try { client.configureBaseUrl(new FormData(form).get('url')); await readStatus(); }
       catch { model = { state: 'unreachable' }; draw(); }
-    } else if (form.matches('[data-pfpc-login]') && !busy) {
-      busy = true;
-      const data = new FormData(form);
-      try {
-        const result = await client.login(data.get('username'), data.get('password'));
-        model = result.state === 'authenticated' ? await client.start() : result;
-        if (model.state === 'active-start-conflict') model = model.lease;
-      } finally { busy = false; draw(); }
     }
   });
   draw();

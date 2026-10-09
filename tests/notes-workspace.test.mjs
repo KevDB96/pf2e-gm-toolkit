@@ -41,7 +41,7 @@ test('Notes Exploration mounts the existing dashboard and legacy route normalize
 test('Notes reuses canonical activity and map controls, including visibility and marker privacy', () => {
   assert.match(exploration, /client\.setExploration\(currentCampaign,workflow\.revision,t\.dataset\.activity,t\.value\|\|null\)/);
   assert.match(exploration, /client\.getCampaignMap\(id/);
-  assert.match(exploration, /client\.setCampaignMap\(currentCampaign,mapRevision,map\)/);
+  assert.match(exploration, /client\.setCampaignMap\(id, revision, next\)/);
   assert.match(exploration, /data-visibility/);
   assert.match(exploration, /hidden-marker/);
   assert.match(notes, /visibleNotes\.length/);

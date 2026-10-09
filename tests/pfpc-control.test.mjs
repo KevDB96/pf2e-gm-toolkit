@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createPfpcClient, normalizePfpcBaseUrl, PFPC_BASE_URL_KEY } from '../src/pfpc-control.js';
+import { createPfpcClient, normalizePfpcBaseUrl, PFPC_BASE_URL_KEY, PFPC_DEVICE_KEY, consumeGmAccessLink } from '../src/pfpc-control.js';
 
 function storage() {
   const values = new Map();
@@ -27,6 +27,31 @@ function fixture(handler = async () => response(200, { state: 'offline' })) {
 }
 function authenticate(f) { f.sessionStore.setItem('pf2e-gm-toolkit/pfpc-session-token', 'session-secret'); }
 const active = { state: 'active', startedAt: '2026-09-27T10:00:00.000Z', activeUntil: '2026-09-27T16:00:00.000Z', remainingSeconds: 21600 };
+
+test('private link is consumed before routing and device access survives a new browser session', async () => {
+  const f = fixture(async () => response(200, { campaigns: [] }));
+  const key = 'a'.repeat(43);
+  const history = { replaceState: (...args) => { history.args = args; } };
+  assert.equal(consumeGmAccessLink({ client: f.client, history, location: { pathname: '/toolkit/', search: '', hash: `#/gm-access?service=https%3A%2F%2Fpfpc.example&key=${key}` } }), true);
+  assert.deepEqual(history.args, [null, '', '/toolkit/#/notes/exploration']);
+  assert.equal(f.calls.length, 0);
+  const reopened = createPfpcClient({ localStore: f.localStore, sessionStore: storage(), fetchImpl: async (url, options) => { assert.equal(options.headers.Authorization, `Bearer ${key}`); return response(200, { campaigns: [] }); } });
+  assert.equal((await reopened.getCampaigns()).state, 'ok');
+  reopened.configureBaseUrl('https://other.example');
+  assert.equal(f.localStore.getItem(PFPC_DEVICE_KEY), null);
+  assert.equal((await reopened.getCampaigns()).state, 'auth-required');
+});
+
+test('bad private links are cleared without granting device access; rejected devices are forgotten', async () => {
+  const f = fixture(async () => response(401, {}));
+  let removed = false;
+  assert.throws(() => consumeGmAccessLink({ client: f.client, history: { replaceState: () => { removed = true; } }, location: { pathname: '/', search: '', hash: '#/gm-access?service=https://pfpc.example&key=weak' } }));
+  assert.equal(removed, true);
+  assert.equal(f.localStore.getItem(PFPC_DEVICE_KEY), null);
+  f.client.activateDeviceAccess('https://pfpc.example', 'a'.repeat(43));
+  assert.equal((await f.client.getCampaigns()).state, 'auth-required');
+  assert.equal(f.localStore.getItem(PFPC_DEVICE_KEY), null);
+});
 
 test('base URL validation allows HTTPS and explicit local development only', () => {
   assert.equal(normalizePfpcBaseUrl('https://companion.example/'), 'https://companion.example');
@@ -172,6 +197,19 @@ test('workflow auth expiry and stale writes are explicit; read retry never start
   assert.equal(retry.calls.length, 3);
   assert.ok(retry.calls.every(call => call.url.endsWith('/workflow') && call.options.method === 'GET'));
   assert.equal(retry.calls.some(call => call.url.endsWith('/start')), false);
+});
+
+test('GM campaign discovery uses authenticated GET and never starts a session', async () => {
+  const f = fixture(async () => response(200, { campaigns: [{ campaignId: 'mists', displayName: 'Mists of Zalazar' }] }));
+  f.client.configureBaseUrl('https://pfpc.example');
+  assert.deepEqual(await f.client.getCampaigns(), { state: 'auth-required' });
+  assert.equal(f.calls.length, 0);
+  authenticate(f);
+  const result = await f.client.getCampaigns();
+  assert.equal(result.data.campaigns[0].campaignId, 'mists');
+  assert.equal(f.calls.length, 1);
+  assert.equal(f.calls[0].url, 'https://pfpc.example/gm/campaigns');
+  assert.deepEqual(f.calls[0].options, { method: 'GET', headers: { Authorization: 'Bearer session-secret' } });
 });
 
 test('module import and app lifecycle have no path to a control write', async () => {

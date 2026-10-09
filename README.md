@@ -87,6 +87,12 @@ skill lists, and dice parsing — plus the Pathbuilder conversion, the filter fa
 | **Party** | The player characters, grouped by campaign or one-shot. Each opens a GM-facing sheet: AC, HP, saves, Perception, every skill trained or not, class DC, spellcasting, and a compact feat list ordered by level with action costs. |
 | **BGM** | Three dice, in reach. **Combat** and **Boss** each open a random piece of at least half an hour, so one tap covers a whole fight, and **Victory** opens a short triumphant fanfare, the sting after a win — each die then names what it rolled. Everything opens in the official YouTube app, and a Premium account keeps playback going in the background. Below that, collapsed, are folders holding every track — including **Situational** (story cues: a character's death, a farewell, the heroes' return, rising tension, a long rest) and **Ambience** — for the times you want a particular one by hand, plus any links you saved on this device. |
 
+### Prepare the campaign map
+
+Open your private GM access link once on each trusted browser. It connects the campaign service, remembers device access, clears the credential from the address bar, and opens **Table → Campaign → Exploration**. Choose your campaign; no login, linked characters or connected players are required. Keep the access link private. Device access is revoked by replacing or removing the server-only `PFPC_GM_DEVICE_TOKEN`; it is never included in the public site, campaign exports or player data.
+
+Choose a marker, press **Place / move**, and click a hex, or enter its q/r coordinates and use **Place at hex**. Each flag, faction, and enemy has its own visibility checkbox. Maps are saved to the campaign service and restored when you return. You can prepare them with the player session stopped; sign-in here does not start the session. Use Home's explicit **Start Player Companion** when players should connect.
+
 ### Player display
 
 Combat’s **Display** sheet lets the GM choose which combatants are public and assign
