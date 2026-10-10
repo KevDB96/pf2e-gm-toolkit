@@ -2,7 +2,6 @@
 // Endpoint configuration is device-local; credentials and tokens never enter campaign state.
 export const PFPC_BASE_URL_KEY = 'pf2e-gm-toolkit/pfpc-base-url';
 const TOKEN_KEY = 'pf2e-gm-toolkit/pfpc-session-token';
-export const PFPC_DEVICE_KEY = 'pf2e-gm-toolkit/pfpc-device-access';
 
 /** @typedef {{revision:number,state:{phase:string,storyEra?:string,storyReveal?:string,encounter?:object,exploration?:object}}} PfpcSessionState */
 /** @typedef {{revision:number,month:number,characters:readonly {characterId:string,conditions:readonly {id:string,name:string,value?:number}[],exploration:{activityId:string,activityName:string}|null,downtime:{activityId:string,activityName:string,notes?:string}|null}[],advances?:readonly object[]}} PfpcWorkflow */
@@ -43,7 +42,12 @@ export function createPfpcClient({ fetchImpl = globalThis.fetch, localStore = gl
 
   function baseUrl() {
     const value = localStore?.getItem(PFPC_BASE_URL_KEY);
-    return value ? normalizePfpcBaseUrl(value) : null;
+    if (value) return normalizePfpcBaseUrl(value);
+    if (globalThis.location?.hostname === 'kevdb96.github.io'
+      && globalThis.location?.pathname?.startsWith('/pf2e-gm-toolkit/')) {
+      return 'https://pf2e-player-companion-production.up.railway.app';
+    }
+    return null;
   }
   function configureBaseUrl(value) {
     const normalized = normalizePfpcBaseUrl(value);
@@ -51,19 +55,11 @@ export function createPfpcClient({ fetchImpl = globalThis.fetch, localStore = gl
     localStore?.setItem(PFPC_BASE_URL_KEY, normalized);
     return normalized;
   }
-  function clearSession() { sessionStore?.removeItem(TOKEN_KEY); localStore?.removeItem(PFPC_DEVICE_KEY); }
-  function token() {
-    try {
-      const device = JSON.parse(localStore?.getItem(PFPC_DEVICE_KEY) || 'null');
-      if (device?.baseUrl === baseUrl() && /^[A-Za-z0-9_-]{43}$/.test(device.token)) return device.token;
-    } catch { /* A damaged device record never grants access. */ }
-    return sessionStore?.getItem(TOKEN_KEY) || null;
-  }
-  function activateDeviceAccess(service, key) {
-    if (typeof key !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(key)) throw new TypeError('Invalid GM access link');
-    const normalized = configureBaseUrl(service);
-    localStore.setItem(PFPC_DEVICE_KEY, JSON.stringify({ baseUrl: normalized, token: key }));
-  }
+  // Clear tokens saved by old versions; the private device credential is no longer accepted.
+  localStore?.removeItem('pf2e-gm-toolkit/pfpc-device-access');
+  function clearSession() { sessionStore?.removeItem(TOKEN_KEY); }
+  function token() { return sessionStore?.getItem(TOKEN_KEY) || null; }
+  function hasSession() { return Boolean(token()); }
   function unavailable() { return { state: 'unconfigured' }; }
 
   async function request(path, options = {}) {
@@ -165,7 +161,7 @@ export function createPfpcClient({ fetchImpl = globalThis.fetch, localStore = gl
   async function getCampaignMap(campaignId, options) { return api(campaignPath(campaignId, 'map'), 'GET', undefined, options); }
   async function setCampaignMap(campaignId, revision, map) { return api(campaignPath(campaignId, 'map'), 'PUT', { revision, map }); }
 
-  return Object.freeze({ configureBaseUrl, activateDeviceAccess, getBaseUrl: baseUrl, clearSession, getStatus, login,
+  return Object.freeze({ configureBaseUrl, getBaseUrl: baseUrl, clearSession, hasSession, getStatus, login,
     getCampaigns, getSessionState, setSessionState, getWorkflow, mutateWorkflow, getCampaignMap, setCampaignMap,
     setCondition: (campaignId, revision, characterId, condition) => mutateWorkflow(campaignId, { revision, action: 'condition-set', characterId, condition }),
     removeCondition: (campaignId, revision, characterId, conditionId) => mutateWorkflow(campaignId, { revision, action: 'condition-remove', characterId, conditionId }),
@@ -173,14 +169,4 @@ export function createPfpcClient({ fetchImpl = globalThis.fetch, localStore = gl
     setDowntime: (campaignId, revision, characterId, choice) => mutateWorkflow(campaignId, { revision, action: 'downtime-set', characterId, choice }),
     advanceMonth: (campaignId, expectedMonth, operationId) => mutateWorkflow(campaignId, { action: 'advance-month', expectedMonth, operationId }),
     start: () => write('/admin/companion/start'), stop: () => write('/admin/companion/stop') });
-}
-
-/** Consume the private fragment before routing; it is never sent to the web host. */
-export function consumeGmAccessLink({ location = globalThis.location, history = globalThis.history, client = createPfpcClient() } = {}) {
-  if (!location?.hash?.startsWith('#/gm-access?')) return false;
-  const params = new URLSearchParams(location.hash.slice('#/gm-access?'.length));
-  // Remove the credential even if validation or device storage fails.
-  history.replaceState(null, '', `${location.pathname}${location.search}#/notes/exploration`);
-  client.activateDeviceAccess(params.get('service'), params.get('key'));
-  return true;
 }
