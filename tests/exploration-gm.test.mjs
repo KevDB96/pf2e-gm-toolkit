@@ -106,19 +106,21 @@ test('conflicting saves reload current markers instead of reporting a successful
   assert.doesNotMatch(view.root.innerHTML, /alt="red"/);
 });
 
-test('authentication and empty campaign responses provide setup controls without map writes', async () => {
+test('obsolete auth failures never request a GM login or private access link', async () => {
   const view = setupView();
   view.client.getCampaigns = async () => ({ state: 'auth-required' });
   await view.bind().ready;
-  assert.match(view.root.innerHTML, /private GM access link/);
+  assert.match(view.root.innerHTML, /Campaigns could not be loaded/);
+  assert.match(view.root.innerHTML, /data-map-retry/);
+  assert.doesNotMatch(view.root.innerHTML, /login|log.in|password|private.*link|GM access is required/i);
   assert.equal(view.calls.length, 0);
   view.client.getCampaigns = async () => ({ state: 'ok', data: { campaigns: [] } });
   await view.bind().ready;
-  assert.match(view.root.innerHTML, /No GM campaigns/);
+  assert.match(view.root.innerHTML, /No campaigns are available/);
   assert.equal(view.calls.length, 0);
 });
 
-test('restored device access loads a campaign without invoking Start or requiring a roster', async () => {
+test('transient campaign failure recovers without login or starting a player session', async () => {
   const view = setupView();
   const discover = view.client.getCampaigns;
   let signedIn = false, starts = 0;
