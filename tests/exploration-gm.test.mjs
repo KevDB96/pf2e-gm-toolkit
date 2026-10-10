@@ -21,6 +21,22 @@ test('map markup exposes accessible keyboard placement, independent marker visib
   assert.doesNotMatch(html, /data-arm|data-marker|Place \/ move/);
   assert.match(html,/data-visibility="red" checked/); assert.match(html,/data-visibility="blue"/); assert.match(html,/data-enemy-visibility="enemy-secret"/);
   assert.match(html,/Faded markers are GM only/); assert.match(html,/Player view/);
+  assert.match(html, /class="gm-map-marker gm-map-flag "/);
+  assert.match(html, /class="gm-map-marker gm-map-flag hidden-marker"/);
+  assert.match(html, /class="gm-map-marker "/); // enemies remain unaffected
+});
+
+test('flag artwork offsets up and right while keeping other map markers centered', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
+  assert.match(css, /\.gm-map-marker \{[^}]*transform:translate\(-50%,-50%\)/);
+  assert.match(css, /\.gm-map-marker\.gm-map-flag \{ transform:translate\(-30%,-70%\); \}/);
+  const map=emptyCampaignMap(); map.party='h2:2:2'; map.flags.red={hex:'h2:2:2',visible:true};
+  const html=explorationMarkup({...props,map});
+  const party=html.match(/<img class="gm-map-marker " src="[^"]+" alt="party" style="([^"]+)"/)?.[1];
+  const flag=html.match(/<img class="gm-map-marker gm-map-flag " src="[^"]+" alt="red" style="([^"]+)"/)?.[1];
+  assert.ok(party && flag);
+  assert.equal(flag, party); // visual CSS shift only, canonical hex remains identical
 });
 
 function setupView({ campaigns = [{ campaignId: 'mists', displayName: 'Mists of Zalazar' }], mapFailure = false } = {}) {
