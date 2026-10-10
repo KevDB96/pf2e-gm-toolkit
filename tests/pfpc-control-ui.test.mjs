@@ -35,13 +35,10 @@ test('unreachable offers status retry only; setup and auth states stay actionabl
   assert.match(unavailable, /data-pfpc-retry/);
   assert.doesNotMatch(unavailable, /data-pfpc-start|data-pfpc-stop/);
   assert.match(pfpcControlMarkup({ state: 'unconfigured' }), /data-pfpc-config/);
-  const login = pfpcControlMarkup({ state: 'auth-required' });
-  assert.match(login, /data-pfpc-login/);
-  assert.match(login, /GM username/);
-  assert.match(login, /type="password"/);
-  assert.doesNotMatch(login, /private GM access link/i);
-  assert.match(pfpcControlMarkup({ state: 'auth-required', invalid: true }), /Invalid GM credentials/);
-  assert.match(pfpcControlMarkup({ state: 'admin-required' }), /Admin access required/);
+  for (const state of ['offline', 'active', 'auth-required', 'admin-required']) {
+    const markup = pfpcControlMarkup({ state }, deadline);
+    assert.doesNotMatch(markup, /sign.in|sign.out|username|password|gm.access|private.*link/i);
+  }
 });
 
 test('control UI contains no extension affordance', async () => {
