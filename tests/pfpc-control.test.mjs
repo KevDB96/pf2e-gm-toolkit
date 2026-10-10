@@ -25,27 +25,18 @@ function fixture(handler = async () => response(200, { state: 'offline' })) {
   });
   return { client, localStore, sessionStore, calls };
 }
-function authenticate(f) { f.sessionStore.setItem('pf2e-gm-toolkit/pfpc-session-token', 'session-secret'); }
 const active = { state: 'active', startedAt: '2026-09-27T10:00:00.000Z', activeUntil: '2026-09-27T16:00:00.000Z', remainingSeconds: 21600 };
 
-test('obsolete device token is deleted and cannot grant GM access', async () => {
+test('old credentials are cleared; GM campaign discovery needs no login', async () => {
   const localStore = storage();
+  const sessionStore = storage();
   localStore.setItem(PFPC_BASE_URL_KEY, 'https://pfpc.example');
-  localStore.setItem('pf2e-gm-toolkit/pfpc-device-access', JSON.stringify({ baseUrl: 'https://pfpc.example', token: 'a'.repeat(43) }));
-  const client = createPfpcClient({ localStore, sessionStore: storage(), fetchImpl: async () => { throw new Error('network should not be used'); } });
+  localStore.setItem('pf2e-gm-toolkit/pfpc-device-access', 'a'.repeat(43));
+  sessionStore.setItem('pf2e-gm-toolkit/pfpc-session-token', 'session-secret');
+  const client = createPfpcClient({ localStore, sessionStore, fetchImpl: async () => response(200, { campaigns: [] }) });
   assert.equal(localStore.getItem('pf2e-gm-toolkit/pfpc-device-access'), null);
-  assert.equal(client.hasSession(), false);
-  assert.deepEqual(await client.getCampaigns(), { state: 'auth-required' });
-});
-
-test('a GM must authenticate using username and password', async () => {
-  const f = fixture(async () => response(200, { accessToken: 'session-secret' }));
-  f.client.configureBaseUrl('https://pfpc.example');
-  assert.equal(f.client.hasSession(), false);
-  assert.deepEqual(await f.client.login('gm', 'secret'), { state: 'authenticated' });
-  assert.equal(f.client.hasSession(), true);
-  f.client.clearSession();
-  assert.equal(f.client.hasSession(), false);
+  assert.equal(sessionStore.getItem('pf2e-gm-toolkit/pfpc-session-token'), null);
+  assert.deepEqual(await client.getCampaigns(), { state: 'ok', data: { campaigns: [] } });
 });
 
 test('base URL validation allows HTTPS and explicit local development only', () => {
@@ -74,59 +65,39 @@ test('configuration persists separately and status reads anonymous offline or ac
   assert.deepEqual(online.calls[0].options, {});
 });
 
-test('login has exact route and body, retains only the token in session storage', async () => {
-  const f = fixture(async () => response(200, { accessToken: 'session-secret' }));
-  f.client.configureBaseUrl('https://pfpc.example');
-  assert.deepEqual(await f.client.login('gm', 'password-secret'), { state: 'authenticated' });
-  assert.equal(f.calls[0].url, 'https://pfpc.example/auth/login');
-  assert.deepEqual(f.calls[0].options, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: 'gm', password: 'password-secret' }) });
-  assert.equal(f.sessionStore.values.get('pf2e-gm-toolkit/pfpc-session-token'), 'session-secret');
-  assert.equal([...f.localStore.values.values()].some(value => /password-secret|session-secret/.test(value)), false);
-  assert.equal([...f.sessionStore.values.values()].some(value => value.includes('password-secret')), false);
-  f.client.clearSession();
-  assert.equal(f.sessionStore.values.size, 0);
-});
-
-test('Start sends only bearer authorization and accepts successful status', async () => {
+test('Start requires no GM credential and accepts successful status', async () => {
   const f = fixture(async () => response(200, active));
   f.client.configureBaseUrl('https://pfpc.example');
-  authenticate(f);
   assert.deepEqual(await f.client.start(), active);
   assert.equal(f.calls[0].url, 'https://pfpc.example/admin/companion/start');
-  assert.deepEqual(f.calls[0].options, { method: 'POST', headers: { Authorization: 'Bearer session-secret' } });
+  assert.deepEqual(f.calls[0].options, { method: 'POST' });
   assert.equal(Object.hasOwn(f.calls[0].options, 'body'), false);
 });
 
 test('active conflict returns the exact existing deadline without retry or mutation', async () => {
   const f = fixture(async () => response(409, { code: 'lease_active', ...active }));
   f.client.configureBaseUrl('https://pfpc.example');
-  authenticate(f);
   const result = await f.client.start();
   assert.equal(result.state, 'active-start-conflict');
   assert.equal(result.lease.activeUntil, active.activeUntil);
   assert.equal(f.calls.length, 1);
 });
 
-test('Stop uses the administrator bearer token and exact route', async () => {
+test('Stop requires no GM credential and uses the exact route', async () => {
   const f = fixture(async () => response(200, { state: 'offline' }));
   f.client.configureBaseUrl('https://pfpc.example');
-  authenticate(f);
   assert.deepEqual(await f.client.stop(), { state: 'offline' });
   assert.equal(f.calls[0].url, 'https://pfpc.example/admin/companion/stop');
-  assert.deepEqual(f.calls[0].options, { method: 'POST', headers: { Authorization: 'Bearer session-secret' } });
+  assert.deepEqual(f.calls[0].options, { method: 'POST' });
 });
 
-test('401 clears token; 403 reports administrator requirement', async () => {
+test('backend access errors show unavailable, not a login prompt', async () => {
   const unauthorized = fixture(async () => response(401, {}));
   unauthorized.client.configureBaseUrl('https://pfpc.example');
-  authenticate(unauthorized);
-  assert.deepEqual(await unauthorized.client.stop(), { state: 'auth-required' });
-  assert.equal(unauthorized.sessionStore.values.size, 0);
-
+  assert.deepEqual(await unauthorized.client.stop(), { state: 'unreachable' });
   const forbidden = fixture(async () => response(403, {}));
   forbidden.client.configureBaseUrl('https://pfpc.example');
-  authenticate(forbidden);
-  assert.deepEqual(await forbidden.client.start(), { state: 'admin-required' });
+  assert.deepEqual(await forbidden.client.start(), { state: 'unreachable' });
 });
 
 test('unconfigured and network failures are represented without writes', async () => {
@@ -138,8 +109,7 @@ test('unconfigured and network failures are represented without writes', async (
   const failed = fixture(async () => { throw new Error('offline'); });
   failed.client.configureBaseUrl('https://pfpc.example');
   assert.deepEqual(await failed.client.getStatus(), { state: 'unreachable' });
-  assert.deepEqual(await failed.client.login('gm', 'pw'), { state: 'unreachable' });
-  assert.equal(failed.calls.every(call => call.url.endsWith('/companion/status') || call.url.endsWith('/auth/login')), true);
+  assert.equal(failed.calls.every(call => call.url.endsWith('/companion/status')), true);
 });
 
 test('status retries are GET-only and never invoke Start or Stop', async () => {
@@ -152,7 +122,7 @@ test('status retries are GET-only and never invoke Start or Stop', async () => {
 
 test('workflow client serializes typed session, workflow, map and narrow condition mutations', async () => {
   const f = fixture(async () => response(200, { workflow: { revision: 4 } }));
-  f.client.configureBaseUrl('https://pfpc.example'); authenticate(f);
+  f.client.configureBaseUrl('https://pfpc.example');
   await f.client.getSessionState('campaign/a');
   await f.client.setSessionState('campaign/a', 2, { phase: 'combat' });
   await f.client.getWorkflow('campaign/a');
@@ -165,7 +135,7 @@ test('workflow client serializes typed session, workflow, map and narrow conditi
   await f.client.getCampaignMap('campaign/a');
   await f.client.setCampaignMap('campaign/a', 8, { party: null, flags: {}, enemies: [] });
   assert.equal(f.calls[0].url, 'https://pfpc.example/gm/campaigns/campaign%2Fa/session-state');
-  assert.equal(f.calls[0].options.headers.Authorization, 'Bearer session-secret');
+  assert.deepEqual(f.calls[0].options.headers, {});
   assert.deepEqual(JSON.parse(f.calls[1].options.body), { revision: 2, state: { phase: 'combat' } });
   assert.deepEqual(JSON.parse(f.calls[3].options.body), { revision: 4, action: 'condition-set', characterId: 'hero', condition: { id: 'frightened', name: 'Frightened', value: 2 } });
   assert.deepEqual(JSON.parse(f.calls[4].options.body), { revision: 5, action: 'condition-remove', characterId: 'hero', conditionId: 'frightened' });
@@ -178,33 +148,30 @@ test('workflow client serializes typed session, workflow, map and narrow conditi
 
 test('workflow auth expiry and stale writes are explicit; read retry never starts PFPC', async () => {
   const expired = fixture(async () => response(401, {}));
-  expired.client.configureBaseUrl('https://pfpc.example'); authenticate(expired);
-  assert.deepEqual(await expired.client.getWorkflow('campaign'), { state: 'auth-required' });
-  assert.equal(expired.sessionStore.values.size, 0);
+  expired.client.configureBaseUrl('https://pfpc.example');
+  assert.deepEqual(await expired.client.getWorkflow('campaign'), { state: 'unreachable' });
 
   const conflict = fixture(async () => response(409, { code: 'revision_conflict', details: { currentRevision: 12 } }));
-  conflict.client.configureBaseUrl('https://pfpc.example'); authenticate(conflict);
+  conflict.client.configureBaseUrl('https://pfpc.example');
   assert.deepEqual(await conflict.client.setCondition('campaign', 4, 'hero', { id: 'frightened', name: 'Frightened' }), { state: 'conflict', currentRevision: 12, current: null });
 
   const retry = fixture(async () => { throw new Error('offline'); });
-  retry.client.configureBaseUrl('https://pfpc.example'); authenticate(retry);
+  retry.client.configureBaseUrl('https://pfpc.example');
   assert.deepEqual(await retry.client.getWorkflow('campaign', { retries: 2 }), { state: 'unreachable' });
   assert.equal(retry.calls.length, 3);
   assert.ok(retry.calls.every(call => call.url.endsWith('/workflow') && call.options.method === 'GET'));
   assert.equal(retry.calls.some(call => call.url.endsWith('/start')), false);
 });
 
-test('GM campaign discovery uses authenticated GET and never starts a session', async () => {
+test('GM campaign discovery uses anonymous GET and never starts a session', async () => {
   const f = fixture(async () => response(200, { campaigns: [{ campaignId: 'mists', displayName: 'Mists of Zalazar' }] }));
   f.client.configureBaseUrl('https://pfpc.example');
-  assert.deepEqual(await f.client.getCampaigns(), { state: 'auth-required' });
-  assert.equal(f.calls.length, 0);
-  authenticate(f);
   const result = await f.client.getCampaigns();
   assert.equal(result.data.campaigns[0].campaignId, 'mists');
   assert.equal(f.calls.length, 1);
   assert.equal(f.calls[0].url, 'https://pfpc.example/gm/campaigns');
-  assert.deepEqual(f.calls[0].options, { method: 'GET', headers: { Authorization: 'Bearer session-secret' } });
+  assert.deepEqual(f.calls[0].options, { method: 'GET', headers: {} });
+  assert.ok(!f.calls.some(call => call.url.includes('/auth/login') || call.url.includes('/start')));
 });
 
 test('module import and app lifecycle have no path to a control write', async () => {
@@ -220,6 +187,6 @@ test('module import and app lifecycle have no path to a control write', async ()
   assert.doesNotMatch(app, /\.start\(|\.stop\(/);
   assert.doesNotMatch(store, /pfpc-control|\.start\(|\.stop\(/);
   assert.match(html, /src\/app\.js/);
-  assert.doesNotMatch(clientSource, /railway|keepalive|extend/i);
+  assert.doesNotMatch(clientSource, /keepalive|extend|auth\/login|Bearer/i);
   assert.equal(f.calls.length, before);
 });
