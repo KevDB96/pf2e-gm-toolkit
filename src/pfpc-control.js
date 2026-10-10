@@ -1,7 +1,6 @@
 // Explicit GM control seam for the separately hosted Player Companion service.
-// Endpoint configuration is device-local; credentials and tokens never enter campaign state.
+// Endpoint configuration is device-local; no GM authentication is required.
 export const PFPC_BASE_URL_KEY = 'pf2e-gm-toolkit/pfpc-base-url';
-const TOKEN_KEY = 'pf2e-gm-toolkit/pfpc-session-token';
 
 /** @typedef {{revision:number,state:{phase:string,storyEra?:string,storyReveal?:string,encounter?:object,exploration?:object}}} PfpcSessionState */
 /** @typedef {{revision:number,month:number,characters:readonly {characterId:string,conditions:readonly {id:string,name:string,value?:number}[],exploration:{activityId:string,activityName:string}|null,downtime:{activityId:string,activityName:string,notes?:string}|null}[],advances?:readonly object[]}} PfpcWorkflow */
@@ -51,15 +50,12 @@ export function createPfpcClient({ fetchImpl = globalThis.fetch, localStore = gl
   }
   function configureBaseUrl(value) {
     const normalized = normalizePfpcBaseUrl(value);
-    if (baseUrl() !== normalized) clearSession();
     localStore?.setItem(PFPC_BASE_URL_KEY, normalized);
     return normalized;
   }
-  // Clear tokens saved by old versions; the private device credential is no longer accepted.
+  // Clean up legacy GM credentials, which are no longer read or sent.
   localStore?.removeItem('pf2e-gm-toolkit/pfpc-device-access');
-  function clearSession() { sessionStore?.removeItem(TOKEN_KEY); }
-  function token() { return sessionStore?.getItem(TOKEN_KEY) || null; }
-  function hasSession() { return Boolean(token()); }
+  sessionStore?.removeItem('pf2e-gm-toolkit/pfpc-session-token');
   function unavailable() { return { state: 'unconfigured' }; }
 
   async function request(path, options = {}) {
@@ -73,8 +69,7 @@ export function createPfpcClient({ fetchImpl = globalThis.fetch, localStore = gl
   }
   async function mappedError(response) {
     if (response.state === 'unreachable' || response.state === 'unconfigured') return response;
-    if (response.status === 401) { clearSession(); return { state: 'auth-required' }; }
-    if (response.status === 403) return { state: 'admin-required' };
+    if (response.status === 401 || response.status === 403) return { state: 'unreachable' };
     if (response.status === 409) {
       const data = await json(response);
       return { state: 'conflict', currentRevision: Number.isInteger(data?.details?.currentRevision) ? data.details.currentRevision : null, current: data?.details?.current ?? null };
@@ -98,25 +93,9 @@ export function createPfpcClient({ fetchImpl = globalThis.fetch, localStore = gl
     return result || { state: 'unreachable' };
   }
 
-  async function login(username, password) {
-    if (!baseUrl()) return unavailable();
-    if (typeof username !== 'string' || typeof password !== 'string') return { state: 'auth-required' };
-    const response = await request('/auth/login', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password })
-    });
-    if (response.state) return response;
-    if (!response.ok) return mappedError(response);
-    const data = await json(response);
-    if (typeof data?.accessToken !== 'string' || !data.accessToken) return { state: 'auth-required' };
-    sessionStore?.setItem(TOKEN_KEY, data.accessToken);
-    return { state: 'authenticated' };
-  }
-
   async function write(path) {
     if (!baseUrl()) return unavailable();
-    const accessToken = token();
-    if (!accessToken) return { state: 'auth-required' };
-    const response = await request(path, { method: 'POST', headers: { Authorization: `Bearer ${accessToken}` } });
+    const response = await request(path, { method: 'POST' });
     if (response.state) return response;
     if (path.endsWith('/start') && response.status === 409) {
       try {
@@ -134,12 +113,10 @@ export function createPfpcClient({ fetchImpl = globalThis.fetch, localStore = gl
 
   async function api(path, method = 'GET', body, { retries = 0 } = {}) {
     if (!baseUrl()) return unavailable();
-    const accessToken = token();
-    if (!accessToken) return { state: 'auth-required' };
     const attempts = method === 'GET' && Number.isInteger(retries) ? Math.max(0, Math.min(3, retries)) + 1 : 1;
     let last;
     for (let index = 0; index < attempts; index += 1) {
-      const options = { method, headers: { Authorization: `Bearer ${accessToken}` } };
+      const options = { method, headers: {} };
       if (body !== undefined) {
         options.headers['Content-Type'] = 'application/json';
         options.body = JSON.stringify(body);
@@ -161,7 +138,7 @@ export function createPfpcClient({ fetchImpl = globalThis.fetch, localStore = gl
   async function getCampaignMap(campaignId, options) { return api(campaignPath(campaignId, 'map'), 'GET', undefined, options); }
   async function setCampaignMap(campaignId, revision, map) { return api(campaignPath(campaignId, 'map'), 'PUT', { revision, map }); }
 
-  return Object.freeze({ configureBaseUrl, getBaseUrl: baseUrl, clearSession, hasSession, getStatus, login,
+  return Object.freeze({ configureBaseUrl, getBaseUrl: baseUrl, getStatus,
     getCampaigns, getSessionState, setSessionState, getWorkflow, mutateWorkflow, getCampaignMap, setCampaignMap,
     setCondition: (campaignId, revision, characterId, condition) => mutateWorkflow(campaignId, { revision, action: 'condition-set', characterId, condition }),
     removeCondition: (campaignId, revision, characterId, conditionId) => mutateWorkflow(campaignId, { revision, action: 'condition-remove', characterId, conditionId }),
