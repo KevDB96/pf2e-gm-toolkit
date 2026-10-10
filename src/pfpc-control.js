@@ -40,13 +40,14 @@ export function createPfpcClient({ fetchImpl = globalThis.fetch, localStore = gl
   if (typeof fetchImpl !== 'function') throw new TypeError('fetch is required');
 
   function baseUrl() {
-    const value = localStore?.getItem(PFPC_BASE_URL_KEY);
-    if (value) return normalizePfpcBaseUrl(value);
+    // The hosted toolkit always uses its production service, even if an old
+    // browser setup saved an obsolete URL in local storage.
     if (globalThis.location?.hostname === 'kevdb96.github.io'
       && globalThis.location?.pathname?.startsWith('/pf2e-gm-toolkit/')) {
       return 'https://pf2e-player-companion-production.up.railway.app';
     }
-    return null;
+    const value = localStore?.getItem(PFPC_BASE_URL_KEY);
+    return value ? normalizePfpcBaseUrl(value) : null;
   }
   function configureBaseUrl(value) {
     const normalized = normalizePfpcBaseUrl(value);
