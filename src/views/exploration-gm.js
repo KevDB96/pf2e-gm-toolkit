@@ -26,9 +26,7 @@ const SELECTED_CAMPAIGN_KEY = 'pf2e-gm-toolkit/map-campaign';
 function setupMarkup(connection, status) {
   const form = connection === 'unconfigured'
     ? '<form data-map-connect><label>Campaign service URL <input name="url" type="url" required></label><button type="submit">Connect</button></form>'
-    : connection === 'auth-required' || connection === 'admin-required'
-      ? '<p>Open your private GM access link to connect this browser. Your access is remembered on this device.</p><button type="button" data-map-retry>Retry</button>'
-      : '<button type="button" data-map-retry>Retry</button>';
+    : '<button type="button" data-map-retry>Retry</button>';
   return '<section class="gm-exploration gm-map-setup"><h2>Exploration</h2><p role="status">' + escText(status) + '</p>' + form + '</section>';
 }
 
@@ -89,14 +87,13 @@ export function bindExploration(root, {
       if (request !== generation) return;
       busy = false;
       if (result.state !== 'ok') {
-        const messages = { unconfigured: 'Connect your campaign service to prepare the map.',
-          'auth-required': 'Connect this browser with your private GM access link.', 'admin-required': 'GM access is required.' };
+        const messages = { unconfigured: 'Connect your campaign service to prepare the map.' };
         root.innerHTML = setupMarkup(result.state, messages[result.state] || 'Campaigns could not be loaded.'); return;
       }
       campaigns = result.data.campaigns;
       if (!Array.isArray(campaigns) || !campaigns.every(c => typeof c.campaignId === 'string' && c.campaignId && typeof c.displayName === 'string')) throw new Error('Invalid campaigns');
       if (!campaigns.length) {
-        root.innerHTML = setupMarkup('empty', 'No GM campaigns are available for this account.'); return;
+        root.innerHTML = setupMarkup('empty', 'No campaigns are available on the Player Companion service.'); return;
       }
       const preferred = campaignId() || remembered();
       const selected = campaigns.find(c => c.campaignId === preferred) || (campaigns.length === 1 ? campaigns[0] : null);
