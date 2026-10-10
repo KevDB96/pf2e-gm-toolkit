@@ -6,7 +6,6 @@ import { keepAwake } from './wake.js';
 import { bindPlayerBroadcast } from './player-channel.js';
 import { phaseControlMarkup, SESSION_PHASES, syncSessionPhaseVisibility } from './session-phase.js';
 import { bindPfpcControl } from './pfpc-control-ui.js';
-import { consumeGmAccessLink } from './pfpc-control.js';
 import * as home from './views/home.js';
 import * as encounters from './views/encounters.js';
 import * as combat from './views/combat.js';
@@ -42,7 +41,6 @@ function groupOf(view) {
   return null;
 }
 
-try { consumeGmAccessLink(); } catch { /* The view offers connection recovery. */ }
 let root = qs('#view');
 let current = null;
 
