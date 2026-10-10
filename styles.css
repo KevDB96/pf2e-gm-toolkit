@@ -668,6 +668,16 @@ h2 + .card-group{margin-top:4px}
 .gm-map-setup { display:grid; gap:12px; }
 .gm-map-setup form { display:grid; gap:10px; max-width:100%; }
 .gm-map-setup input, .gm-exploration header select { min-width:0; max-width:100%; }
+.gm-map-palette { display:flex; flex-wrap:wrap; gap:8px; }
+.gm-marker-pick { display:inline-flex; flex-direction:column; align-items:center; justify-content:center; flex:0 0 auto; gap:4px; min-width:64px; min-height:68px; padding:8px 10px; background:var(--panel); border:1px solid var(--line); border-radius:10px; color:var(--ink); cursor:pointer; font-size:.74rem; }
+.gm-marker-pick img { width:27px; height:27px; object-fit:contain; pointer-events:none; }
+.gm-marker-pick span { pointer-events:none; }
+.gm-marker-pick.selected { background:var(--accent-soft); border-color:var(--accent); box-shadow:0 0 0 1px var(--accent-edge); }
+.gm-marker-pick:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.gm-marker-pick:disabled { cursor:not-allowed; opacity:.5; }
+.gm-map-precision { border-top:1px solid var(--line); padding-top:6px; color:var(--muted); font-size:.82rem; }
+.gm-map-precision summary { cursor:pointer; width:fit-content; }
+.gm-map-keyboard { padding:10px 0 2px; }
 .gm-map { position:relative; width:100%; aspect-ratio:3/2; overflow:hidden; touch-action:manipulation; }
 .gm-map-art { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
 .gm-map-marker { position:absolute; width:2.87%; height:auto; max-height:5%; transform:translate(-50%,-50%); pointer-events:none; z-index:2; }
