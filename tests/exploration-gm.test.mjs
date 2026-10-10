@@ -23,7 +23,31 @@ test('map markup exposes accessible keyboard placement, independent marker visib
   assert.match(html,/Faded markers are GM only/); assert.match(html,/Player view/);
   assert.match(html, /class="gm-map-marker gm-map-flag "/);
   assert.match(html, /class="gm-map-marker gm-map-flag hidden-marker"/);
-  assert.match(html, /class="gm-map-marker "/); // enemies remain unaffected
+  assert.match(html, /class="gm-map-marker gm-map-banner hidden-marker"/); // hidden enemies keep independent visibility
+});
+
+test('generated Enemy, Royal Guard and Alliance art renders distinctly in palette and map', async () => {
+  const { readFile } = await import('node:fs/promises');
+  for (const filename of ['marker-new-enemy.png', 'marker-royal-guard.png', 'marker-alliance.png']) {
+    const bytes = await readFile(new URL('../assets/maps/' + filename, import.meta.url));
+    assert.equal(bytes.subarray(0,8).toString('hex'), '89504e470d0a1a0a');
+  }
+  const map=emptyCampaignMap();
+  map.enemies=[{id:'enemy-a',hex:'h2:2:2',visible:false}];
+  map.factions=[
+    {kind:'royal-guard',hex:'h2:3:3',visible:true},
+    {kind:'alliance',hex:'h2:4:4',visible:false}
+  ];
+  const html=explorationMarkup({...props,map});
+  for (const asset of ['marker-new-enemy.png', 'marker-royal-guard.png', 'marker-alliance.png']) {
+    assert.ok(html.includes('assets/maps/' + asset));
+  }
+  assert.match(html, /data-select-marker="faction:royal-guard"[^>]*><img src="assets\/maps\/marker-royal-guard\.png"/);
+  assert.match(html, /data-select-marker="faction:alliance"[^>]*><img src="assets\/maps\/marker-alliance\.png"/);
+  assert.match(html, /<img class="gm-map-marker gm-map-banner " src="assets\/maps\/marker-royal-guard\.png" alt="royal-guard" /);
+  assert.match(html, /<img class="gm-map-marker gm-map-banner hidden-marker" src="assets\/maps\/marker-alliance\.png" alt="alliance hidden" /);
+  assert.match(html, /<img class="gm-map-marker gm-map-banner hidden-marker" src="assets\/maps\/marker-new-enemy\.png" alt="enemy hidden" /);
+  assert.doesNotMatch(html, /<img class="gm-map-marker[^"]*" src="assets\/maps\/marker-enemy\.svg"/);
 });
 
 test('flag artwork offsets up and right while keeping other map markers centered', async () => {
