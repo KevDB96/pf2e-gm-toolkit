@@ -20,7 +20,7 @@ test('map markup exposes accessible keyboard placement, independent marker visib
   assert.match(html, /data-select-marker="red"/); assert.match(html, /data-select-marker="blue"/);
   assert.doesNotMatch(html, /data-arm|data-marker|Place \/ move/);
   assert.match(html,/data-visibility="red" checked/); assert.match(html,/data-visibility="blue"/); assert.match(html,/data-enemy-visibility="enemy-secret"/);
-  assert.match(html,/Faded markers are GM only/); assert.match(html,/Player view/);
+  assert.match(html,/Visibility controls only what players see/); assert.match(html,/Player view/);
   assert.match(html, /class="gm-map-marker gm-map-flag "/);
   assert.match(html, /class="gm-map-marker gm-map-flag hidden-marker"/);
   assert.match(html, /class="gm-map-marker gm-map-banner hidden-marker"/); // hidden enemies keep independent visibility
@@ -44,10 +44,31 @@ test('generated Enemy, Royal Guard and Alliance art renders distinctly in palett
   }
   assert.match(html, /data-select-marker="faction:royal-guard"[^>]*><img src="assets\/maps\/marker-royal-guard\.png"/);
   assert.match(html, /data-select-marker="faction:alliance"[^>]*><img src="assets\/maps\/marker-alliance\.png"/);
-  assert.match(html, /<img class="gm-map-marker gm-map-banner " src="assets\/maps\/marker-royal-guard\.png" alt="royal-guard" /);
-  assert.match(html, /<img class="gm-map-marker gm-map-banner hidden-marker" src="assets\/maps\/marker-alliance\.png" alt="alliance hidden" /);
+  assert.match(html, /<img class="gm-map-marker gm-map-banner gm-map-faction " src="assets\/maps\/marker-royal-guard\.png" alt="royal-guard" /);
+  assert.match(html, /<img class="gm-map-marker gm-map-banner gm-map-faction hidden-marker" src="assets\/maps\/marker-alliance\.png" alt="alliance hidden" /);
   assert.match(html, /<img class="gm-map-marker gm-map-banner hidden-marker" src="assets\/maps\/marker-new-enemy\.png" alt="enemy hidden" /);
   assert.doesNotMatch(html, /<img class="gm-map-marker[^"]*" src="assets\/maps\/marker-enemy\.svg"/);
+});
+
+test('GM flags and faction markers are fully opaque even when hidden from players', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
+  assert.ok(css.includes('.gm-map-marker.gm-map-flag.hidden-marker,'));
+  assert.ok(css.includes('.gm-map-marker.gm-map-faction.hidden-marker { opacity:1; filter:none; }'));
+  assert.ok(css.includes('.gm-map-marker.hidden-marker { opacity:.38; filter:grayscale(.7); }'));
+  const map = emptyCampaignMap();
+  map.flags.red = { hex: 'h2:1:1', visible: false };
+  map.factions = [{ kind: 'alliance', hex: 'h2:2:2', visible: false }];
+  map.enemies = [{ id: 'enemy-hidden', hex: 'h2:3:3', visible: false }];
+  const html = explorationMarkup({ ...props, map });
+  assert.match(html, /class="gm-map-marker gm-map-flag hidden-marker"/);
+  assert.match(html, /class="gm-map-marker gm-map-banner gm-map-faction hidden-marker"/);
+  assert.match(html, /class="gm-map-marker gm-map-banner hidden-marker"/);
+  const { projectPublicCampaignMap } = await import('../src/campaign-map.js');
+  const player = projectPublicCampaignMap(map);
+  assert.deepEqual(player.flags, []);
+  assert.deepEqual(player.enemies, []);
+  assert.equal(player.factions, undefined);
 });
 
 test('flag artwork offsets up and right while keeping other map markers centered', async () => {
