@@ -8,13 +8,26 @@ import { MAP_WIDTH, MAP_HEIGHT, emptyCampaignMap, sanitizeCampaignMap, hexCenter
 const MARKERS = { party:'assets/maps/nav-party.png', red:'assets/maps/flag-red.png', yellow:'assets/maps/flag-yellow.png', blue:'assets/maps/flag-blue.png', enemy:'assets/maps/marker-enemy.svg' };
 const colors=['red','yellow','blue'];
 const escText=value=>esc(String(value??''));
-export function explorationMarkup({campaignId,characters,workflow,activityOptions,map,revision,status,campaigns = [],busy = false,mapReady = true}) {
+const markerChoices = map => [
+  { key:'party', label:'Party', icon:MARKERS.party },
+  ...colors.map(color=>({key:color,label:color[0].toUpperCase()+color.slice(1),icon:MARKERS[color]})),
+  { key:'enemy', label:'New enemy', icon:MARKERS.enemy },
+  ...map.enemies.map((enemy,i)=>({key:enemy.id,label:`Enemy ${i+1}`,icon:MARKERS.enemy})),
+  { key:'faction:royal-guard', label:'Royal Guard', icon:MARKERS.enemy },
+  { key:'faction:alliance', label:'Alliance', icon:MARKERS.enemy }
+];
+export function explorationMarkup({campaignId,characters,workflow,activityOptions,map,revision,status,campaigns = [],busy = false,mapReady = true, selectedMarker = 'party'}) {
   const campaignChoices = campaigns.length ? campaigns : [{ campaignId, displayName: campaignId }];
   const records=new Map((workflow?.characters||[]).map(row=>[row.characterId,row]));
   const activity=characters.map(ch=>{const w=records.get(ch.id);const selected=w?.exploration?.activityId||'';const choice=activityOptions.find(a=>a.id===selected);const selectedName=choice?.name||w?.exploration?.activityName||'';return `<article class="gm-exploration-character"><details><summary><span><b>${escText(ch.name)}</b><small>${escText(w?.playerName||w?.displayName||ch.playerName||'Player not set')}</small></span><strong class="${selected?'':'missing'}">${selected?escText(selectedName||'Selected activity'): 'No activity selected'}</strong></summary><div class="gm-activity-control"><label>Activity <select data-activity="${escText(ch.id)}"><option value="">No activity</option>${activityOptions.map(a=>`<option value="${escText(a.id)}" ${a.id===selected?'selected':''}>${escText(a.name)}</option>`).join('')}</select></label>${selected?`<p>${escText(choice?.notes||choice?.description||w?.exploration?.description||'No description available.')}</p>`:''}</div></details></article>`;}).join('');
   const marker=(key,hex,visible=true)=>{if(!hex)return '';const p=hexCenter(parseHex(hex));return `<img class="gm-map-marker ${visible?'':'hidden-marker'}" src="${MARKERS[key]||MARKERS.enemy}" alt="${escText(key)}${visible?'':' hidden'}" style="left:${p.x/MAP_WIDTH*100}%;top:${p.y/MAP_HEIGHT*100}%">`;};
   const markers=[marker('party',map.party),...colors.map(c=>marker(c,map.flags[c].hex,map.flags[c].visible)),...map.enemies.map(e=>marker('enemy',e.hex,e.visible)),...(map.factions||[]).map(f=>marker('enemy',f.hex,f.visible))].join('');
-  return `<section class="gm-exploration" data-campaign="${escText(campaignId)}"><header><h2>Exploration</h2><label>Campaign <select data-campaign aria-label="Campaign" ${busy ? 'disabled' : ''}>${campaignChoices.map(c=>`<option value="${escText(c.campaignId)}" ${c.campaignId===campaignId?'selected':''}>${escText(c.displayName)}</option>`).join('')}</select></label></header><p class="gm-sync" role="status">${escText(status||'Connected state loaded')}</p><fieldset class="gm-map-controls" ${busy || !workflow ? 'disabled' : ''}><div class="gm-activity-list">${characters.length?activity:'<p class="empty">No active player characters linked to this campaign.</p>'}</div></fieldset><section class="gm-map-card"><div class="gm-map-heading"><h3>Maguuma Jungle</h3><p>Players see solid markers. Faded markers are GM only.</p></div><fieldset class="gm-map-controls" ${busy || !mapReady ? 'disabled' : ''}><div class="gm-map" data-map><img class="gm-map-art" src="assets/maps/maguuma-jungle-hex-map.png" alt="Maguuma Jungle hex map" width="${MAP_WIDTH}" height="${MAP_HEIGHT}">${markers}<button class="gm-map-capture" type="button" data-place-map aria-label="Place selected marker on map"></button></div><div class="gm-map-tools"><label>Marker <select data-marker><option value="party">Party</option>${colors.map(c=>`<option value="${c}">${c[0].toUpperCase()+c.slice(1)} flag</option>`).join('')}<option value="enemy">New enemy</option>${(map.enemies||[]).map((e,i)=>`<option value="${escText(e.id)}">Enemy ${i+1}</option>`).join('')}<option value="faction:royal-guard">Royal Guard</option><option value="faction:alliance">Alliance</option></select></label><button type="button" data-arm>Place / move</button><button type="button" data-clear>Clear selected</button></div><div class="gm-map-tools gm-map-keyboard"><label>Hex q <input type="number" data-hex-q min="0" step="1" value="0"></label><label>r <input type="number" data-hex-r min="0" step="1" value="0"></label><button type="button" data-place-hex>Place at hex</button></div><div class="gm-map-state"><strong>Player view</strong><span>${projectPublicCampaignMap(map).party?'Party placed':'Party not placed'} · ${projectPublicCampaignMap(map).flags.length} flags · ${projectPublicCampaignMap(map).enemies.length} enemies visible</span></div><div class="gm-map-visibility">${colors.map(c=>`<label><input type="checkbox" data-visibility="${c}" ${map.flags[c].visible?'checked':''}> ${c} flag visible</label>`).join('')}${map.enemies.map((e,i)=>`<label><input type="checkbox" data-enemy-visibility="${escText(e.id)}" ${e.visible?'checked':''}> Enemy ${i+1} visible</label>`).join('')}${(map.factions||[]).map(f=>`<label><input type="checkbox" data-faction-visibility="${escText(f.kind)}" ${f.visible?'checked':''}> ${escText(f.kind)} visible</label>`).join('')}</div></fieldset><p class="gm-map-revision" data-revision="${revision}">Map revision ${revision}</p></section></section>`;
+  const choices = markerChoices(map);
+  const activeChoice = choices.find(choice=>choice.key===selectedMarker) || choices[0];
+  const palette = choices.map(({key,label,icon})=>
+    `<button type="button" class="gm-marker-pick ${key===activeChoice.key?'selected':''}" data-select-marker="${escText(key)}" aria-pressed="${key===activeChoice.key}" title="${escText(label)}" ${busy || !mapReady?'disabled':''}><img src="${icon}" alt="" aria-hidden="true"><span>${escText(label)}</span></button>`
+  ).join('');
+  return `<section class="gm-exploration" data-campaign="${escText(campaignId)}"><header><h2>Exploration</h2><label>Campaign <select data-campaign aria-label="Campaign" ${busy ? 'disabled' : ''}>${campaignChoices.map(c=>`<option value="${escText(c.campaignId)}" ${c.campaignId===campaignId?'selected':''}>${escText(c.displayName)}</option>`).join('')}</select></label></header><p class="gm-sync" role="status">${escText(status||'Connected state loaded')}</p><fieldset class="gm-map-controls" ${busy || !workflow ? 'disabled' : ''}><div class="gm-activity-list">${characters.length?activity:'<p class="empty">No active player characters linked to this campaign.</p>'}</div></fieldset><section class="gm-map-card"><div class="gm-map-heading"><h3>Maguuma Jungle</h3><p>Choose an icon, then tap the map. Faded markers are GM only.</p></div><fieldset class="gm-map-controls" ${busy || !mapReady ? 'disabled' : ''}><div class="gm-map-palette" role="group" aria-label="Choose marker">${palette}</div><div class="gm-map-tools"><button type="button" data-clear>Clear selected</button></div><div class="gm-map" data-map><img class="gm-map-art" src="assets/maps/maguuma-jungle-hex-map.png" alt="Maguuma Jungle hex map" width="${MAP_WIDTH}" height="${MAP_HEIGHT}">${markers}<button class="gm-map-capture" type="button" data-place-map aria-label="Place ${escText(activeChoice.label)} on map"></button></div><details class="gm-map-precision"><summary>Enter hex coordinates</summary><div class="gm-map-tools gm-map-keyboard"><label>Hex q <input type="number" data-hex-q min="0" step="1" value="0"></label><label>r <input type="number" data-hex-r min="0" step="1" value="0"></label><button type="button" data-place-hex>Place at hex</button></div></details><div class="gm-map-state"><strong>Player view</strong><span>${projectPublicCampaignMap(map).party?'Party placed':'Party not placed'} · ${projectPublicCampaignMap(map).flags.length} flags · ${projectPublicCampaignMap(map).enemies.length} enemies visible</span></div><div class="gm-map-visibility">${colors.map(c=>`<label><input type="checkbox" data-visibility="${c}" ${map.flags[c].visible?'checked':''}> ${c} flag visible</label>`).join('')}${map.enemies.map((e,i)=>`<label><input type="checkbox" data-enemy-visibility="${escText(e.id)}" ${e.visible?'checked':''}> Enemy ${i+1} visible</label>`).join('')}${(map.factions||[]).map(f=>`<label><input type="checkbox" data-faction-visibility="${escText(f.kind)}" ${f.visible?'checked':''}> ${escText(f.kind)} visible</label>`).join('')}</div></fieldset><p class="gm-map-revision" data-revision="${revision}">Map revision ${revision}</p></section></section>`;
 }
 
 // Keep the exact canonical parser semantics centralized in campaign-map.js.
@@ -41,7 +54,8 @@ export function bindExploration(root, {
   localStore = globalThis.localStorage, notify = () => {}
 } = {}) {
   let currentCampaign = '', campaigns = [], workflow = null, map = emptyCampaignMap();
-  let mapRevision = 0, busy = false, mapReady = false, placing = false, actionRows = [];
+  let mapRevision = 0, busy = false, mapReady = false, actionRows = [];
+  let selectedMarker = 'party';
   let generation = 0;
   const remembered = () => { try { return localStore?.getItem(SELECTED_CAMPAIGN_KEY) || ''; } catch { return ''; } };
   const remember = id => { try { localStore?.setItem(SELECTED_CAMPAIGN_KEY, id); } catch { /* Selection still works without device storage. */ } };
@@ -50,13 +64,13 @@ export function bindExploration(root, {
     root.innerHTML = explorationMarkup({ campaignId: currentCampaign, campaigns,
       characters: companionCharactersForCampaign(state.companion, currentCampaign), workflow,
       activityOptions: actionRows.filter(a => a.traits?.includes('Exploration')),
-      map, revision: mapRevision, status, busy, mapReady });
+      map, revision: mapRevision, status, busy, mapReady, selectedMarker });
   };
   async function refresh(id = currentCampaign) {
     if (!campaigns.some(c => c.campaignId === id)) return;
     const request = ++generation;
     currentCampaign = id; workflow = null; map = emptyCampaignMap(); mapRevision = 0;
-    mapReady = false; placing = false; busy = true; draw('Loading campaign…');
+    mapReady = false; busy = true; draw('Loading campaign…');
     try {
       const [w, m, a] = await Promise.all([
         client.getWorkflow(id, { retries: 1 }), client.getCampaignMap(id, { retries: 1 }), actions().catch(() => [])
@@ -68,6 +82,7 @@ export function bindExploration(root, {
         const envelope = readMapEnvelope(m.data);
         map = envelope.map; mapRevision = envelope.revision;
         mapReady = true; remember(id);
+        if (selectedMarker.startsWith('enemy-') && !map.enemies.some(enemy=>enemy.id===selectedMarker)) selectedMarker='enemy';
       }
       busy = false;
       draw(mapReady ? (workflow ? 'Connected state loaded' : 'Map ready. Player activities are unavailable.') : 'Map could not be loaded.');
@@ -107,7 +122,7 @@ export function bindExploration(root, {
   async function saveMap(next) {
     if (busy || !mapReady) return;
     const id = currentCampaign, request = generation, revision = mapRevision;
-    busy = true; placing = false; draw('Saving map…');
+    busy = true; draw('Saving map…');
     try {
       const result = await client.setCampaignMap(id, revision, next);
       if (request !== generation || id !== currentCampaign) return;
@@ -127,7 +142,7 @@ export function bindExploration(root, {
   async function place(hexId) {
     const hex = parseHexId(hexId);
     if (!hex || busy || !mapReady) { notify('Choose a valid visible hex.'); return; }
-    const next = structuredClone(map), key = root.querySelector('[data-marker]').value;
+    const next = structuredClone(map), key = selectedMarker;
     if (key === 'party') next.party = hex.id;
     else if (colors.includes(key)) next.flags[key].hex = hex.id;
     else if (key.startsWith('enemy-')) { const enemy = next.enemies.find(x => x.id === key); if (enemy) enemy.hex = hex.id; }
@@ -180,19 +195,19 @@ export function bindExploration(root, {
     const t = event.target;
     if (t.matches('[data-map-retry]')) { if (!busy) { if (currentCampaign) await refresh(); else await connect(); } return; }
     if (busy || !mapReady) return;
-    if (t.matches('[data-arm]')) { placing = true; root.querySelector('[data-place-map]')?.focus(); return; }
+    const picked = t.closest?.('[data-select-marker]');
+    if (picked) { selectedMarker = picked.dataset.selectMarker; draw(); return; }
     if (t.matches('[data-place-map]')) {
-      if (!placing) return;
       const point = pointerToImagePoint(event.clientX, event.clientY, t.parentElement.getBoundingClientRect());
       const hex = point && nearestVisibleHex(point);
       if (hex) await place(hex.id); else notify('Choose a visible hex.'); return;
     }
     if (t.matches('[data-place-hex]')) { await place('h2:' + root.querySelector('[data-hex-q]').value + ':' + root.querySelector('[data-hex-r]').value); return; }
     if (t.matches('[data-clear]')) {
-      const next = structuredClone(map), key = root.querySelector('[data-marker]').value;
+      const next = structuredClone(map), key = selectedMarker;
       if (key === 'party') next.party = null;
-      else if (colors.includes(key)) next.flags[key] = { hex: null, visible: false };
-      else if (key.startsWith('enemy-')) next.enemies = next.enemies.filter(x => x.id !== key);
+      else if (colors.includes(key)) next.flags[key].hex = null;
+      else if (key.startsWith('enemy-')) { next.enemies = next.enemies.filter(x => x.id !== key); selectedMarker = 'enemy'; }
       else if (key.startsWith('faction:')) next.factions = (next.factions || []).filter(x => x.kind !== key.slice(8));
       await saveMap(next);
     }
