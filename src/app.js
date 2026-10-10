@@ -227,7 +227,17 @@ installTips();
 render();
 
 if ('serviceWorker' in navigator) {
+  // An installed PWA may still have a shell from before GM login was removed.
+  // Reload exactly once when a replacement worker takes control of this page.
+  let reloadingForUpdate = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloadingForUpdate) return;
+    reloadingForUpdate = true;
+    window.location.reload();
+  });
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    navigator.serviceWorker.register('service-worker.js')
+      .then(registration => registration.update())
+      .catch(() => {});
   });
 }
