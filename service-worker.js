@@ -1,6 +1,6 @@
 // The shell rotates on each release. Reference data intentionally does not: a shell-only
 // deploy must not evict several megabytes the GM has already chosen to download.
-const SHELL_CACHE = 'pf2e-gm-shell-v98';
+const SHELL_CACHE = 'pf2e-gm-shell-v99';
 const REFERENCE_CACHE = 'pf2e-gm-reference-v1';
 const LEGACY_CACHES = ['pf2e-gm-v62'];
 const BASE = new URL('./', self.location).pathname;
@@ -31,7 +31,7 @@ const OFFLINE_URLS = [
   './assets/icons/home/campaign-tile.png', './assets/icons/home/encounters-tile.png',
   './assets/icons/home/combat-tile.png', './assets/icons/home/party-tile.png',
   './assets/icons/home/library-tile.png', './assets/icons/home/loot-tile.png',
-  './assets/icons/home/bgm-tile.png', './assets/maps/maguuma-jungle-hex-map.png', './assets/maps/nav-party.png', './assets/maps/flag-red.png', './assets/maps/flag-yellow.png', './assets/maps/flag-blue.png', './assets/maps/marker-enemy.svg'
+  './assets/icons/home/bgm-tile.png', './assets/maps/maguuma-jungle-hex-map.png', './assets/maps/nav-party.png', './assets/maps/flag-red.png', './assets/maps/flag-yellow.png', './assets/maps/flag-blue.png', './assets/maps/marker-enemy.svg', './assets/maps/marker-new-enemy.png', './assets/maps/marker-royal-guard.png', './assets/maps/marker-alliance.png'
   // The four launcher icons are deliberately not listed. Nothing in the app draws them —
   // the browser and the OS fetch them from the manifest when the app is installed — and
   // they are the heaviest files in the project, so precaching them charged every install
