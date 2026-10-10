@@ -5,7 +5,7 @@ import { actions as loadActions } from '../data.js';
 import { esc } from '../dom.js';
 import { MAP_WIDTH, MAP_HEIGHT, emptyCampaignMap, sanitizeCampaignMap, hexCenter, nearestVisibleHex, pointerToImagePoint, projectPublicCampaignMap } from '../campaign-map.js';
 
-const MARKERS = { party:'assets/maps/nav-party.png', red:'assets/maps/flag-red.png', yellow:'assets/maps/flag-yellow.png', blue:'assets/maps/flag-blue.png', enemy:'assets/maps/marker-enemy.svg' };
+const MARKERS = { party:'assets/maps/nav-party.png', red:'assets/maps/flag-red.png', yellow:'assets/maps/flag-yellow.png', blue:'assets/maps/flag-blue.png', enemy:'assets/maps/marker-new-enemy.png', 'royal-guard':'assets/maps/marker-royal-guard.png', alliance:'assets/maps/marker-alliance.png' };
 const colors=['red','yellow','blue'];
 const escText=value=>esc(String(value??''));
 const markerChoices = map => [
@@ -13,15 +13,15 @@ const markerChoices = map => [
   ...colors.map(color=>({key:color,label:color[0].toUpperCase()+color.slice(1),icon:MARKERS[color]})),
   { key:'enemy', label:'New enemy', icon:MARKERS.enemy },
   ...map.enemies.map((enemy,i)=>({key:enemy.id,label:`Enemy ${i+1}`,icon:MARKERS.enemy})),
-  { key:'faction:royal-guard', label:'Royal Guard', icon:MARKERS.enemy },
-  { key:'faction:alliance', label:'Alliance', icon:MARKERS.enemy }
+  { key:'faction:royal-guard', label:'Royal Guard', icon:MARKERS['royal-guard'] },
+  { key:'faction:alliance', label:'Alliance', icon:MARKERS.alliance }
 ];
 export function explorationMarkup({campaignId,characters,workflow,activityOptions,map,revision,status,campaigns = [],busy = false,mapReady = true, selectedMarker = 'party'}) {
   const campaignChoices = campaigns.length ? campaigns : [{ campaignId, displayName: campaignId }];
   const records=new Map((workflow?.characters||[]).map(row=>[row.characterId,row]));
   const activity=characters.map(ch=>{const w=records.get(ch.id);const selected=w?.exploration?.activityId||'';const choice=activityOptions.find(a=>a.id===selected);const selectedName=choice?.name||w?.exploration?.activityName||'';return `<article class="gm-exploration-character"><details><summary><span><b>${escText(ch.name)}</b><small>${escText(w?.playerName||w?.displayName||ch.playerName||'Player not set')}</small></span><strong class="${selected?'':'missing'}">${selected?escText(selectedName||'Selected activity'): 'No activity selected'}</strong></summary><div class="gm-activity-control"><label>Activity <select data-activity="${escText(ch.id)}"><option value="">No activity</option>${activityOptions.map(a=>`<option value="${escText(a.id)}" ${a.id===selected?'selected':''}>${escText(a.name)}</option>`).join('')}</select></label>${selected?`<p>${escText(choice?.notes||choice?.description||w?.exploration?.description||'No description available.')}</p>`:''}</div></details></article>`;}).join('');
-  const marker=(key,hex,visible=true)=>{if(!hex)return '';const p=hexCenter(parseHex(hex));return `<img class="gm-map-marker ${colors.includes(key)?'gm-map-flag ':''}${visible?'':'hidden-marker'}" src="${MARKERS[key]||MARKERS.enemy}" alt="${escText(key)}${visible?'':' hidden'}" style="left:${p.x/MAP_WIDTH*100}%;top:${p.y/MAP_HEIGHT*100}%">`;};
-  const markers=[marker('party',map.party),...colors.map(c=>marker(c,map.flags[c].hex,map.flags[c].visible)),...map.enemies.map(e=>marker('enemy',e.hex,e.visible)),...(map.factions||[]).map(f=>marker('enemy',f.hex,f.visible))].join('');
+  const marker=(key,hex,visible=true)=>{if(!hex)return '';const p=hexCenter(parseHex(hex));return `<img class="gm-map-marker ${colors.includes(key)?'gm-map-flag ':['enemy','royal-guard','alliance'].includes(key)?'gm-map-banner ':''}${visible?'':'hidden-marker'}" src="${MARKERS[key]||MARKERS.enemy}" alt="${escText(key)}${visible?'':' hidden'}" style="left:${p.x/MAP_WIDTH*100}%;top:${p.y/MAP_HEIGHT*100}%">`;};
+  const markers=[marker('party',map.party),...colors.map(c=>marker(c,map.flags[c].hex,map.flags[c].visible)),...map.enemies.map(e=>marker('enemy',e.hex,e.visible)),...(map.factions||[]).map(f=>marker(f.kind,f.hex,f.visible))].join('');
   const choices = markerChoices(map);
   const activeChoice = choices.find(choice=>choice.key===selectedMarker) || choices[0];
   const palette = choices.map(({key,label,icon})=>
