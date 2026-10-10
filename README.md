@@ -89,7 +89,7 @@ skill lists, and dice parsing — plus the Pathbuilder conversion, the filter fa
 
 ### Prepare the campaign map
 
-The deployed GM Toolkit automatically uses the Player Companion service. On **Home**, sign in with the configured GM username and password, then select your campaign under **Table → Campaign → Exploration**. No private access link, device credential, linked characters, or connected players are required. Signing in does not start the player session; use Home's explicit Start control when ready.
+The deployed GM Toolkit connects to the Player Companion service automatically with no GM login, private access link, or device credential. Under **Table → Campaign → Exploration**, select your campaign and prepare its map. No linked characters or connected players are required. Player accounts still require their own sign-in. Use **Home → Start Player Companion** to begin the six-hour player session. Note: this convenience mode trusts requests coming from the configured Toolkit origin; browser Origin restrictions are not strong authentication. Anyone able to spoof that origin at the HTTP level could access GM bridge endpoints, including hidden map markers. Deploy privately to protect that data.
 
 Choose a marker, press **Place / move**, and click a hex, or enter its q/r coordinates and use **Place at hex**. Each flag, faction, and enemy has its own visibility checkbox. Maps are saved to the campaign service and restored when you return. You can prepare them with the player session stopped; sign-in here does not start the session. Use Home's explicit **Start Player Companion** when players should connect.
 
