@@ -215,7 +215,8 @@ button.icon{min-width:38px;min-height:38px;padding:0;display:grid;place-items:ce
 .pfpc-control[hidden]{display:none}
 .pfpc-state{font-weight:600;flex:1 1 auto;min-width:0}.pfpc-state.active{color:var(--green)}.pfpc-state.unavailable{color:var(--amber)}
 .pfpc-time{color:var(--muted);font-variant-numeric:tabular-nums}.pfpc-control button{min-height:38px;padding:0 10px;font-size:.72rem;flex:0 0 auto}
-.pfpc-config{display:flex;flex:1 1 100%;gap:6px;min-width:0}.pfpc-config input{flex:1 1 0;width:auto;min-width:0;min-height:40px;padding:0 9px}
+.pfpc-config{display:flex;flex:1 1 100%;gap:6px;min-width:0;flex-wrap:wrap}.pfpc-config input{flex:1 1 105px;width:auto;min-width:0;min-height:40px;padding:0 9px}
+.pfpc-login-error{flex:1 1 100%;color:var(--blood-ink);font-size:.75rem}
 input[type=text],input[type=number],input[type=search],select{min-height:44px;width:100%;min-width:0;
   background:rgba(0,0,0,0.28);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:0 12px}
 input:focus,select:focus{outline:none;border-color:var(--accent)}
