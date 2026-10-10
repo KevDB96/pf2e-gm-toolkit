@@ -142,6 +142,45 @@ test('direct map taps move the selected flag and clearing preserves its visibili
   assert.equal(view.saved.get('mists').map.flags.yellow.visible, true);
 });
 
+test('Alliance visibility can be enabled before placement, retained on clear, and restored on refresh', async () => {
+  const view = setupView(); await view.bind().ready;
+  assert.match(view.root.innerHTML, /data-faction-visibility="alliance"[^>]*> The Alliance visible/);
+  assert.match(view.root.innerHTML, /data-faction-visibility="royal-guard"[^>]*> Royal Guard visible/);
+  await view.event('change', '[data-faction-visibility]', { dataset: { factionVisibility: 'alliance' }, checked: true });
+  let factions = view.saved.get('mists').map.factions;
+  assert.deepEqual(factions, [{ kind: 'alliance', hex: null, visible: true }]);
+  assert.match(view.root.innerHTML, /data-faction-visibility="alliance" checked/);
+  await view.select('faction:alliance');
+  await view.tap(2, 3);
+  factions = view.saved.get('mists').map.factions;
+  assert.deepEqual(factions, [{ kind: 'alliance', hex: 'h2:2:3', visible: true }]);
+  await view.event('click', '[data-clear]');
+  factions = view.saved.get('mists').map.factions;
+  assert.deepEqual(factions, [{ kind: 'alliance', hex: null, visible: true }]);
+  assert.match(view.root.innerHTML, /data-faction-visibility="alliance" checked/);
+  assert.doesNotMatch(view.root.innerHTML, /alt="alliance"/);
+  await view.bind().ready;
+  assert.match(view.root.innerHTML, /data-faction-visibility="alliance" checked/);
+  await view.select('faction:alliance');
+  await view.tap(3, 4);
+  assert.deepEqual(view.saved.get('mists').map.factions, [
+    { kind: 'alliance', hex: 'h2:3:4', visible: true },
+  ]);
+});
+
+test('Royal Guard retains visibility after clearing, independently of Alliance', async () => {
+  const view = setupView(); await view.bind().ready;
+  await view.event('change', '[data-faction-visibility]', { dataset: { factionVisibility: 'royal-guard' }, checked: true });
+  await view.select('faction:royal-guard');
+  await view.tap(1, 2);
+  await view.event('click', '[data-clear]');
+  assert.deepEqual(view.saved.get('mists').map.factions, [
+    { kind: 'royal-guard', hex: null, visible: true },
+  ]);
+  assert.match(view.root.innerHTML, /data-faction-visibility="royal-guard" checked/);
+  assert.match(view.root.innerHTML, /data-faction-visibility="alliance"[^>]*> The Alliance visible/);
+});
+
 test('icon selection and tapping work for party and existing enemy without an arm step', async () => {
   const view = setupView(); await view.bind().ready;
   await view.tap(1, 1);
