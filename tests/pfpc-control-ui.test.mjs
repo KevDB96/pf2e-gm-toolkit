@@ -35,8 +35,12 @@ test('unreachable offers status retry only; setup and auth states stay actionabl
   assert.match(unavailable, /data-pfpc-retry/);
   assert.doesNotMatch(unavailable, /data-pfpc-start|data-pfpc-stop/);
   assert.match(pfpcControlMarkup({ state: 'unconfigured' }), /data-pfpc-config/);
-  assert.match(pfpcControlMarkup({ state: 'auth-required' }), /private GM access link/);
-  assert.doesNotMatch(pfpcControlMarkup({ state: 'auth-required' }), /password|username|data-pfpc-login/i);
+  const login = pfpcControlMarkup({ state: 'auth-required' });
+  assert.match(login, /data-pfpc-login/);
+  assert.match(login, /GM username/);
+  assert.match(login, /type="password"/);
+  assert.doesNotMatch(login, /private GM access link/i);
+  assert.match(pfpcControlMarkup({ state: 'auth-required', invalid: true }), /Invalid GM credentials/);
   assert.match(pfpcControlMarkup({ state: 'admin-required' }), /Admin access required/);
 });
 
