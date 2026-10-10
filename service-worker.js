@@ -1,6 +1,6 @@
 // The shell rotates on each release. Reference data intentionally does not: a shell-only
 // deploy must not evict several megabytes the GM has already chosen to download.
-const SHELL_CACHE = 'pf2e-gm-shell-v96';
+const SHELL_CACHE = 'pf2e-gm-shell-v97';
 const REFERENCE_CACHE = 'pf2e-gm-reference-v1';
 const LEGACY_CACHES = ['pf2e-gm-v62'];
 const BASE = new URL('./', self.location).pathname;
@@ -143,13 +143,18 @@ self.addEventListener('install', event => {
 });
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
+    // Retire old shell caches first; caches.match() otherwise can return outdated
+    // scripts when a network request fails, including removed login screens.
+    // GitHub Pages shares an origin, so never touch caches belonging to other apps.
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(name =>
+      name.startsWith('pf2e-gm-shell-') && name !== SHELL_CACHE
+    ).map(name => caches.delete(name)));
+    await self.clients.claim();
     await loadCachedMetadata();
     const metadata = await refreshMetadata();
     if (metadata) { await migrateLegacy(metadata); await warmReferences(metadata); }
-    // GitHub Pages shares an origin: only delete caches this app explicitly owned.
-    const keys = await caches.keys();
     await Promise.all(LEGACY_CACHES.filter(name => keys.includes(name)).map(name => caches.delete(name)));
-    await self.clients.claim();
   })().catch(() => {}));
 });
 function keep(event, task) { event.waitUntil(Promise.resolve(task).catch(() => {})); }
@@ -159,7 +164,7 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (request.mode === 'navigate') {
-    event.respondWith(fetch(request).then(response => { keep(event, putShell(request, response)); return response; })
+    event.respondWith(fetch(request, { cache: 'no-store' }).then(response => { keep(event, putShell(request, response)); return response; })
       .catch(() => caches.match('./index.html')));
     return;
   }
@@ -176,8 +181,8 @@ self.addEventListener('fetch', event => {
     return;
   }
   if (isLive(url)) {
-    event.respondWith(fetch(request).then(response => { keep(event, putShell(request, response)); return response; })
-      .catch(() => caches.match(request)));
+    event.respondWith(fetch(request, { cache: 'no-store' }).then(response => { keep(event, putShell(request, response)); return response; })
+      .catch(() => caches.open(SHELL_CACHE).then(cache => cache.match(request))));
     return;
   }
   if (isReferenceUrl(url)) {
